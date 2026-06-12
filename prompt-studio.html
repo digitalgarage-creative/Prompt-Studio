@@ -1,0 +1,3353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F8F7F4;
+      --surface:       #FFFFFF;
+      --border:        rgba(0,0,0,0.08);
+      --border-mid:    rgba(0,0,0,0.12);
+      --border-strong: rgba(0,0,0,0.18);
+      --ink:           #18181B;
+      --ink-dim:       #52525B;
+      --ink-faint:     #A1A1AA;
+      --accent:        #0EA5E9;
+      --accent-dim:    #0284C7;
+      --accent-bg:     #F0F9FF;
+      --accent-border: #BAE6FD;
+      --radius-sm:     8px;
+      --radius:        12px;
+      --radius-lg:     18px;
+      --sans:          'Geist', -apple-system, sans-serif;
+      --serif:         'Instrument Serif', Georgia, serif;
+      --mono:          'Geist Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ─────────────────────────────────── */
+
+    .page-header {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 36px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .wordmark {
+      font-family: var(--serif);
+      font-size: 20px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .wordmark em { color: var(--accent); font-style: normal; }
+
+    .progress-bar {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 28px 24px 0;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .prog-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .prog-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink-faint);
+      font-family: var(--sans);
+      transition: all 0.2s;
+    }
+
+    .prog-step.is-done .prog-dot {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .prog-step.is-active .prog-dot {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: white;
+    }
+
+    .prog-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-faint);
+    }
+
+    .prog-step.is-done .prog-label { color: var(--accent); }
+    .prog-step.is-active .prog-label { color: var(--ink); }
+
+    .prog-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 10px;
+    }
+
+    .main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 44px 24px 96px;
+    }
+
+    /* ── Step header ─────────────────────────────── */
+
+    .step-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 10px;
+    }
+
+    .step-title {
+      font-family: var(--serif);
+      font-size: 34px;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+
+    .step-sub {
+      margin-top: 8px;
+      font-size: 15px;
+      color: var(--ink-dim);
+      max-width: 520px;
+    }
+
+    .step-header { margin-bottom: 36px; }
+
+    /* ── Summary bar ──────────────────────────────── */
+
+    .summary-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 32px;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .summary-item { color: var(--ink-dim); }
+    .summary-item b { color: var(--ink); font-weight: 600; }
+
+    .summary-sep {
+      width: 1px;
+      height: 14px;
+      background: var(--border-mid);
+    }
+
+    /* ── Role grid ────────────────────────────────── */
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+      gap: 10px;
+    }
+
+    .role-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      cursor: pointer;
+      transition: border-color 0.14s, transform 0.14s, box-shadow 0.14s;
+      position: relative;
+      text-align: left;
+      user-select: none;
+    }
+
+    .role-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+
+    .role-card.is-selected {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .role-card.is-disabled {
+      pointer-events: none;
+      opacity: 0.38;
+      cursor: default;
+    }
+
+    .role-card.is-disabled .rc-soon {
+      display: inline-block;
+    }
+
+    .rc-soon {
+      display: none;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .role-card .rc-icon {
+      width: 30px;
+      height: 30px;
+      margin-bottom: 12px;
+      color: var(--ink-dim);
+    }
+
+    .role-card.is-selected .rc-icon { color: var(--accent); }
+
+    .role-card .rc-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+
+    .role-card .rc-desc {
+      font-size: 12px;
+      color: var(--ink-dim);
+      line-height: 1.45;
+    }
+
+    .rc-actions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: none;
+      gap: 4px;
+    }
+
+    .role-card:hover .rc-actions { display: flex; }
+
+    .rc-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: rgba(0,0,0,0.07);
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-dim);
+      transition: all 0.1s;
+      padding: 0;
+    }
+
+    .rc-btn:hover { background: rgba(0,0,0,0.13); color: var(--ink); }
+
+    .add-role-card {
+      border: 1.5px dashed var(--border-mid);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      cursor: pointer;
+      transition: all 0.14s;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      text-align: left;
+    }
+
+    .add-role-card:hover {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .add-role-card .arc-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--ink-faint);
+      margin-bottom: 4px;
+    }
+
+    .add-role-card .arc-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-dim);
+    }
+
+    /* ── Content grid ─────────────────────────────── */
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 10px;
+    }
+
+    .content-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.14s, transform 0.14s, box-shadow 0.14s;
+      text-align: center;
+      user-select: none;
+      position: relative;
+    }
+
+    .cc-info {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: transparent;
+      border-radius: 999px;
+      color: var(--ink-dim);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      opacity: 0.55;
+      transition: opacity 0.12s, background 0.12s, color 0.12s;
+    }
+    .cc-info:hover { opacity: 1; background: var(--border); color: var(--ink); }
+    .content-card.is-selected .cc-info { color: var(--accent); opacity: 0.8; }
+
+    .content-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+
+    .content-card.is-selected {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .content-card .cc-icon {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 12px;
+      color: var(--ink-dim);
+    }
+
+    .content-card.is-selected .cc-icon { color: var(--accent); }
+
+    .content-card .cc-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* ── Form ─────────────────────────────────────── */
+
+    .form-stack { display: flex; flex-direction: column; gap: 24px; }
+
+    .form-section-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin: 12px 0 -8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-stack > .form-section-title:first-child { margin-top: 0; }
+
+    .advanced-section { display: flex; flex-direction: column; gap: 24px; }
+    .advanced-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%;
+      padding: 12px 0;
+      background: transparent; border: none; border-bottom: 1px solid var(--border);
+      font-family: var(--serif); font-size: 18px; letter-spacing: -0.01em;
+      color: var(--ink); cursor: pointer; text-align: left;
+    }
+    .advanced-toggle:hover { color: var(--accent); }
+    .advanced-chev {
+      display: inline-flex; transition: transform 0.18s ease;
+      color: var(--ink-dim);
+    }
+    .advanced-toggle.is-open .advanced-chev { transform: rotate(90deg); }
+    .advanced-panel { display: flex; flex-direction: column; gap: 24px; }
+    .advanced-panel[hidden] { display: none; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .req { color: var(--accent); }
+
+    .opt-tag {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--ink-faint);
+    }
+
+    .field-hint {
+      font-size: 12px;
+      color: var(--ink-faint);
+      margin-top: -4px;
+    }
+
+    .fi {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border-mid);
+      border-radius: var(--radius-sm);
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--ink);
+      background: var(--surface);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .fi:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-bg);
+    }
+
+    .fi::placeholder { color: var(--ink-faint); }
+
+    textarea.fi {
+      resize: vertical;
+      min-height: 88px;
+      line-height: 1.55;
+    }
+
+    select.fi {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2371717A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 38px;
+    }
+
+    /* Chips */
+
+    .chips-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .chip {
+      padding: 6px 13px;
+      border: 1.5px solid var(--border-mid);
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.12s;
+      background: var(--surface);
+      color: var(--ink-dim);
+      user-select: none;
+    }
+
+    .chip:hover {
+      border-color: var(--border-strong);
+      color: var(--ink);
+    }
+
+    .chip.is-selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* ── Grouped chips ──────────────────────────────── */
+    .chips-grouped-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1.5px solid var(--border-mid);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .chips-group {
+      padding: 12px 14px;
+    }
+
+    .chips-group + .chips-group {
+      border-top: 1px solid var(--border);
+    }
+
+    .chips-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 9px;
+    }
+
+    .chips-more-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 9px;
+      padding: 6px 12px;
+      background: none;
+      border: 1px solid var(--border-mid);
+      border-radius: 999px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .chips-more-toggle:hover {
+      border-color: var(--ink-faint);
+      color: var(--ink);
+    }
+
+    .chips-more-caret {
+      font-size: 10px;
+      line-height: 1;
+      transition: transform 0.2s ease;
+    }
+
+    .chips-more-toggle.is-open .chips-more-caret {
+      transform: rotate(180deg);
+    }
+
+    .chips-more-panel {
+      margin-top: 9px;
+    }
+
+    .chips-more-panel[hidden] {
+      display: none;
+    }
+
+    /* Toggle */
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      cursor: pointer;
+    }
+
+    .toggle-track {
+      width: 40px;
+      height: 22px;
+      background: var(--border-strong);
+      border-radius: 11px;
+      position: relative;
+      transition: background 0.18s;
+      flex-shrink: 0;
+    }
+
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.18s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+
+    .toggle-track.is-on { background: var(--accent); }
+    .toggle-track.is-on::after { transform: translateX(18px); }
+
+    .toggle-label-text { font-size: 14px; color: var(--ink); }
+
+    /* ── Range slider ───────────────────────────── */
+    .range-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .range-input {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 9999px;
+      outline: none;
+      cursor: pointer;
+      background: linear-gradient(to right, var(--accent) var(--fill, 50%), var(--border-mid) var(--fill, 50%));
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2.5px solid white;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.18);
+    }
+
+    .range-input::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2.5px solid white;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.18);
+    }
+
+    .range-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .range-end {
+      font-size: 11.5px;
+      color: var(--ink-faint);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .range-current {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--accent);
+      text-align: center;
+      flex: 1;
+    }
+
+    /* ── Color picker ────────────────────────────── */
+
+    .cp-grid { display: flex; flex-direction: column; gap: 6px; }
+
+    .cp-row { display: flex; align-items: center; gap: 10px; }
+
+    .cp-swatch-wrap {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 9px;
+      overflow: hidden;
+      border: 1.5px solid var(--border-mid);
+      cursor: pointer;
+    }
+    .cp-swatch-wrap input[type="color"] {
+      position: absolute;
+      inset: -4px;
+      width: calc(100% + 8px);
+      height: calc(100% + 8px);
+      opacity: 0;
+      cursor: pointer;
+    }
+    .cp-swatch {
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .cp-hex {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-dim);
+      min-width: 68px;
+      letter-spacing: 0.04em;
+    }
+
+    .cp-label {
+      flex: 1;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      font-size: 13px;
+      font-family: var(--sans);
+      background: var(--surface);
+      color: var(--ink);
+      outline: none;
+      min-width: 0;
+    }
+    .cp-label:focus { border-color: var(--accent); }
+
+    .cp-remove {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--ink-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color 0.14s, background 0.14s;
+    }
+    .cp-remove:hover { color: #ef4444; background: #fef2f2; }
+
+    .cp-placeholder { width: 28px; flex-shrink: 0; }
+
+    .cp-empty {
+      font-size: 12.5px;
+      color: var(--ink-faint);
+      font-style: italic;
+      padding: 2px 0 4px;
+    }
+
+    .cp-add {
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      padding: 0;
+    }
+    .cp-add:hover { opacity: 0.75; }
+
+    /* ── Color strategy (3-mode) ─────────────────── */
+    .cs-tabs { display: flex; margin: 2px 0 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .cs-tab { flex: 1; padding: 7px 10px; font-size: 12.5px; font-weight: 500; font-family: var(--sans); border: none; border-right: 1.5px solid var(--border); background: transparent; color: var(--ink-dim); cursor: pointer; transition: background 0.14s, color 0.14s; text-align: center; }
+    .cs-tab:last-child { border-right: none; }
+    .cs-tab.is-active { background: var(--accent); color: #fff; }
+    .cs-tab:hover:not(.is-active) { background: var(--surface); color: var(--ink); }
+    .cs-ai-note { font-size: 12.5px; color: var(--ink-faint); font-style: italic; padding: 2px 0 4px; }
+    .cs-upload-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 500; color: var(--accent); cursor: pointer; font-family: var(--sans); padding: 4px 0; background: none; border: none; }
+    .cs-upload-btn:hover { opacity: 0.75; }
+    .cs-palette-preview { display: flex; align-items: center; gap: 12px; }
+    .cs-palette-thumb { max-width: 110px; max-height: 60px; border-radius: 7px; border: 1.5px solid var(--border); object-fit: cover; }
+    .cs-palette-name { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+
+    /* ── Reference picker ────────────────────────── */
+
+    .ref-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+
+    .ref-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 8px;
+    }
+
+    .ref-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      color: var(--ink-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ref-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      font-family: var(--sans);
+      background: transparent;
+      color: var(--ink);
+      min-width: 0;
+    }
+    .ref-input::placeholder { color: var(--ink-faint); }
+
+    .ref-thumb {
+      width: 34px;
+      height: 34px;
+      object-fit: cover;
+      border-radius: 5px;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+
+    .ref-filename {
+      flex: 1;
+      font-size: 12px;
+      color: var(--ink-dim);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .ref-remove {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--ink-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color 0.14s, background 0.14s;
+    }
+    .ref-remove:hover { color: #ef4444; background: #fef2f2; }
+
+    .ref-add-row { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .ref-add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      padding: 0;
+    }
+    .ref-add-btn:hover { opacity: 0.75; }
+
+    /* ── Nav buttons ──────────────────────────────── */
+
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 44px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border: 1.5px solid var(--border-mid);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--ink-dim);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.13s;
+    }
+
+    .btn-back:hover { border-color: var(--border-strong); color: var(--ink); }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 22px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--ink);
+      color: white;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.13s, transform 0.1s;
+    }
+
+    .btn-primary:hover { background: #27272A; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-primary:disabled {
+      background: #D4D4D8;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border: 1.5px solid var(--border-mid);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--ink-dim);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.13s;
+    }
+
+    .btn-ghost:hover { border-color: var(--border-strong); color: var(--ink); }
+
+    /* ── Output ───────────────────────────────────── */
+
+    .output-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .output-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      background: #FAFAF8;
+    }
+
+    .output-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .output-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .output-chars {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-faint);
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--ink);
+      color: white;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.13s, transform 0.1s;
+    }
+
+    .copy-btn:hover { background: #27272A; }
+    .copy-btn:active { transform: scale(0.97); }
+    .copy-btn.is-copied { background: var(--accent); }
+
+    .output-body {
+      padding: 24px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── Attach images callout ───────────────────── */
+    .attach-callout {
+      margin-top: 16px;
+      border: 2px solid #f59e0b;
+      border-radius: var(--radius);
+      background: #fffbeb;
+      overflow: hidden;
+    }
+    .attach-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #fef3c7;
+      border-bottom: 1.5px solid #fcd34d;
+    }
+    .attach-header-icon { font-size: 18px; line-height: 1; }
+    .attach-header-text { flex: 1; }
+    .attach-header-title { font-size: 13.5px; font-weight: 700; color: #92400e; }
+    .attach-header-sub   { font-size: 12px; color: #b45309; margin-top: 1px; }
+    .attach-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+    .attach-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .attach-thumb {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 7px;
+      border: 1.5px solid #fcd34d;
+    }
+    .attach-item-info { text-align: center; }
+    .attach-item-label { font-size: 10px; font-weight: 600; color: #92400e; text-transform: uppercase; letter-spacing: 0.05em; }
+    .attach-item-name  { font-size: 11px; color: #b45309; margin-top: 1px; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .attach-dl-btn {
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #92400e;
+      background: #fef3c7;
+      border: 1.5px solid #fcd34d;
+      border-radius: 5px;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-family: var(--sans);
+    }
+    .attach-dl-btn:hover { background: #fde68a; }
+
+    /* ── Modal ────────────────────────────────────── */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.38);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 24px;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+    }
+
+    .modal-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      letter-spacing: -0.015em;
+      margin-bottom: 24px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: var(--bg);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-dim);
+      padding: 0;
+      transition: all 0.1s;
+    }
+
+    .modal-close:hover { background: var(--border); color: var(--ink); }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .modal.modal-wide { max-width: 640px; max-height: calc(100vh - 48px); display: flex; flex-direction: column; }
+    .modal.modal-wide .modal-body { overflow-y: auto; margin: 0 -8px; padding: 0 8px; }
+    .info-meta { color: var(--ink-dim); font-size: 13px; margin: -16px 0 20px; }
+    .info-group { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .info-group:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+    .info-group > h3 {
+      font-family: var(--serif); font-size: 18px; letter-spacing: -0.01em;
+      color: var(--ink); margin: 0 0 14px;
+    }
+    .info-lede { font-size: 13px; line-height: 1.55; color: var(--ink); margin: 0 0 14px; }
+    .info-slim {
+      font-size: 13px; line-height: 1.6; color: var(--ink); margin: 0;
+      white-space: pre-wrap;
+      font-family: var(--sans);
+    }
+    .info-sub { margin-top: 14px; }
+    .info-sub:first-child { margin-top: 0; }
+    .info-sub h4 {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--ink-dim); margin: 0 0 6px;
+    }
+    .info-sub p { font-size: 13px; line-height: 1.55; color: var(--ink); margin: 0; }
+    .info-sub ul { margin: 0; padding-left: 18px; }
+    .info-sub li { font-size: 13px; line-height: 1.6; color: var(--ink); }
+    .info-empty { font-size: 13px; line-height: 1.55; color: var(--ink-dim); font-style: italic; margin: 0; }
+
+    /* ── Animations ───────────────────────────────── */
+
+    .step-in {
+      animation: stepIn 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .step-out {
+      animation: stepOut 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+      pointer-events: none;
+    }
+
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes stepOut {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(-10px); }
+    }
+
+    .role-card.is-confirmed,
+    .content-card.is-confirmed {
+      animation: cardConfirm 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes cardConfirm {
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.045); }
+      100% { transform: scale(1); }
+    }
+
+    /* ── Responsive ───────────────────────────────── */
+
+    @media (max-width: 580px) {
+      .role-grid  { grid-template-columns: 1fr 1fr; }
+      .content-grid { grid-template-columns: repeat(3, 1fr); }
+      .step-title { font-size: 28px; }
+      .main { padding: 36px 16px 80px; }
+      .content-card { padding: 18px 10px 16px; }
+    }
+
+    /* icon helper */
+    .ico {
+      display: inline-flex;
+      flex-shrink: 0;
+      vertical-align: middle;
+    }
+    .ico svg { display: block; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="wordmark">Prompt <em>Studio</em></div>
+</header>
+
+<nav class="progress-bar" id="progress-bar"></nav>
+
+<main class="main" id="main"></main>
+
+<div id="modal-root"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════
+
+const DEFAULT_ROLES = [
+  {
+    id: 'uiux', name: 'UI/UX Designer', icon: 'uiux', custom: false,
+    desc: 'Product interface, interaction design, and user experience specialist',
+    keywords: 'user flows, information architecture, interaction design, interface design, usability, accessibility, WCAG, visual hierarchy, typography, spacing, layout systems, grids, design tokens, affordances, feedback states, empty states, loading states, error states, navigation patterns, microinteractions, form design, content hierarchy, UX writing, user research, personas, jobs to be done, journey mapping, wireframing, prototyping, usability testing, heuristic evaluation, contrast ratios, keyboard navigation, product strategy, feature prioritization, Figma, and developer handoff',
+    optimizeFor: [
+      'Clear user flows and task completion',
+      'Usability, accessibility, and readability',
+      'Strong information hierarchy',
+      'Consistent design systems and components',
+      'Responsive behavior across devices',
+      'Practical product quality and developer handoff',
+    ],
+    guidance: [
+      'Prioritize user goals, interface clarity, hierarchy, navigation, states, and interaction patterns.',
+      'Make practical UX and UI decisions instead of only describing possibilities.',
+      'Consider the user journey, screen size, accessibility, content structure, component behavior, and edge cases.',
+      'Design for real workflows, including empty, loading, error, success, disabled, and hover/focus states.',
+      'Keep visual design aligned with usability instead of adding decoration that weakens clarity.',
+      'Provide implementation-aware guidance that can be translated into components, layouts, and design tokens.',
+    ],
+  },
+  {
+    id: 'graphic', name: 'Graphic Designer', icon: 'graphic', custom: false,
+    desc: 'Visual communication, layout, and brand design specialist',
+    keywords: 'typography, kerning, leading, tracking, visual hierarchy, layout design, grid systems, composition, negative space, white space, gestalt principles, colour theory, contrast ratios, visual balance, image cropping, vector graphics, iconography, and brand consistency',
+    optimizeFor: ['Clear hierarchy', 'Strong composition', 'Brand consistency', 'Readability', 'Professional production quality'],
+    guidance: [
+      'Prioritize layout, hierarchy, typography, and brand expression.',
+      'Make practical design decisions instead of only describing possibilities.',
+      'Avoid overly decorative choices unless they support the message.',
+      'Consider where the design will be used: web, social, print, deck, packaging, or campaign.',
+    ],
+  },
+  {
+    id: 'artist', name: 'Artist / Illustrator', icon: 'artist', custom: false,
+    desc: 'specializing in illustration, concept art, and visual storytelling',
+    keywords: 'visual storytelling, narrative composition, mood, atmosphere, colour temperature, light as emotion, chiaroscuro, rim light, ambient occlusion, shadow casting, backlighting, natural light, studio lighting, painterly technique, digital painting, gouache, watercolour, ink, mixed media, texture, grain, line weight, stylisation, figure drawing, anatomy, foreshortening, and perspective',
+    optimizeFor: ['Emotional impact', 'Narrative clarity', 'Expressive composition', 'Memorable style', 'Character consistency', 'Artistic originality'],
+    guidance: [
+      'Prioritize story, mood, gesture, silhouette, expression, style, lighting, and visual consistency.',
+      'Make deliberate choices about medium, rendering style, composition, character design, environment, and symbolic details.',
+      'Avoid photographic realism unless requested.',
+    ],
+  },
+  {
+    id: 'photographer', name: 'Photographer', icon: 'photographer', custom: false,
+    desc: 'Camera craft, lighting design, and real-world photography direction specialist',
+    keywords: 'exposure triangle, aperture, shutter speed, ISO, depth of field, focal length, lens choice, prime vs zoom, white balance, colour temperature, metering, histogram, dynamic range, RAW workflow, composition fundamentals, rule of thirds, leading lines, negative space, framing, visual balance, hard light vs soft light, key light, fill light, rim light, light direction and quality, colour grading, tonal range, contrast, sharpening, lens correction, colour space, sRGB, Adobe RGB, Lightroom, and Capture One',
+    optimizeFor: [
+      'Photographic realism and believability',
+      'Strong lighting, exposure, and lens choices',
+      'Clear subject focus and composition',
+      'Natural pose, styling, and scene direction',
+      'Accurate camera, lens, and depth-of-field behavior',
+      'Professional editorial or commercial polish',
+    ],
+    guidance: [
+      'Prioritize camera angle, lens choice, lighting setup, exposure, composition, and subject direction.',
+      'Make practical photography decisions instead of only describing possibilities.',
+      'Consider location, time of day, light source, lens, focal length, aperture, shutter speed, ISO, depth of field, and colour grade.',
+      'Describe images as if they could be captured with a real camera unless a surreal or impossible effect is requested.',
+      'Avoid painterly, illustrated, or graphic-design language unless specifically requested.',
+      'Keep styling, props, wardrobe, and background details grounded in the photographic concept.',
+    ],
+  },
+  {
+    id: 'copy', name: 'Copywriter', icon: 'copy', custom: false,
+    desc: 'Persuasive copy, marketing content, and brand voice expert',
+    keywords: 'persuasive writing, calls-to-action, tone of voice, brand voice, conversion copywriting, storytelling, headline writing, emotional triggers, value proposition, audience targeting, benefits over features, active voice, scannability, SEO-friendly copy, long-form content, short-form copy, taglines, social proof, urgency, specificity, clarity, power words',
+  },
+  {
+    id: 'translate', name: 'Bilingual Translator', icon: 'translate', custom: false,
+    desc: 'Professional translator and cultural adaptation specialist',
+    keywords: 'cultural nuance, localization, idiomatic expressions, source fidelity, natural fluency, regional dialect, formal and informal register, terminology consistency, back-translation, transcreation, linguistic accuracy, context preservation, genre conventions, specialised vocabulary, legal and technical language, tone matching, false friends, sentence rhythm, readability',
+  },
+  {
+    id: 'brand', name: 'Brand Strategist', icon: 'brand', custom: false,
+    desc: 'Brand identity, positioning, and market differentiation',
+    keywords: 'brand equity, brand positioning, market differentiation, brand archetype, messaging framework, competitive landscape, brand personality, audience personas, brand narrative, touchpoint mapping, brand promise, emotional branding, category language, brand pillars, perceptual mapping, tone of voice guidelines, visual identity, naming strategy, brand story, go-to-market, value proposition',
+  },
+  {
+    id: 'motion', name: 'Motion Designer', icon: 'motion', custom: false,
+    desc: 'Animation, motion graphics, and kinetic design expert',
+    keywords: 'easing curves, keyframe animation, timing and pacing, anticipation, follow-through, squash and stretch, secondary motion, looping animations, transitions, kinetic typography, frame rate (24fps / 30fps / 60fps), After Effects expressions, Lottie, render optimisation, storyboarding, scene composition, visual rhythm, parallax, particle systems, morphing, seamless loops, motion principles',
+  },
+  {
+    id: 'social', name: 'Social Media Manager', icon: 'social', custom: false,
+    desc: 'Digital content, platform strategy, and community growth',
+    keywords: 'platform algorithms, engagement rate, organic reach, content calendar, content pillars, hashtag strategy, community building, viral hooks, storytelling formats, carousel posts, Reels and short-form video, user-generated content, brand voice consistency, A/B testing creatives, posting cadence, audience segmentation, call-to-action, trending formats, cultural moments, social proof, comment strategy',
+  },
+  {
+    id: 'artdir', name: 'Art Director', icon: 'artdir', custom: false,
+    desc: 'Creative direction, visual strategy, and campaign oversight',
+    keywords: 'creative concept, visual storytelling, campaign consistency, art direction, photography direction, casting, set design, mood boards, color palette strategy, creative brief, production oversight, cross-channel coherence, brand alignment, editorial vision, retouching direction, styling, lighting direction, conceptual thinking, visual metaphor, campaign narrative, multi-format adaptation',
+  },
+];
+
+const LANGS = ['Japanese','English','Spanish','French','German','Italian','Portuguese','Chinese (Simplified)','Chinese (Traditional)','Korean','Arabic','Russian','Dutch','Polish','Swedish','Turkish','Vietnamese','Indonesian','Other'];
+
+// Factory for the "How closely to follow references" slider — shared across content types.
+// `field` is the ref-field this slider depends on ('refs' everywhere except website's 'inspiration').
+// `variant` selects per-type wording: 'standard' | 'illustration' | 'chardesign'.
+function refStrengthField(field = 'refs', variant = 'standard') {
+  const V = {
+    standard: {
+      l60: 'Close — follow style and proportions', l80: 'Tight — replicate key visual elements',
+      p: {
+        0:  'The reference images are for loose mood inspiration only — interpret freely with your own style.',
+        20: 'Draw light stylistic inspiration from the references — feel free to reinterpret.',
+        40: 'Draw clear stylistic and visual influence from the references while retaining creative freedom.',
+        60: 'Follow the references closely in terms of style, proportions, and key features.',
+        80: 'Replicate the key visual elements, style, and composition of the references tightly.',
+        100:'Match the references as closely as possible — treat them as the definitive visual guide.',
+      },
+    },
+    illustration: {
+      l60: 'Close — follow style and composition', l80: 'Tight — replicate key elements',
+      p: {
+        0:  'The reference images are for loose mood inspiration only — interpret freely and creatively.',
+        20: 'Draw light stylistic inspiration from the references, but feel free to diverge.',
+        40: 'Draw clear stylistic and compositional influence from the references while allowing creative interpretation.',
+        60: 'Follow the references closely in style, composition, and overall feel.',
+        80: 'Replicate the key visual elements, style, and composition of the references tightly.',
+        100:'Match the references as closely as possible while applying them to this specific brief.',
+      },
+    },
+    chardesign: {
+      l60: 'Close — follow style and proportions', l80: 'Tight — replicate key visual elements',
+      p: {
+        0:  'The reference images are for loose mood inspiration only — interpret freely with your own style.',
+        20: 'Draw light stylistic inspiration from the references — feel free to reinterpret.',
+        40: 'Draw clear stylistic and visual influence from the references while retaining creative freedom.',
+        60: 'Follow the references closely in terms of style, proportions, and key features.',
+        80: 'Replicate the key visual elements, character proportions, and style as closely as possible.',
+        100:'Match the references as closely as possible — treat them as the definitive visual guide.',
+      },
+    },
+  };
+  const v = V[variant];
+  return {
+    id: 'refStrength', label: 'How closely to follow references', type: 'range',
+    showIf: { field, src: 'refs' },
+    hint: 'Drag to set how tightly the AI should follow your reference images.',
+    min: 0, max: 100, step: 10, default: 50,
+    minLabel: 'Loose inspiration', maxLabel: 'Match tightly',
+    rangeLabels: { 0: 'Loose — mood inspiration only', 20: 'Lightly guided', 40: 'Guided — clear stylistic influence', 60: v.l60, 80: v.l80, 100: 'Exact — match as closely as possible' },
+    promptMap: v.p,
+  };
+}
+
+const CONTENT_TYPES = [
+  {
+    id: 'website', label: 'Website', icon: 'website', excludeFor: ['translate', 'artist', 'graphic', 'photographer'],
+    taskExpertise: 'responsive web design, breakpoint planning across mobile/tablet/desktop, marketing site information architecture, hero and section patterns, conversion-oriented hierarchy, navigation systems, landing page optimization, page performance awareness, SEO-friendly structure, web typography, scalable image use, and adaptive layout strategy',
+    optimizeFor: [
+      'Clear hierarchy from hero to footer',
+      'Responsive behaviour that holds up at every breakpoint',
+      'Fast comprehension above the fold',
+    ],
+    guidance: [
+      'Design the hero to answer "what is this and why should I care?" within seconds.',
+      'Plan layouts that adapt — not just shrink — across breakpoints.',
+      'Treat navigation, hierarchy, and scannability as load-bearing, not decorative.',
+    ],
+    fields: [
+      { id: 'name',        label: 'Website / Project Name',  type: 'text',      placeholder: 'e.g. Bloom Studio',                                      required: true  },
+      { id: 'concept',     label: 'Concept & Brief',          type: 'textarea',  placeholder: 'What is it, what does it do, what problem does it solve?', required: true  },
+      { id: 'goal',        label: 'Primary Goal',             type: 'select',    options: ['Brand Awareness','Lead Generation','E-Commerce','Portfolio Showcase','SaaS / App Platform','Information & Blog','Community / Forum'], required: true },
+      { id: 'audience',    label: 'Target Audience',          type: 'text',      placeholder: 'e.g. Design-conscious women aged 25–40',                 required: true  },
+      { id: 'hasBrand',    label: 'Existing brand assets available?', type: 'toggle', hint: 'Logo, color palette, and typography already defined' },
+      { id: 'pages',       label: 'Key Pages Needed',         type: 'chips',     options: ['Home','About','Services','Portfolio','Blog','Pricing','Contact','FAQ','Team','Case Studies'] },
+      { id: 'tone',        label: 'Desired Tone',             type: 'chips-one', options: ['Professional','Playful','Minimal','Bold','Luxurious','Warm','Technical','Conversational'] },
+      { id: 'inspiration', label: 'References & Inspiration',       type: 'refpicker',                                                            required: false },
+      refStrengthField('inspiration'),
+    ]
+  },
+  {
+    id: 'poster', label: 'Poster', icon: 'poster', excludeFor: ['translate', 'uiux', 'motion', 'artist', 'photographer'],
+    slimPrompt: `Role:
+You are an expert graphic designer specializing in high-impact poster design.
+
+Objective:
+Create a poster that captures attention from a distance and communicates the core message quickly and memorably.
+
+Prioritize:
+- One dominant focal point
+- Strong visual hierarchy
+- Readability from a distance
+- Bold composition
+- Brand consistency
+- Print-aware design
+- Clear separation between primary, secondary, and supporting information
+
+Decision Rules:
+Design for distance first, detail second. Commit to a single visual hierarchy with one hero element supported by secondary content. Make practical design decisions that maximize impact and readability. Treat the poster as a finished printed piece, considering safe margins, bleed areas, and viewing distance.`,
+    fields: [
+      { id: 'title',   label: 'Poster Title / Event Name',  type: 'text',      placeholder: 'e.g. Tokyo Jazz Night 2025',                             required: true  },
+      { id: 'purpose', label: 'Purpose',                    type: 'text',      placeholder: 'e.g. Concert promotion, awareness campaign, product launch', required: true },
+      { id: 'size',       label: 'Poster Size',        type: 'chips',    options: ['A3 (297 × 420 mm)','A2 (420 × 594 mm)','A1 (594 × 841 mm)','18" × 24" (US Standard)','24" × 36" (Large Format)','Square 50 × 50 cm','Custom'], required: true, multiPrompt: true },
+      { id: 'sizeCustom', label: 'Custom Size',        type: 'text',     placeholder: 'e.g. 500 × 700 mm or 20" × 30"', required: false, showIf: { field: 'size', value: 'Custom', src: 'chips' }, promptHidden: true },
+      { id: 'feel',    label: 'Visual Feel',                type: 'chips',     options: ['Bold','Elegant','Minimal','Energetic','Dark','Bright','Retro','Futuristic','Raw / Handcrafted'] },
+      { id: 'colors',  label: 'Brand Colors',                type: 'colorpicker', required: false },
+      { id: 'copy',    label: 'Required Text / Copy',       type: 'textarea',  placeholder: 'Any text that must appear: headline, date, location, tagline, etc.', required: false },
+      { id: 'logoAsset',   label: 'Logo to Include',            type: 'refpicker', assetMode: true, assetKind: 'logo',  required: false, hint: 'Upload the actual logo that MUST appear in the poster. It is placed into the design exactly as provided — not used as a style reference.' },
+      { id: 'photoAssets', label: 'Photos / Imagery to Include', type: 'refpicker', assetMode: true, assetKind: 'photo', required: false, hint: 'Upload product shots or photos that MUST appear in the poster. These are composited into the design — not used as style references. Tip: name files clearly (e.g. "product-shot.jpg").' },
+      { id: 'refs',    label: 'Reference Images & URLs',    type: 'refpicker',                                                                                    required: false },
+      refStrengthField('refs'),
+    ]
+  },
+  {
+    id: 'logo', label: 'Logo', icon: 'logo', excludeFor: ['translate', 'uiux', 'copy', 'motion', 'social', 'artist', 'photographer'],
+    slimPrompt: `Role:
+You are an expert graphic designer specializing in distinctive, scalable logo design and brand identity systems.
+
+Objective:
+Create a logo that is simple, memorable, ownable, and recognizable across digital, print, signage, merchandise, and app-icon use.
+
+Design priorities:
+- Build the logo around the brand's name, category, personality, audience, and distinctive idea.
+- Create a strong silhouette that works in black and white.
+- Keep the form simple enough to recognize at small sizes.
+- Prefer clear geometry, balanced proportions, and timeless restraint.
+- Make colour supportive, not essential.
+- Consider practical logo-system use: symbol, wordmark, lockup, spacing, and responsive variations.
+- Avoid generic category clichés unless they are transformed into something distinctive.
+
+Logo rules:
+Solve the mark in one colour first.
+Avoid complex illustration, thin details, gradients, shadows, mockup effects, tiny text, excessive symbolism, and trend-driven decoration.
+Prioritize clarity, scalability, and ownability over cleverness.
+If the logo includes text, render the brand name exactly as written.`,
+    fields: [
+      { type: 'section', label: 'Brand basics' },
+      { id: 'brand',      label: 'Brand / Company Name',     type: 'text',     placeholder: 'Meridian Studio', required: true, promptLabel: 'Brand name' },
+      { id: 'whatItDoes', label: 'What does the brand do?',  type: 'textarea', placeholder: 'Boutique architecture studio designing calm, modern homes', required: true, promptLabel: 'Brand description' },
+      { id: 'audience',   label: 'Who is it for?',           type: 'text',     placeholder: 'Homeowners and boutique hotel owners', required: false, hint: 'Recommended — helps the prompt avoid generic styling.', promptLabel: 'Audience' },
+
+      { type: 'section', label: 'Brand direction' },
+      { id: 'personality', label: 'Brand personality', type: 'chips',     options: ['Modern','Classic','Minimal','Bold','Premium','Playful','Friendly','Technical','Elegant','Natural','Artistic','Trustworthy','Futuristic','Youthful'], hint: 'Choose up to 3.' },
+      { id: 'logoType',    label: 'Logo type',         type: 'chips-one', options: ['Not sure — let AI decide','Symbol only','Wordmark','Lettermark / initials','Symbol + wordmark','Badge / emblem','Mascot logo','App icon'], required: true, promptLabel: 'Logo type' },
+
+      { type: 'section', label: 'Visual direction' },
+      { id: 'concept', label: 'Ideas, symbols, or concepts to explore', type: 'textarea', placeholder: 'e.g. mountain peak, upward motion, calm growth, geometric doorway, initials "MS". Avoid generic globes or stock-looking icons.', required: false, hint: 'Free-form — symbols, motifs, single keywords, or things to avoid.', promptLabel: 'Ideas / symbols to explore' },
+      { id: 'style',   label: 'Style', type: 'chips', options: ['Minimal','Geometric','Abstract','Monoline','Hand-drawn','Vintage','Luxury serif','Modern sans-serif','Bold typography','Mascot','Japanese-inspired','Tech / futuristic','Organic','Badge / seal'], hint: 'Choose up to 2.', promptLabel: 'Logo style' },
+
+      { type: 'section', label: 'Colour' },
+      { id: 'colors', label: 'Colour direction', type: 'colorstrategy', required: false, defaultColorMode: 'bw', hint: 'A strong logo should work in one colour first. Colour can be added after the mark is clear.', promptLabel: 'Colour direction' },
+
+      { type: 'section', label: 'References' },
+      { id: 'refs', label: 'Reference images & URLs', type: 'refpicker', required: false, hint: 'Inspiration, competitor marks, or examples — the AI takes direction from them.' },
+      refStrengthField('refs'),
+
+      { type: 'section', label: 'Advanced control', collapsed: true },
+      { id: 'typography', label: 'Typography direction',         type: 'chips', options: ['Serif','Sans-serif','Custom lettering','Rounded','Condensed','Wide','Bold','Light','All caps','Lowercase','No text'], promptLabel: 'Typography direction' },
+      { id: 'shape',      label: 'Shape / structure',            type: 'chips', options: ['Circular','Square','Horizontal lockup','Vertical lockup','Symmetrical','Icon-friendly','Monogram','Abstract mark','Badge / seal'], promptLabel: 'Shape / structure' },
+      { id: 'usage',      label: 'Where will the logo be used?', type: 'chips', options: ['Website','Social media avatar','App icon','Storefront signage','Packaging','Merchandise','Business card','All of the above'], promptLabel: 'Usage' },
+      { id: 'avoid',      label: 'Things to avoid',              type: 'textarea', placeholder: 'e.g. no generic coffee cups, no stock-looking icons, no gradients, no thin lines, no complex illustration, no cliché symbols.', required: false, promptLabel: 'Avoid' },
+      { id: 'extra',      label: 'Extra instructions',           type: 'textarea', placeholder: 'Free text for experienced users — anything else the AI should know.', required: false, promptLabel: 'Extra instructions' },
+    ]
+  },
+  {
+    id: 'banner', label: 'Banner', icon: 'banner', excludeFor: ['translate', 'uiux', 'artist', 'photographer'],
+    slimPrompt: `Role:
+You are an expert graphic designer specializing in high-converting digital banners.
+
+Objective:
+Create a banner that communicates the message instantly and drives action.
+
+Design priorities:
+- Lead with the primary message.
+- Use strong visual hierarchy.
+- Keep typography readable at small sizes.
+- Make the CTA clear and prominent when a CTA is provided.
+- Design specifically for the requested size, not as a generic layout.
+- Keep text, logos, and key visual elements within safe margins.
+- Ensure the banner can be understood within two seconds.
+- Every visual element should support the message, not just decorate the layout.`,
+    fields: [
+      { type: 'section', label: 'Banner basics' },
+      { id: 'campaign', label: 'What is this banner for?',   type: 'textarea',  placeholder: 'Example: Promote our company Family Day event to employees and their children. Include the goal, audience, and any context.', required: true, promptLabel: 'Goal' },
+      { id: 'sizes', label: 'Size / Format', type: 'chips-grouped', multiPrompt: true, expandLabel: 'More sizes', promptLabel: 'Size',
+        groups: [
+          { label: 'Common shapes',        options: ['Website hero','16:9 Landscape','1:1 Square','Story / Vertical (9:16)','Wide banner','Custom'] },
+          { label: 'Display Ads',          collapsed: true, options: ['300×250 Rectangle','336×280 Large Rectangle','728×90 Leaderboard','970×250 Billboard','468×60 Full Banner','160×600 Skyscraper','300×600 Half Page'] },
+          { label: 'Mobile',               collapsed: true, options: ['320×50 Mobile Banner','320×100 Large Mobile'] },
+          { label: 'Social',               collapsed: true, options: ['1200×628 Social (1.91:1)','1080×1080 Square (1:1)','1080×1920 Story (9:16)','1280×720 YouTube Thumbnail'] },
+          { label: 'Video / Presentation', collapsed: true, options: ['1920×1080 Full HD (16:9)','1280×720 HD (16:9)','1024×768 (4:3)','800×600 (4:3)'] },
+        ],
+      },
+      { id: 'sizesCustom', label: 'Custom Size',  type: 'text', placeholder: 'e.g. 600×400 px or 5" × 2"', required: false, showIf: { field: 'sizes', value: 'Custom', src: 'chips' }, promptHidden: true },
+
+      { type: 'section', label: 'Visual direction' },
+      { id: 'visualDesc', label: 'What should the banner show?', type: 'textarea', placeholder: 'Example: A playful space-themed scene with children protecting a colourful planet from soft cartoon meteors.', required: false, hint: 'Paint the picture in words. Use alongside — or instead of — a reference image.', promptLabel: 'Main visual' },
+      { id: 'style',      label: 'Style',                        type: 'chips',    options: ['Clean & Professional','Fun & Playful','Bold & Energetic','Premium & Elegant','Warm & Friendly','Futuristic','Minimal','Cartoon / Illustrated','Realistic','Corporate'], hint: 'Pick up to 2.', promptLabel: 'Style' },
+      { id: 'colors',     label: 'Colour',                       type: 'colorstrategy', required: false, promptLabel: 'Colour direction' },
+
+      { type: 'section', label: 'Text & layout' },
+      { id: 'textMode',   label: 'Should the banner include text?', type: 'chips-one', options: ['No text','Leave space for text','Add text into the image'], promptLabel: 'Text instructions' },
+      { id: 'textSpace',  label: 'Where should the text space be?', type: 'chips-one', options: ['Left','Right','Top','Bottom','Center'], showIf: { field: 'textMode', src: 'chips', value: 'Leave space for text' }, promptLabel: 'Text space position' },
+      { id: 'headline',   label: 'Headline',                      type: 'text', placeholder: 'Example: Family Day 2026', required: false, showIf: { field: 'textMode', src: 'chips', value: 'Add text into the image' } },
+      { id: 'supportingText', label: 'Supporting text',           type: 'text', placeholder: 'Example: Games, food, prizes, and activities for all ages', required: false, showIf: { field: 'textMode', src: 'chips', value: 'Add text into the image' } },
+      { id: 'mustText',   label: 'Required exact text',           type: 'textarea', placeholder: 'Example: Saturday, 20 July · 10 AM–4 PM · Main Hall', required: false, showIf: { field: 'textMode', src: 'chips', value: 'Add text into the image' } },
+      { id: 'ctaText',    label: 'Call to action (CTA)',          type: 'text', placeholder: 'Example: RSVP Now · Shop Now · Learn More — leave blank if no CTA', required: false, hint: 'The action button text. Keep it short and direct.', showIf: { field: 'textMode', src: 'chips', value: 'Add text into the image' }, promptLabel: 'CTA text' },
+      { id: 'ctaStyle',   label: 'CTA style',                     type: 'chips-one', options: ['Let AI decide','Solid button','Outline button','Pill button','Text link / arrow','No button — just text'], showIf: { field: 'textMode', src: 'chips', value: 'Add text into the image' }, hint: 'How the CTA should appear visually.' },
+
+      { type: 'section', label: 'References' },
+      { id: 'logoAsset',   label: 'Logo to Include',            type: 'refpicker', assetMode: true, assetKind: 'logo',  required: false, hint: 'Upload the actual logo that MUST appear in the banner. It is placed into the design exactly as provided — not used as a style reference.' },
+      { id: 'photoAssets', label: 'Photos / Imagery to Include', type: 'refpicker', assetMode: true, assetKind: 'photo', required: false, hint: 'Upload product shots or photos that MUST appear in the banner. These are composited into the design — not used as style references.' },
+      { id: 'refs',        label: 'Style / Layout References',   type: 'refpicker', required: false, hint: 'References for style or layout direction — the AI takes inspiration, not exact copy.' },
+      refStrengthField('refs'),
+
+      { type: 'section', label: 'Advanced control', collapsed: true },
+      { id: 'layout',   label: 'Layout',          type: 'chips', options: ['Centered subject','Text space left','Text space right','Lots of negative space','Wide cinematic scene','Close-up','Symmetrical','Busy / energetic','Simple / minimal'], promptLabel: 'Composition' },
+      { id: 'lighting', label: 'Lighting / mood', type: 'chips', options: ['Bright daylight','Soft light','Dramatic lighting','Studio lighting','Dark background','Warm atmosphere','Cool atmosphere'] },
+      { id: 'avoid',    label: 'Avoid',           type: 'textarea', placeholder: 'Example: no scary mood, no clutter, no tiny unreadable text, no distorted faces, no watermarks, no unrelated objects.', required: false, promptLabel: 'Constraints' },
+      { id: 'extra',    label: 'Extra instructions', type: 'textarea', placeholder: 'Free text for experienced users — anything else the AI should know.', required: false, promptLabel: 'Extra instructions' },
+    ]
+  },
+  {
+    id: 'video', label: 'Video', icon: 'video', excludeFor: ['translate', 'uiux', 'graphic', 'artist', 'photographer'],
+    fields: [
+      { id: 'type',     label: 'Video Type',                type: 'select',    options: ['Explainer / How-It-Works','Brand Film','Product Ad','Social Content (short-form)','Tutorial / Educational','Testimonial','Event Recap'], required: true },
+      { id: 'duration', label: 'Target Duration',           type: 'select',    options: ['Under 15 seconds','15–30 seconds','30–60 seconds','1–3 minutes','3–10 minutes','10+ minutes'], required: true },
+      { id: 'platform', label: 'Platform / Distribution',   type: 'chips',     options: ['YouTube','TikTok','Instagram Reels','Instagram Feed','LinkedIn','Facebook','TV / Broadcast','Internal / Presentation'] },
+      { id: 'message',  label: 'Core Message',              type: 'textarea',  placeholder: 'The single most important thing this video must communicate', required: true },
+      { id: 'tone',     label: 'Tone',                      type: 'chips-one', options: ['Energetic','Calm','Inspiring','Humorous','Corporate','Cinematic','Conversational','Urgent'] },
+      { id: 'audience', label: 'Target Audience',           type: 'text',      placeholder: 'Who is this for?',                                        required: true  },
+    ]
+  },
+  {
+    id: 'illustration', label: 'Illustration', icon: 'illustration', excludeFor: ['translate', 'copy', 'uiux', 'graphic', 'photographer'],
+    slimPrompt: `Role:
+You are an expert artist and illustrator specializing in expressive, story-driven illustrations.
+
+Objective:
+Create an illustration with a clear central idea, strong mood, and memorable visual style.
+
+Artistic priorities:
+- Lead with the core idea or story.
+- Make the main subject and focal point immediately clear.
+- Use composition, gesture, expression, lighting, and colour to support the mood.
+- Choose an illustration style that fits the concept.
+- Keep the image visually coherent: consistent palette, line quality, texture, and level of detail.
+- Use symbolic or environmental details only when they strengthen the idea.
+- Avoid photographic realism unless specifically requested.`,
+    fields: [
+      { type: 'section', label: 'Illustration basics' },
+      { id: 'purpose', label: 'What is this illustration for?', type: 'text', placeholder: 'Example: A children\'s book page, editorial article image, character concept, poster artwork, album cover, or social media visual.', required: true, promptLabel: 'Purpose' },
+      { id: 'story',   label: 'What is the main idea or story?', type: 'textarea', placeholder: 'Example: A lonely robot discovers a tiny plant growing in an abandoned city.', required: true, promptLabel: 'Core idea / story' },
+
+      { type: 'section', label: 'Visual direction' },
+      { id: 'mainVisual', label: 'What should the illustration show?', type: 'textarea', placeholder: 'Example: A small robot kneeling beside a glowing plant in a cracked city street, surrounded by overgrown buildings and soft morning light.', required: true, hint: 'Include the subject, action, setting, and important details.', promptLabel: 'Main visual' },
+
+      { type: 'section', label: 'Creative direction' },
+      { id: 'mood',  label: 'Mood',              type: 'chips', options: ['Dreamy','Joyful','Peaceful','Whimsical','Mysterious','Melancholic','Epic','Playful','Dark','Surreal','Nostalgic','Raw / Gritty','Intimate','Tense'], hint: 'Choose up to 2.' },
+      { id: 'style', label: 'Illustration style', type: 'chips', options: ['Children\'s book','Editorial','Hand-drawn / Sketch','Line art','Watercolour','Gouache','Painterly digital art','Flat vector','Comic / Manga','Surrealist','Isometric','Collage','3D render','Follow reference image'], hint: 'Choose up to 2.' },
+      { id: 'colors', label: 'Colour',            type: 'colorstrategy', required: false, promptLabel: 'Colour direction' },
+
+      { type: 'section', label: 'Format & references' },
+      { id: 'sizes', label: 'Size / Format', type: 'chips-grouped', multiPrompt: true, promptLabel: 'Size',
+        groups: [
+          { label: 'Common shapes', options: ['Square','Portrait','Landscape','Story / Vertical','Wide scene','Book spread','Custom'] },
+        ],
+      },
+      { id: 'sizesCustom', label: 'Custom Size', type: 'text', placeholder: 'e.g. 1200×1600 or 2:3', required: false, showIf: { field: 'sizes', value: 'Custom', src: 'chips' }, promptHidden: true },
+      { id: 'refs', label: 'References', type: 'refpicker', required: false, hint: 'Add images for character, style, colour, composition, or objects to include.' },
+      refStrengthField('refs', 'illustration'),
+
+      { type: 'section', label: 'Advanced control', collapsed: true },
+      { id: 'composition', label: 'Composition',        type: 'chips-one', options: ['Let AI decide','Close-up','Portrait (head & shoulders)','Medium shot','Full body','Wide shot','Bird\'s-eye view','Worm\'s-eye view','Over the shoulder','Centered subject','Dynamic diagonal','Lots of negative space'] },
+      { id: 'background',  label: 'Setting / background', type: 'chips-one', options: ['Let AI decide','Simple background','Detailed environment','Interior','Nature','Urban','Fantasy','Abstract','No background'], promptLabel: 'Setting / background' },
+      { id: 'lighting',    label: 'Lighting',            type: 'chips-one', options: ['Let AI decide','Soft light','Dramatic light','Golden hour','Moonlight','Backlit','Rim light','High contrast','Gentle ambient light'] },
+      { id: 'charInclude', label: 'Feature a specific character?', type: 'toggle', promptHidden: true, hint: 'Turn on if the illustration features a character with a known appearance — pose, expression, costume, etc.' },
+      { id: 'pose',        label: 'Pose / action',         type: 'text', placeholder: 'e.g. Sitting cross-legged, mid-leap, crouching in shadow', required: false, showIf: { field: 'charInclude', src: 'toggle', value: true } },
+      { id: 'charNotes',   label: 'Character details',     type: 'textarea', placeholder: 'Expression, clothing, age, body type, personality, anything else about the character.', required: false, showIf: { field: 'charInclude', src: 'toggle', value: true } },
+      { id: 'charRefs',    label: 'Character reference images', type: 'refpicker', required: false, showIf: { field: 'charInclude', src: 'toggle', value: true } },
+      { id: 'charStyleApproach', label: 'Character style direction', type: 'chips-one', promptHidden: true, showIf: { field: 'charInclude', src: 'toggle', value: true }, options: ["Match character's style", "AI's best choice"], hint: 'Whichever you choose, the character and background will always be rendered in the same unified style — no mixing.' },
+      { id: 'avoid',       label: 'Avoid',                 type: 'textarea', placeholder: 'Example: no realistic photo look, no extra characters, no scary expression, no cluttered background, no text, no watermark.', required: false, promptLabel: 'Avoid' },
+      { id: 'extra',       label: 'Extra instructions',    type: 'textarea', placeholder: 'Free text for experienced users — anything else the AI should know.', required: false, promptLabel: 'Extra instructions' },
+    ]
+  },
+  {
+    id: 'photo', label: 'Lifestyle / Editorial', icon: 'photo', onlyFor: ['photographer', 'artdir', 'custom'],
+    taskExpertise: 'candid direction, window light, ambient light, environmental scene-building, prop styling, set design, wardrobe direction, narrative framing, editorial sensibility, and commercial polish',
+    optimizeFor: [
+      'A scene that feels lived-in, not staged',
+      'Narrative and atmosphere over product display',
+      'Cohesive styling, wardrobe, and set dressing',
+    ],
+    guidance: [
+      'Build the scene before the shot — props, wardrobe, location, and ambient mood all carry the story.',
+      'Favour available and window light when it serves the mood; supplement, don\'t override.',
+      'Direct subjects toward natural action, not poses — give them something to do.',
+    ],
+    fields: [
+      { id: 'subject',      label: 'Subject / Scene',          type: 'text',      placeholder: 'Who or what is being photographed? e.g. Chef plating a dish, a couple on a rooftop, a leather wallet on white', required: true },
+      { id: 'type',         label: 'Photography Type',         type: 'chips-one', options: ['Portrait','Lifestyle','Product','Food & Beverage','Architecture / Interior','Fashion','Editorial','Nature / Landscape','Documentary','Event / Corporate','Street','Sports / Action'] },
+      { id: 'setting',      label: 'Location / Setting',       type: 'chips',     options: ['Studio — White Cyclorama','Studio — Dark','On Location — Urban','On Location — Nature','Indoor — Home','Indoor — Commercial','Outdoor — Golden Hour','Outdoor — Overcast'] },
+      { id: 'lighting',     label: 'Light Source',             type: 'chips-one', options: ['Let AI decide','Natural — Golden Hour','Natural — Overcast / Diffused','Natural — Window Light','Backlit / Contre-jour','Studio Strobe','Continuous Light','Mixed — Strobe + Natural','Low Key','High Key'],
+        hint: 'Where the light comes from. Pick "Let AI decide" if unsure.' },
+      { id: 'lightingStyle',label: 'Lighting Pattern',         type: 'chips-one', options: ['Let AI decide','Rembrandt','Loop','Butterfly / Paramount','Split','Broad','Short','Clamshell','Flat / Even','Rim / Hair Light'],
+        hint: 'The shadow shape the light makes — a photographer\'s decision. Pick "Let AI decide" if unsure.' },
+      { id: 'lens',         label: 'Focal Length',             type: 'chips-one', options: ['Let AI decide','Ultra Wide — 16–20mm','Wide — 24–28mm','Standard — 35mm','Classic — 50mm','Portrait — 85mm','Short Tele — 105mm','Tele — 135–200mm','Macro','Tilt-Shift'],
+        hint: 'Lens choice changes how wide or compressed the scene feels.' },
+      { id: 'aperture',     label: 'Depth of Field',           type: 'chips-one', options: ['Let AI decide','Very Shallow — f/1.2–1.8','Shallow — f/2–2.8','Medium — f/4–5.6','Deep — f/8–11','Full Depth — f/16+'],
+        hint: 'How much of the image is in sharp focus. Shallow blurs the background; deep keeps everything sharp.' },
+      { id: 'composition',  label: 'Composition',              type: 'chips-one', options: ['Rule of Thirds','Centred / Symmetrical','Leading Lines','Frame Within Frame','Negative Space','Overhead / Flat Lay','Low Angle','High Angle','Over the Shoulder'] },
+      { id: 'mood',         label: 'Mood / Atmosphere',        type: 'chips',     options: ['Warm & Intimate','Cool & Clinical','Dark & Moody','Bright & Airy','Raw & Gritty','Soft & Dreamy','Bold & Graphic','Cinematic','Energetic','Serene'] },
+      { id: 'colorGrade',   label: 'Colour Treatment',         type: 'chips-one', options: ['True to Life','Warm Grade','Cool / Desaturated','Black & White','High Contrast','Matte / Faded','Vivid / Saturated','Film Emulation'] },
+      { id: 'refs',         label: 'References & Inspiration', type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'technical',    label: 'Technical Requirements',   type: 'textarea',  placeholder: 'Deliverables, resolution, aspect ratio, RAW files, number of selects, specific equipment requests, post-processing notes…', required: false },
+      { id: 'use',          label: 'Intended Use',             type: 'chips',     options: ['Website','Social Media','Print Campaign','Press / Editorial','E-Commerce','Billboard / OOH','Internal Use'] },
+    ]
+  },
+  {
+    id: 'portrait', label: 'Portrait', icon: 'portrait-photo', onlyFor: ['photographer', 'artdir', 'custom'],
+    taskExpertise: '85mm and 105mm portrait lenses, shallow depth of field, eye contact, gaze direction, facial expression, posing direction, hand placement, skin tones, skin retouching, frequency separation, catch lights, Rembrandt lighting, loop lighting, butterfly lighting, split lighting, clamshell lighting, headshot framing, environmental portraiture, model direction, hair and makeup direction, and wardrobe styling',
+    optimizeFor: [
+      'Authentic expression and gaze',
+      'Flattering, intentional pose',
+      'Skin tones that read true',
+    ],
+    guidance: [
+      'Direct the subject\'s pose, expression, hand placement, and gaze explicitly — do not leave them ambiguous.',
+      'Match lens, focal length, and depth of field to the desired intimacy and flattery.',
+      'Choose a lighting pattern that shapes the face intentionally — not just an exposure that lights it.',
+    ],
+    fields: [
+      { id: 'brief',         label: 'Brief',                     type: 'text',      placeholder: 'Who is being photographed and what is the purpose? e.g. Executive headshots for LinkedIn, environmental portrait of a craftsman', required: true },
+      { id: 'subjects',      label: 'Number of Subjects',        type: 'chips-one', options: ['Solo','Couple','Small Group (3–5)','Large Group (6+)','Child / Children','Family'] },
+      { id: 'setting',       label: 'Setting',                   type: 'chips-one', options: ['Studio — White','Studio — Grey','Studio — Dark / Dramatic','Indoor — Environmental','Outdoor — Urban','Outdoor — Nature','Outdoor — Golden Hour'] },
+      { id: 'lighting',      label: 'Light Source',              type: 'chips-one', options: ['Let AI decide','Natural Light','Window Light','Golden Hour','Studio Strobe','Continuous Light','Mixed — Strobe + Natural','Low Key','High Key'],
+        hint: 'Where the light comes from. Pick "Let AI decide" if unsure — it will choose based on setting and mood.' },
+      { id: 'lightingStyle', label: 'Lighting Pattern',          type: 'chips-one', options: ['Let AI decide','Rembrandt','Loop','Butterfly / Paramount','Split','Broad','Short','Clamshell','Flat / Even','Rim / Hair Light'],
+        hint: 'The shadow shape the light makes on the face — a photographer\'s decision. Pick "Let AI decide" if unsure.' },
+      { id: 'lens',          label: 'Focal Length',              type: 'chips-one', options: ['Let AI decide','35mm','50mm','85mm','105mm','135mm','200mm (Compressed)'],
+        hint: 'Lens choice changes how close, flat, or compressed the portrait feels. 85mm and 105mm are classic portrait lenses.' },
+      { id: 'aperture',      label: 'Depth of Field',            type: 'chips-one', options: ['Let AI decide','Very Shallow — f/1.2–1.8','Shallow — f/2–2.8','Medium — f/4','Deep — f/8+'],
+        hint: 'How much of the image is in sharp focus. Shallow blurs the background; deep keeps everything sharp.' },
+      { id: 'mood',          label: 'Mood / Tone',               type: 'chips',     options: ['Warm & Intimate','Professional & Clean','Dark & Moody','Soft & Dreamy','Bold & Direct','Candid & Natural','Editorial'] },
+      { id: 'colorGrade',    label: 'Colour Treatment',          type: 'chips-one', options: ['True to Life','Warm Grade','Cool / Desaturated','Black & White','Matte / Faded','Film Emulation'] },
+      { id: 'direction',     label: 'Posing & Direction Notes',  type: 'textarea',  placeholder: 'e.g. Relaxed and natural, strong and direct eye contact, looking off-camera, specific poses or expressions to capture…', required: false },
+      { id: 'refs',          label: 'References & Inspiration',  type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'deliverables',  label: 'Deliverables',              type: 'textarea',  placeholder: 'Number of selects, retouching level, file formats, resolution, turnaround time…', required: false },
+    ]
+  },
+  {
+    id: 'landscape', label: 'Landscape', icon: 'landscape-photo', onlyFor: ['photographer', 'artdir', 'custom'],
+    taskExpertise: 'wide-angle and telephoto for landscape, hyperfocal distance, deep focus, tripod work, long exposure, ND filters, bracketing and HDR, dynamic range management, golden hour, blue hour, magic hour, weather and sky reading, foreground interest, depth layers, seascape, aerial, astrophotography, and architectural framing',
+    optimizeFor: [
+      'A clear sense of place and scale',
+      'Strong foreground, midground, and background layering',
+      'Light and weather that elevate the scene, not just expose it',
+    ],
+    guidance: [
+      'Plan around time of day and weather — they are the subject as much as the location.',
+      'Use foreground interest and depth cues to give the viewer a way into the frame.',
+      'Match aperture and focus strategy to the depth required (hyperfocal for sweeping, stacking for macro detail).',
+    ],
+    fields: [
+      { id: 'location',      label: 'Location / Scene',          type: 'text',      placeholder: 'Where and what? e.g. Kyoto bamboo forest at dawn, coastal cliffs in storm light, Tokyo at blue hour', required: true },
+      { id: 'sceneType',     label: 'Scene Type',                type: 'chips-one', options: ['Natural Landscape','Cityscape / Urban','Seascape / Coastline','Forest / Woodland','Desert','Mountains','Aerial','Astrophotography','Architecture / Landmark','Macro / Close-up — Nature','Wildlife'] },
+      { id: 'macroSubject',  label: 'Macro Subject',              type: 'chips-one', options: ['Insects / Bugs','Flowers / Botanicals','Water Drops / Dew','Fungi / Moss','Eyes / Portrait Detail','Texture / Abstract','Food Detail','Jewellery / Small Objects'],
+        showIf: { field: 'sceneType', src: 'chips', value: 'Macro / Close-up — Nature' },
+        hint: 'What are you getting close to?' },
+      { id: 'time',          label: 'Time of Day',               type: 'chips-one', options: ['Golden Hour — Sunrise','Golden Hour — Sunset','Blue Hour — Dawn','Blue Hour — Dusk','Midday / Harsh Light','Overcast / Diffused','Night / City Lights','Astrophotography'] },
+      { id: 'lens',          label: 'Focal Length',              type: 'chips-one', options: ['Let AI decide','Ultra Wide — 14–20mm','Wide — 24–28mm','Standard — 35–50mm','Tele — 70–200mm','Super Tele — 300mm+','Macro — 100mm','Tilt-Shift'],
+        hint: 'Ultra wide for sweeping vistas; tele for compressed scenes. Pick "Let AI decide" if unsure.' },
+      { id: 'filters',       label: 'Filters / Technique',       type: 'chips',     options: ['ND Filter','Graduated ND','Polariser','Long Exposure — Silky Water','Long Exposure — Cloud Motion','Light Trails','Star Trails','Focus Stacking'] },
+      { id: 'mood',          label: 'Mood / Atmosphere',         type: 'chips',     options: ['Epic & Dramatic','Peaceful & Serene','Moody & Brooding','Raw & Wild','Minimalist','Warm & Golden','Cool & Blue','Mystical'] },
+      { id: 'colorGrade',    label: 'Colour Treatment',          type: 'chips-one', options: ['True to Life','Warm & Vibrant','Cool / Desaturated','Black & White','High Contrast','Matte / Faded','Film Emulation'] },
+      { id: 'refs',          label: 'References & Inspiration',  type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'deliverables',  label: 'Technical / Deliverables',  type: 'textarea',  placeholder: 'File format, resolution, print size, number of selects, retouching level…', required: false },
+    ]
+  },
+  {
+    id: 'nature-wildlife', label: 'Nature & Wildlife', icon: 'nature-wildlife', onlyFor: ['photographer', 'artdir', 'custom'],
+    taskExpertise: 'telephoto and super-telephoto lenses, fast shutter speeds, continuous autofocus, animal behaviour reading, patience and concealment, natural light, macro for close-up nature, environmental wildlife portraiture, and ethical field practice',
+    optimizeFor: [
+      'A decisive moment of behaviour, not just a record shot',
+      'Sharpness on the eye and animal-aware framing',
+      'Respect for the subject and habitat',
+    ],
+    guidance: [
+      'Read the animal before the camera — anticipate behaviour rather than chase it.',
+      'Match shutter speed to motion and lock continuous AF on the eye.',
+      'Never compromise the welfare of the subject for a shot.',
+    ],
+    fields: [
+      { id: 'nwSubject',    label: 'Subject',                   type: 'text',      placeholder: 'What specifically are you photographing? e.g. Red fox in morning frost, bee on lavender, murmuration of starlings at dusk', required: true },
+      { id: 'nwType',       label: 'Subject Type',              type: 'chips-one', options: ['Wildlife — Mammals','Birds','Insects / Invertebrates','Reptiles / Amphibians','Aquatic / Marine','Flora / Botanicals','Macro — Nature','Fungi / Lichen','Landscape — Nature'] },
+      { id: 'nwEnvironment',label: 'Habitat / Environment',     type: 'text',      placeholder: 'e.g. Scottish Highlands, tropical rainforest, tidal rockpool, forest floor at dawn', required: false },
+      { id: 'nwBehavior',   label: 'Moment / Behaviour',        type: 'textarea',  placeholder: 'What moment or behaviour are you trying to capture? e.g. In flight, hunting, courtship display, frozen in morning light, feeding on flower…', required: false },
+      { id: 'time',         label: 'Time of Day',               type: 'chips-one', options: ['Golden Hour — Sunrise','Golden Hour — Sunset','Blue Hour','Midday / Harsh Light','Overcast / Diffused','Night / Nocturnal','Pre-dawn'] },
+      { id: 'lens',         label: 'Focal Length',              type: 'chips-one', options: ['Let AI decide','Wide — 14–28mm','Standard — 35–50mm','Short Tele — 70–135mm','Tele — 200–400mm','Super Tele — 500–600mm+','Macro — 100mm'],
+        hint: 'Wildlife usually needs tele or super-tele; macro for close-ups. Pick "Let AI decide" if unsure.' },
+      { id: 'aperture',     label: 'Depth of Field',            type: 'chips-one', options: ['Let AI decide','Very Shallow — f/1.4–2','Shallow — f/2.8–4','Medium — f/5.6–8','Deep — f/11+'],
+        hint: 'How much is in sharp focus. Shallow isolates the subject; deep keeps the habitat sharp.' },
+      { id: 'nwTechnique',  label: 'Shooting Technique',        type: 'chips',     options: ['Burst / Action Tracking','Long Exposure','Focus Stacking','Backlit / Silhouette','Freeze Motion','Panning','Remote / Camera Trap','Underwater','Drone / Aerial'] },
+      { id: 'mood',         label: 'Mood / Atmosphere',         type: 'chips',     options: ['Raw & Wild','Peaceful & Serene','Epic & Dramatic','Intimate & Close','Mystical','Minimalist','Warm & Golden','Cool & Blue'] },
+      { id: 'colorGrade',   label: 'Colour Treatment',          type: 'chips-one', options: ['True to Life','Warm & Rich','Cool / Desaturated','Black & White','High Contrast','Matte / Faded','Film Emulation'] },
+      { id: 'refs',         label: 'References & Inspiration',  type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'deliverables', label: 'Technical / Deliverables',  type: 'textarea',  placeholder: 'File format, resolution, number of selects, retouching level, print size…', required: false },
+    ]
+  },
+  {
+    id: 'street', label: 'Street & City', icon: 'street-photo', onlyFor: ['photographer', 'artdir', 'custom'],
+    taskExpertise: 'fast prime lenses, zone focusing, decisive moment timing, candid observation, available-light shooting, street composition, urban geometry, layered scenes, photojournalistic instinct, documentary framing, and an unobtrusive presence',
+    optimizeFor: [
+      'A real, candid moment — not a posed one',
+      'Layered composition and strong urban geometry',
+      'Available light handled confidently, including mixed and harsh sources',
+    ],
+    guidance: [
+      'Pre-focus and pre-frame the scene; let the moment fall into it.',
+      'Use the city — light, shadow, signage, reflections — as a co-author of the image.',
+      'Respect the subjects you photograph; keep your presence quiet and considered.',
+    ],
+    fields: [
+      { id: 'location',     label: 'Location / Setting',        type: 'text',      placeholder: 'Where? e.g. Shibuya crossing at night, Paris side-streets in rain, Istanbul spice market, Chicago El train platform', required: true },
+      { id: 'streetFocus',  label: 'Subject Focus',             type: 'chips-one', options: ['Candid People','Crowd & Scene','Architecture & Facades','Night & Neon / Artificial Light','Markets & Commerce','Transport & Motion','Urban Decay & Texture','Abstract & Pattern','Documentary / Social Story'] },
+      { id: 'approach',     label: 'Approach',                  type: 'chips-one', options: ['Candid / Observational','Documentary','Fine Art','Editorial','Street Fashion','Long Exposure / Motion Blur','Photojournalism'] },
+      { id: 'time',         label: 'Time of Day',               type: 'chips-one', options: ['Golden Hour — Morning','Golden Hour — Evening','Blue Hour — Dawn','Blue Hour — Dusk','Midday / Harsh Light','Overcast / Flat','Night / Artificial Light','Rainy / Wet Streets'] },
+      { id: 'lens',         label: 'Focal Length',              type: 'chips-one', options: ['Let AI decide','Ultra Wide — 21–24mm','Classic Wide — 28mm','Classic — 35mm','Standard — 50mm','Short Tele — 85mm'],
+        hint: 'Street tradition: 28mm, 35mm, 50mm. Pick "Let AI decide" if unsure.' },
+      { id: 'aperture',     label: 'Depth of Field',            type: 'chips-one', options: ['Let AI decide','Very Shallow — f/1.4–2','Shallow — f/2.8','Medium — f/4–5.6','Deep / Zone Focus — f/8+'],
+        hint: 'How much is in sharp focus. Deep / zone focus is the classic street choice.' },
+      { id: 'shutter',      label: 'Motion Intent',             type: 'chips-one', options: ['Let AI decide','Freeze Everything (1/500+)','Natural / Slight Motion (1/125)','Intentional Blur — People','Light Trails / Long Exposure'],
+        hint: 'Whether motion freezes, blurs, or streaks. Pick "Let AI decide" if unsure.' },
+      { id: 'mood',         label: 'Mood / Atmosphere',         type: 'chips',     options: ['Gritty & Raw','Melancholic & Solitary','Energy & Motion','Romantic','Vibrant & Chaotic','Cinematic','Tense / Charged','Quiet & Minimal'] },
+      { id: 'colorGrade',   label: 'Colour Treatment',          type: 'chips-one', options: ['True to Life','Warm Grade','Cool / Desaturated','Black & White','High Contrast','Matte / Faded','Vivid / Saturated','Film Emulation'] },
+      { id: 'refs',         label: 'References & Inspiration',  type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'streetNotes',  label: 'Direction Notes',           type: 'textarea',  placeholder: 'Context, story, specific moments you want captured, any ethical or access considerations…', required: false },
+      { id: 'deliverables', label: 'Deliverables',              type: 'textarea',  placeholder: 'Number of selects, file formats, resolution, retouching level, turnaround…', required: false },
+    ]
+  },
+  {
+    id: 'product-photo', label: 'Product Shot', icon: 'product-photo', onlyFor: ['photographer', 'artdir', 'custom'],
+    taskExpertise: 'tabletop staging, sweep backdrops, controlled studio strobes, softboxes and diffusers, focus stacking, tethering, polarising filters, surface and reflection control, colour accuracy, compositing-ready captures, and packshot vs hero-shot framing',
+    optimizeFor: [
+      'Faithful, accurate representation of the product',
+      'Clean, intentional light shaping the form and material',
+      'Background, surface, and props that support — never compete with — the product',
+    ],
+    guidance: [
+      'Light for the material — glass, fabric, metal, and skincare each need different shaping.',
+      'Control reflections and unwanted highlights deliberately, not by accident.',
+      'Match the deliverable: clean packshot, hero shot, or in-context lifestyle each demand different framing and lighting decisions.',
+    ],
+    fields: [
+      { id: 'product',       label: 'Product',                   type: 'text',      placeholder: 'What is the product? e.g. Leather wallet, skincare serum, running shoes, glass of wine', required: true },
+      { id: 'approach',      label: 'Shot Approach',             type: 'chips-one', options: ['Clean — White Background','Dark / Dramatic Background','Lifestyle — In Context','Flat Lay','On Model / Worn','Macro / Detail','Ghost Image','Multiple Variants'] },
+      { id: 'surface',       label: 'Surface / Background',      type: 'chips',     options: ['White Seamless','Black / Dark','Marble','Wood','Concrete','Fabric / Linen','Natural — Plants / Botanicals','Custom Set Build'] },
+      { id: 'lighting',      label: 'Lighting',                  type: 'chips-one', options: ['Let AI decide','High Key — Even & Clean','Dramatic Side-lit','Backlit / Rim Light','Soft Natural Window','Overhead / Flat','Ring Light','Beauty Dish'],
+        hint: 'How the product is lit. Pick "Let AI decide" if unsure — it will choose based on product type and mood.' },
+      { id: 'angles',        label: 'Angles Required',           type: 'chips',     options: ['Hero / Front','3/4 View','Side Profile','Overhead / Flat Lay','Back','Detail / Close-up','In-use / Lifestyle','360° Set'] },
+      { id: 'colorGrade',    label: 'Colour Treatment',          type: 'chips-one', options: ['True to Life','Warm & Rich','Cool & Clean','High Contrast','Matte / Faded','Vivid / Saturated'] },
+      { id: 'props',         label: 'Props & Styling',           type: 'textarea',  placeholder: 'Describe any props, supporting elements, or styling direction. e.g. Raw linen cloth, fresh botanicals, branded tissue paper…', required: false },
+      { id: 'refs',          label: 'References & Inspiration',  type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'use',           label: 'Intended Use',              type: 'chips',     options: ['E-Commerce','Website','Social Media','Print Campaign','Press / Editorial','Packaging','Billboard / OOH'] },
+      { id: 'deliverables',  label: 'Deliverables',              type: 'textarea',  placeholder: 'Number of angles, file formats, resolution, retouching level, background removal…', required: false },
+    ]
+  },
+  {
+    id: 'app', label: 'Mobile App', icon: 'app', onlyFor: ['uiux', 'artdir', 'brand'],
+    taskExpertise: 'native iOS and Android patterns, touch targets (44pt minimum), thumb-zone ergonomics, mobile-first flows, gesture interactions, native navigation (tabs, stacks, modals, sheets), onboarding flows, push notification patterns, offline and connectivity states, app lifecycle (foreground, background, kill), and platform-specific Human Interface Guidelines and Material Design',
+    optimizeFor: [
+      'Native-feeling, platform-aware interaction',
+      'Thumb-reachable primary actions',
+      'Clear behaviour in every connectivity and lifecycle state',
+    ],
+    guidance: [
+      'Design for the thumb first — primary actions belong in the bottom reachable arc.',
+      'Respect the platform: iOS and Android have different conventions; honour them unless brand demands otherwise.',
+      'Specify behaviour for offline, slow networks, kill-and-resume, and permission-denied states explicitly.',
+    ],
+    fields: [
+      { id: 'name',       label: 'App Name / Project',       type: 'text',      placeholder: 'e.g. Bloom — wellness tracker',                                required: true  },
+      { id: 'platform',   label: 'Platform',                 type: 'chips-one', options: ['iOS','Android','Both (cross-platform)'] },
+      { id: 'category',   label: 'App Category',             type: 'chips-one', options: ['Social','E-Commerce','Finance','Health & Fitness','Productivity','Entertainment','Travel','Food & Beverage','Other'] },
+      { id: 'action',     label: 'Core User Action',         type: 'textarea',  placeholder: 'What is the primary thing a user comes to this app to do?',     required: true  },
+      { id: 'audience',   label: 'Target Audience',          type: 'text',      placeholder: 'e.g. Busy professionals aged 25–40',                           required: true  },
+      { id: 'screens',    label: 'Key Screens Needed',       type: 'chips',     options: ['Onboarding','Home / Feed','Profile','Search','Product / Detail','Checkout','Settings','Notifications','Dashboard','Map / Location'] },
+      { id: 'feel',       label: 'Visual Feel',              type: 'chips-one', options: ['Clean & Minimal','Bold & Vibrant','Professional','Playful','Dark Mode First','System-Native'] },
+      { id: 'colors',     label: 'Brand Colors',             type: 'colorpicker', required: false },
+      { id: 'refs',       label: 'Reference Images & URLs',  type: 'refpicker', required: false },
+      refStrengthField('refs'),
+    ]
+  },
+  {
+    id: 'designsystem', label: 'Design System', icon: 'designsystem', onlyFor: ['uiux', 'artdir', 'brand'],
+    taskExpertise: 'atomic design (atoms, molecules, organisms), design tokens (colour, type, spacing, radius, motion), component API design, variants and states, theming and dark mode, accessibility built into primitives, naming conventions, documentation, governance and contribution model, version control, and Figma library architecture',
+    optimizeFor: [
+      'Consistency and reuse across every product surface',
+      'Components that compose, not duplicate',
+      'Accessibility baked into the primitives, not bolted on',
+    ],
+    guidance: [
+      'Define tokens before components; tokens are the source of truth.',
+      'Design component APIs (props, variants, states) like a software interface — explicit and minimal.',
+      'Ship with documentation and contribution rules; an undocumented system is no system.',
+    ],
+    fields: [
+      { id: 'name',       label: 'Project / Brand Name',     type: 'text',      placeholder: 'e.g. Meridian UI Kit',                                         required: true  },
+      { id: 'platform',   label: 'Platform Target',          type: 'chips',     options: ['Web','iOS','Android','Cross-platform'] },
+      { id: 'scope',      label: 'Component Scope',          type: 'chips',     options: ['Buttons & CTAs','Forms / Inputs','Navigation','Cards','Typography Scale','Icon Set','Color Tokens','Spacing / Grid','Modals & Overlays','Data Display / Tables'] },
+      { id: 'tool',       label: 'Design Tool',              type: 'chips-one', options: ['Figma','Sketch','Adobe XD','Framer','Other'] },
+      { id: 'feel',       label: 'Visual Style',             type: 'chips-one', options: ['Corporate / Enterprise','Clean & Minimal','Expressive / Branded','Accessible-first','Dark Mode','Playful'] },
+      { id: 'hasBrand',   label: 'Existing brand assets available?', type: 'toggle', hint: 'Logo, color palette, and typography already defined' },
+      { id: 'colors',     label: 'Brand Colors',             type: 'colorpicker', required: false },
+      { id: 'notes',      label: 'Additional Notes',         type: 'textarea',  placeholder: 'Specific constraints, accessibility requirements, existing patterns to follow', required: false },
+    ]
+  },
+  {
+    id: 'translation', label: 'Translation', icon: 'translation', onlyFor: ['translate'],
+    fields: [
+      { id: 'srcLang',  label: 'Source Language',       type: 'select',    options: LANGS, required: true  },
+      { id: 'tgtLang',  label: 'Target Language',       type: 'select',    options: LANGS, required: true  },
+      { id: 'docType',  label: 'Document Type',         type: 'chips-one', options: ['Legal / Contract','Medical / Clinical','Marketing / Ad Copy','Technical / Manual','Literary / Creative','News / Press','Business / Corporate','Academic / Research'] },
+      { id: 'tone',     label: 'Tone / Register',       type: 'chips-one', options: ['Formal','Neutral','Informal','Technical','Creative'] },
+      { id: 'content',  label: 'Text to Translate',     type: 'textarea',  placeholder: 'Paste the source text here',                                     required: true  },
+      { id: 'notes',    label: 'Special Instructions',  type: 'textarea',  placeholder: 'e.g. Keep brand names in English, use formal honorifics, preserve formatting', required: false },
+    ]
+  },
+  {
+    id: 'report', label: 'Report', icon: 'report', onlyFor: ['translate'],
+    fields: [
+      { id: 'topic',      label: 'Report Topic',          type: 'textarea',  placeholder: 'What is this report about?',                                   required: true  },
+      { id: 'reportType', label: 'Report Type',           type: 'chips-one', options: ['Executive Summary','Research Report','Market Analysis','Progress Report','Incident Report','Proposal','Other'] },
+      { id: 'writeLang',  label: 'Write In',              type: 'select',    options: LANGS, required: true  },
+      { id: 'audience',   label: 'Target Audience',       type: 'text',      placeholder: 'e.g. Senior management, investors, internal team',             required: true  },
+      { id: 'length',     label: 'Length',                type: 'chips-one', options: ['Short (1–2 pages)','Medium (3–5 pages)','Long (6+ pages)'] },
+      { id: 'keypoints',  label: 'Key Points to Cover',   type: 'textarea',  placeholder: 'Main findings, arguments, or sections to include',            required: false },
+    ]
+  },
+  {
+    id: 'analysis', label: 'Analysis', icon: 'analysis', onlyFor: ['translate'],
+    fields: [
+      { id: 'subject',      label: 'Subject / Topic',     type: 'textarea',  placeholder: 'What is being analyzed?',                                      required: true  },
+      { id: 'analysisType', label: 'Analysis Type',       type: 'chips-one', options: ['SWOT','Competitive','Market','Financial','Content / Text','Policy / Legal','Risk','Other'] },
+      { id: 'writeLang',    label: 'Write In',            type: 'select',    options: LANGS, required: true  },
+      { id: 'purpose',      label: 'Purpose / Goal',      type: 'text',      placeholder: 'e.g. Inform strategic decision, identify risks, summarize findings', required: true },
+      { id: 'audience',     label: 'Target Audience',     type: 'text',      placeholder: 'Who will read this?',                                          required: false },
+      { id: 'length',       label: 'Length',              type: 'chips-one', options: ['Brief (1 page)','Standard (2–4 pages)','In-depth (5+ pages)'] },
+    ]
+  },
+  {
+    id: 'writing', label: 'Other Writing', icon: 'writing', onlyFor: ['translate'],
+    fields: [
+      { id: 'docType',   label: 'Document Type',          type: 'chips-one', options: ['Memo','Business Letter','Press Release','Proposal','Email','Speech / Script','Summary','Other'] },
+      { id: 'writeLang', label: 'Write In',               type: 'select',    options: LANGS, required: true  },
+      { id: 'audience',  label: 'Recipient / Audience',   type: 'text',      placeholder: 'Who is this for?',                                             required: true  },
+      { id: 'message',   label: 'Key Message / Purpose',  type: 'textarea',  placeholder: 'What should this document communicate?',                       required: true  },
+      { id: 'tone',      label: 'Tone',                   type: 'chips-one', options: ['Formal','Semi-formal','Informal','Persuasive','Informative'] },
+      { id: 'length',    label: 'Length',                 type: 'chips-one', options: ['Short','Medium','Long'] },
+    ]
+  },
+  {
+    id: 'chardesign', label: 'Character Design', icon: 'chardesign', onlyFor: ['artist', 'artdir'],
+    taskExpertise: 'silhouette readability, character anatomy and proportion, expression range, costume and prop design, model sheets, turnaround views, age and personality through form, recognisable shape language, and consistency across poses and angles',
+    optimizeFor: [
+      'A silhouette you recognise without colour or detail',
+      'Personality readable in the form, not just the face',
+      'Consistency that holds across poses, expressions, and angles',
+    ],
+    guidance: [
+      'Solve the silhouette first — if it reads in black, the design is working.',
+      'Let shape language carry personality: rounds for warmth, angles for tension, verticals for power.',
+      'Lock proportions early; everything that follows must hold them.',
+    ],
+    fields: [
+      { id: 'name',        label: 'Character Name / Role',    type: 'text',      placeholder: 'e.g. Kira — the rogue mercenary, or a nameless forest spirit', required: true,
+        hint: 'All outputs will use a plain white background — standard for character reference sheets.' },
+      { id: 'refs',        label: 'References & Inspiration', type: 'refpicker', required: false },
+      refStrengthField('refs', 'chardesign'),
+      { id: 'mood',        label: 'Personality / Feel',       type: 'chips',     options: ['Mysterious','Brave','Playful','Stoic','Chaotic','Gentle','Dark','Quirky','Wise','Innocent','Fierce','Melancholic'] },
+      { id: 'colors',      label: 'Colour Palette',           type: 'colorstrategy', required: false },
+      { id: 'genre',       label: 'Genre / World',            type: 'chips-one', options: ['Fantasy','Sci-Fi','Contemporary','Historical','Children\'s','Horror','Action / Adventure','Mythology','Other'] },
+      { id: 'ageRange',    label: 'Age Range',                type: 'chips-one', options: ['Child','Teen','Young Adult','Adult','Elderly','Ageless / Mythical'] },
+      { id: 'style',       label: 'Art Style',                type: 'chips-one', options: ['Follow Reference Images','Realistic','Stylised','Anime / Manga','Cartoon','Semi-Realistic','Graphic Novel','Painterly'] },
+      { id: 'notes',       label: 'Additional Details',       type: 'textarea',  placeholder: 'Costume, backstory, key visual features, props, scars, symbols…', required: false },
+      { id: 'angles',      label: 'Generate Multiple Views',  type: 'chips', promptHidden: true, options: ['Front View','Side Profile (Left)','Side Profile (Right)','Back View','3/4 View','Dynamic Pose'],
+        hint: 'Select the angles you want generated — each will be a separate image.' },
+      { id: 'expressions', label: 'Facial Expressions',       type: 'chips', promptHidden: true, options: ['Neutral','Happy / Smiling','Sad','Angry','Surprised','Fearful','Determined','Laughing','Smirking','Focused / Intense'],
+        hint: 'Select expressions to include — each will be shown as a separate facial close-up.' },
+    ]
+  },
+  {
+    id: 'conceptart', label: 'Concept Art', icon: 'conceptart', onlyFor: ['artist', 'artdir'],
+    taskExpertise: 'environment design, creature design, prop and vehicle design, world-building, mood and tonal exploration, key art, paint sketches, scale and perspective for production, callouts and orthographic views, and visual development from rough to polished',
+    optimizeFor: [
+      'Worldbuilding logic — every form earns its place',
+      'A strong mood read at thumbnail scale',
+      'Production-usable clarity (scale, structure, materials)',
+    ],
+    guidance: [
+      'Establish mood and silhouette in thumbnails before committing to detail.',
+      'Design from the world\'s rules outward — culture, climate, function shape form.',
+      'Include scale cues, callouts, and orthographic views when the piece needs to be built from.',
+    ],
+    fields: [
+      { id: 'subject',     label: 'Subject',                  type: 'chips-one', options: ['Character','Environment / Location','Creature','Vehicle / Craft','Prop / Object','Architecture','Costume / Armour','Other'] },
+      { id: 'description', label: 'Description',              type: 'textarea',  placeholder: 'Describe the subject in detail — what it is, what it does, what it means', required: true },
+      { id: 'refs',        label: 'References & Inspiration', type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'mood',        label: 'Feel / Atmosphere',        type: 'chips',     options: ['Epic','Eerie','Desolate','Lush','Tense','Serene','Mysterious','Brutal','Hopeful','Ancient','Futuristic','Intimate'] },
+      { id: 'colors',      label: 'Colour Palette',           type: 'colorstrategy', required: false },
+      { id: 'genre',       label: 'Genre / Setting',          type: 'chips-one', options: ['Fantasy','Sci-Fi','Post-Apocalyptic','Historical','Contemporary','Horror','Cyberpunk','Mythology','Solarpunk','Other'] },
+      { id: 'lighting',    label: 'Lighting',                 type: 'chips-one', options: ['Golden Hour','Overcast / Diffused','Night / Moonlight','Dramatic Side-lit','Soft Natural','Rim-lit','Studio','Underwater','Fire / Candlelight'] },
+      { id: 'style',       label: 'Render Style',             type: 'chips-one', options: ['Rough Sketch / Thumbnail','Clean Line Art','Painterly Colour','Fully Rendered','Greyscale','Silhouette','3D / Sculptural'] },
+    ]
+  },
+  {
+    id: 'bookcover', label: 'Book / Editorial Cover', icon: 'bookcover', onlyFor: ['artist', 'artdir'],
+    taskExpertise: 'cover composition, title and author typography integration, genre conventions, symbolic imagery, spine and back-cover awareness, dust jacket vs paperback considerations, series cohesion, browse-test readability at thumbnail size, and tonal match to the manuscript',
+    optimizeFor: [
+      'Tone that promises the book inside accurately',
+      'Title legibility from a bookshop browse distance',
+      'A hook the eye returns to in a feed of thumbnails',
+    ],
+    guidance: [
+      'Match tone to the book — not to current cover trends.',
+      'Test the design at thumbnail size; if the title disappears, redesign.',
+      'Treat type and image as one composition, not two layers.',
+    ],
+    fields: [
+      { id: 'title',       label: 'Title / Publication Name', type: 'text',      placeholder: 'e.g. The Salt Shore, Wired Magazine — June issue', required: true  },
+      { id: 'author',      label: 'Author / Credit',          type: 'text',      placeholder: 'e.g. Hannah Moore, Edited by Tom Reyes — leave blank if none',         required: false },
+      { id: 'genre',       label: 'Genre / Type',             type: 'chips-one', options: ['Novel — Literary','Novel — Genre Fiction','Children\'s Book','Young Adult','Non-Fiction','Poetry / Art Book','Magazine Cover','Editorial Spread','Comic / Graphic Novel'] },
+      { id: 'summary',     label: 'Story / Topic Summary',    type: 'textarea',  placeholder: 'What is this book or piece about? Key themes, narrative, tone', required: true  },
+      { id: 'refs',        label: 'References & Inspiration', type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'mood',        label: 'Feel / Mood',              type: 'chips',     options: ['Dreamy','Dark','Hopeful','Tense','Melancholic','Playful','Epic','Intimate','Mysterious','Whimsical','Raw'] },
+      { id: 'colors',      label: 'Colour Palette',           type: 'colorstrategy', required: false },
+      { id: 'style',       label: 'Cover Style',              type: 'chips-one', options: ['Minimalist','Pure Typography','Hand-lettered','Illustration — Full Cover','Illustration — Spot / Accent','Photographic','Abstract / Conceptual','Collage / Mixed Media','Flat / Graphic'],
+        hint: 'Pick the dominant approach. Minimalist = lots of space; Pure Typography = title is the design.' },
+      { id: 'coverDirection', label: 'Direction Notes',       type: 'textarea',  placeholder: 'Describe what the cover should look like in your own words. e.g. "Just the title set in serif on a deep navy background, no image." Or "Single bold illustration of a wolf centred on cream, type small at the bottom." Or "Photographic close-up of hands, type runs across the top in thin sans-serif."', required: false, hint: 'Use this to lock in specifics: composition, what to include or avoid, type placement, image vs no image.' },
+    ]
+  },
+  {
+    id: 'storyboard', label: 'Storyboard', icon: 'storyboard', onlyFor: ['artist', 'artdir', 'motion'],
+    taskExpertise: 'shot composition, framing and camera language (close-up, medium, wide, OTS, POV), camera movement notation, beat-by-beat sequencing, eyelines and screen direction, continuity, action arrows, panel-to-panel flow, and clarity over polish',
+    optimizeFor: [
+      'Readable shots that communicate intent, not finished art',
+      'Clear continuity between panels',
+      'Camera language that translates directly to set or shoot',
+    ],
+    guidance: [
+      'Use the simplest mark that conveys the shot — clarity beats finish.',
+      'Hold eyeline and screen direction across panels; breaks must be intentional.',
+      'Annotate camera movement, focal length, and timing where the staging alone won\'t carry it.',
+    ],
+    fields: [
+      { id: 'project',     label: 'Project Title',            type: 'text',      placeholder: 'e.g. Brand film — Meridian Studio, or short film — The Return', required: true  },
+      { id: 'scene',       label: 'Scene / Sequence',         type: 'textarea',  placeholder: 'Describe the action, narrative, and emotion of each beat', required: true  },
+      { id: 'refs',        label: 'References & Inspiration', type: 'refpicker', required: false },
+      refStrengthField('refs'),
+      { id: 'mood',        label: 'Feel / Tone',              type: 'chips',     options: ['Tense','Calm','Dramatic','Playful','Cinematic','Intimate','Epic','Melancholic','Urgent'] },
+      { id: 'panels',      label: 'Number of Panels',         type: 'chips-one', options: ['4 panels','6 panels','8 panels','12 panels','16 panels'] },
+      { id: 'format',      label: 'Frame Format',             type: 'chips-one', options: ['Landscape 16:9','Portrait 9:16','Square 1:1','Comic Page'] },
+      { id: 'style',       label: 'Drawing Style',            type: 'chips-one', options: ['Rough Thumbnails','Clean Line Art','Fully Rendered','Minimal / Stick Figure'] },
+      { id: 'notes',       label: 'Transition & Camera Notes', type: 'textarea', placeholder: 'Cut, dissolve, pan, zoom, POV — any camera direction notes', required: false },
+    ]
+  },
+];
+
+const STEPS = [
+  { label: 'Role',    title: 'Choose your role',          sub: 'Select the expert persona the AI will embody.' },
+  { label: 'Create',  title: 'What are you creating?',    sub: 'Choose the type of deliverable you need.' },
+  { label: 'Details', title: 'Tell us more',              sub: 'The more specific you are, the sharper your prompt.' },
+  { label: 'Prompt',  title: 'Your prompt is ready',      sub: 'Copy and paste this into any AI tool.' },
+];
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+
+let S = {
+  step: 1,
+  role: null,
+  content: null,
+  form: {},
+  toggles: {},
+  chips: {},
+  colors: {},
+  refs: {},
+};
+
+function getRoles() {
+  try {
+    const saved = localStorage.getItem('ps_roles');
+    return saved ? JSON.parse(saved) : structuredClone(DEFAULT_ROLES);
+  } catch { return structuredClone(DEFAULT_ROLES); }
+}
+
+function setRoles(roles) {
+  localStorage.setItem('ps_roles', JSON.stringify(roles));
+}
+
+// ═══════════════════════════════════════════════════
+//  SVG ICONS
+// ═══════════════════════════════════════════════════
+
+const I = {
+  uiux:   `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="26" height="17" rx="2"/><path d="M10 22v4M20 22v4M6 26h18"/><rect x="6" y="9" width="8" height="5" rx="1"/><path d="M17 11h7M17 14h5"/></svg>`,
+  graphic:`<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 22L4 27h7v-7l10-10 2 2-10 10z"/><path d="M21 17l-7-7 4-4 7 7-4 4z"/><path d="M4 27l5-5"/></svg>`,
+  copy:   `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5H7a2 2 0 00-2 2v18a2 2 0 002 2h16a2 2 0 002-2V7a2 2 0 00-2-2h-4"/><rect x="9" y="3" width="12" height="5" rx="1.5"/><path d="M9 15h12M9 19h8"/></svg>`,
+  translate:`<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h13M9 4v3"/><path d="M4 7c0 5 5 9 9 9"/><path d="M12 7c-1 3-4 7-8 9"/><path d="M16 16l4-9 4 9M17.5 13h5"/></svg>`,
+  brand:  `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="15,3 19,11 28,12.5 21.5,19 23,28 15,24 7,28 8.5,19 2,12.5 11,11"/></svg>`,
+  motion: `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="15" r="10"/><polygon points="12,10 12,20 21,15"/></svg>`,
+  social: `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="3"/><circle cx="23" cy="7" r="3"/><circle cx="23" cy="23" r="3"/><path d="M10 14l10-5M10 16l10 5"/></svg>`,
+  artdir: `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="10" height="13" rx="1"/><rect x="17" y="3" width="10" height="6" rx="1"/><rect x="17" y="13" width="10" height="14" rx="1"/><rect x="3" y="20" width="10" height="7" rx="1"/></svg>`,
+  website:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="30" height="24" rx="2"/><path d="M3 12h30"/><circle cx="8" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="8.5" r="1" fill="currentColor" stroke="none"/><path d="M8 19h14M8 24h9"/></svg>`,
+  poster: `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="20" height="32" rx="1.5"/><path d="M12 10h12M12 14h8M12 19h12M12 24h6"/></svg>`,
+  logo:   `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 4l3.3 6.7 7.3 1-5.3 5.2 1.3 7.3L18 21l-6.6 3.2 1.3-7.3L7.4 11.7l7.3-1z"/></svg>`,
+  banner: `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="30" height="12" rx="1.5"/><path d="M8 18h20M8 21.5h12"/></svg>`,
+  video:  `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="22" height="20" rx="2"/><path d="M24 15l10-5v16l-10-5V15z"/></svg>`,
+  illustration:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 29c3-2 7-10 11-10s5 5 8 3"/><path d="M5 23C7 21 9 10 14 8s6 6 9 5 5-5 7-5"/><circle cx="10" cy="12" r="3.5"/></svg>`,
+  artist:`<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 24c0-4 2-7 5-9l9-9a3 3 0 014 4l-9 9c-2 3-2 7 0 9"/><path d="M14 10l6 6"/><circle cx="7.5" cy="25.5" r="2.5"/></svg>`,
+  photographer:`<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="24" height="17" rx="2"/><circle cx="15" cy="17.5" r="5"/><circle cx="15" cy="17.5" r="2"/><path d="M10.5 9V7L13 5h4l2.5 2v2"/><circle cx="24" cy="13" r="1" fill="currentColor" stroke="none"/></svg>`,
+  photo:          `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 28a2 2 0 01-2 2H6a2 2 0 01-2-2V13a2 2 0 012-2h4l2-4h12l2 4h4a2 2 0 012 2z"/><circle cx="18" cy="20" r="5"/></svg>`,
+  'portrait-photo': `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="13" r="6"/><path d="M6 33c0-7 5.4-12 12-12s12 5 12 12"/></svg>`,
+  'landscape-photo':`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="30" height="24" rx="2"/><path d="M3 22l8-9 7 7 5-6 13 13"/><circle cx="27" cy="12" r="2.5"/></svg>`,
+  'nature-wildlife':`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 30C9 19 20 8 31 6c-2 10-13 20-24 24z"/><path d="M7 30l8-8"/><circle cx="28" cy="9" r="1.5" fill="currentColor" stroke="none"/></svg>`,
+  'street-photo':   `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="16" width="9" height="16"/><rect x="14" y="9" width="8" height="23"/><rect x="25" y="19" width="9" height="13"/><path d="M2 32h32"/><rect x="16" y="13" width="2" height="2"/><rect x="20" y="13" width="2" height="2"/><rect x="16" y="18" width="2" height="2"/><rect x="20" y="18" width="2" height="2"/></svg>`,
+  'product-photo':  `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 5l12 6v12l-12 6-12-6V11z"/><path d="M18 5v24"/><path d="M6 11l12 6 12-6"/><path d="M3 29h30"/></svg>`,
+  app:          `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="2" width="16" height="32" rx="3"/><path d="M10 7h16M10 29h16"/><circle cx="18" cy="31.5" r="1" fill="currentColor" stroke="none"/><path d="M14 12h8M14 16h5"/></svg>`,
+  designsystem: `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="12" height="12" rx="2"/><rect x="21" y="3" width="12" height="12" rx="2"/><rect x="3" y="21" width="12" height="12" rx="2"/><rect x="21" y="21" width="12" height="12" rx="2"/></svg>`,
+  translation:  `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M12 6v3"/><path d="M5 9c0 6 6 11 11 11"/><path d="M14 9c-1 4-5 8-10 11"/><path d="M20 20l5-11 5 11M21.5 17h7"/></svg>`,
+  report:       `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="22" height="30" rx="2"/><path d="M13 11h10M13 16h10M13 21h6"/><path d="M26 9V3l6 6h-6z"/></svg>`,
+  analysis:     `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="30" height="30" rx="2"/><path d="M9 24l6-7 5 4 7-10"/><path d="M3 18h30"/></svg>`,
+  writing:      `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4l8 8-16 16H6v-8L22 4z"/><path d="M18 8l8 8"/><path d="M3 32h30"/></svg>`,
+  chardesign:   `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="11" r="5"/><path d="M8 30c0-6 4.5-10 10-10s10 4 10 10"/><path d="M27 14l3-2M27 18l4 1M9 14l-3-2M9 18l-4 1"/></svg>`,
+  conceptart:   `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 28l8-10 6 6 5-7 11 11"/><path d="M3 28h30"/><circle cx="26" cy="10" r="3"/></svg>`,
+  bookcover:    `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="22" height="30" rx="1.5"/><path d="M7 6h22"/><path d="M12 13h12M12 17h8"/><path d="M12 23c2-2 5-2 7 0s5 2 7 0"/></svg>`,
+  storyboard:   `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="13" height="10" rx="1"/><rect x="20" y="4" width="13" height="10" rx="1"/><rect x="3" y="19" width="13" height="10" rx="1"/><rect x="20" y="19" width="13" height="10" rx="1"/><path d="M3 32h30"/></svg>`,
+  plus:   `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v12M2 8h12"/></svg>`,
+  edit:   `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5l3 3-7.5 7.5H2v-3l7.5-7.5z"/></svg>`,
+  trash:  `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h12M4 3V1.5h6V3M11.5 3l-1 10h-7L2.5 3"/></svg>`,
+  close:  `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>`,
+  info:   `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 6.25v3.5"/><circle cx="7" cy="4.4" r="0.6" fill="currentColor" stroke="none"/></svg>`,
+  arrowR: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 2l5 5-5 5"/></svg>`,
+  arrowL: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 2L3.5 7l5 5"/></svg>`,
+  link:   `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8.5a3.5 3.5 0 005 0l2-2a3.5 3.5 0 00-5-5L6.25 2.75"/><path d="M8.5 5.5a3.5 3.5 0 00-5 0l-2 2a3.5 3.5 0 005 5L7.75 11.25"/></svg>`,
+  image:  `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="12" height="10" rx="1.5"/><path d="M1 9l3-3 2.5 2.5L9 6l4 4"/><circle cx="4.5" cy="5" r="1" fill="currentColor" stroke="none"/></svg>`,
+  copy2:  `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M4 4V2a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H9"/></svg>`,
+  check:  `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 7L5 10.5l6.5-7"/></svg>`,
+  refresh:`<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5A5 5 0 102.5 10"/><path d="M12 1.5v3h-3"/></svg>`,
+};
+
+function ico(name, size = '') {
+  return `<span class="ico" style="${size}">${I[name] || ''}</span>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  PROMPT BUILDER
+// ═══════════════════════════════════════════════════
+
+function buildPrompt() {
+  const roles = getRoles();
+  const role    = roles.find(r => r.id === S.role);
+  const content = CONTENT_TYPES.find(c => c.id === S.content);
+  if (!role || !content) return '';
+
+  const lines = [];
+  const pushColorList = (label, colors) => {
+    if (!colors.length) return;
+    lines.push(`${label}:`);
+    colors.forEach(c => lines.push(`  ${c.label}: ${c.hex}`));
+  };
+
+  if (content.slimPrompt) {
+    lines.push(content.slimPrompt);
+  } else {
+    lines.push(`You are an expert ${role.name} — ${role.desc}.`);
+    if (role.keywords) lines.push(`Core expertise: ${role.keywords}.`);
+    if (content.taskExpertise) lines.push(`For this task — ${content.taskExpertise}.`);
+    const optimizeFor = [...(role.optimizeFor || []), ...(content.optimizeFor || [])];
+    if (optimizeFor.length) {
+      lines.push('');
+      lines.push('Optimize for:');
+      optimizeFor.forEach(o => lines.push(`  - ${o}`));
+    }
+    const guidance = [...(role.guidance || []), ...(content.guidance || [])];
+    if (guidance.length) {
+      lines.push('');
+      lines.push('When responding:');
+      guidance.forEach(g => lines.push(`  - ${g}`));
+    }
+    lines.push('');
+    lines.push(`Task: Create a ${content.label}`);
+  }
+  lines.push('');
+  lines.push('─── PROJECT BRIEF ───────────────────────────────');
+  lines.push('');
+
+  content.fields.forEach(f => {
+    if (f.type === 'section') return;
+    if (f.promptHidden) return;
+    if (f.showIf && !isCondMet(f.showIf)) return;
+    const lbl = f.promptLabel || f.label;
+    if (f.type === 'refpicker') {
+      const refs = (S.refs[f.id] || []).filter(r =>
+        r.type === 'url' ? r.value.trim() : r.name
+      );
+      if (refs.length) {
+        const listRefs = () => refs.forEach((r, i) => {
+          if (r.type === 'url') lines.push(`  ${i + 1}. ${r.value.trim()}`);
+          else lines.push(`  ${i + 1}. ${r.name} (attach this image to your conversation)`);
+        });
+        if (f.assetKind === 'logo') {
+          lines.push(`${lbl} — this logo MUST appear in the final design, reproduced exactly as provided:`);
+          listRefs();
+          lines.push('  Place the logo into the composition without redrawing, recolouring, cropping, or distorting it. Preserve its exact shape, colours, and proportions, and give it adequate clear space.');
+        } else if (f.assetMode) {
+          lines.push(`${lbl} — these images MUST be incorporated into the final design (they are not style references):`);
+          listRefs();
+          lines.push('  Composite these images cleanly and legibly into the layout. Integrate them naturally into the design rather than using them only as inspiration.');
+        } else {
+          lines.push(`${lbl}:`);
+          listRefs();
+        }
+      }
+    } else if (f.type === 'colorpicker') {
+      pushColorList(lbl, S.colors[f.id] || []);
+    } else if (f.type === 'colorstrategy') {
+      const mode = S.form[f.id + '_mode'] || f.defaultColorMode || 'ai';
+      if (mode === 'manual') {
+        pushColorList(lbl, S.colors[f.id] || []);
+      } else if (mode === 'upload') {
+        const pal = S.refs[f.id + '_palette'];
+        lines.push(`${lbl} — MANDATORY COLOUR MATCHING:`);
+        lines.push(`  The attached reference image${pal ? ` ("${pal.name}")` : ''} defines the colour palette for this design.`);
+        lines.push(`  Extract the dominant, secondary, and accent colours from that image and apply them as the exclusive palette throughout.`);
+        lines.push(`  Every colour in this work — backgrounds, type, graphics, and any other element — must come directly from that reference.`);
+        lines.push(`  Do not introduce any colour that does not appear in the reference image.`);
+      } else if (mode === 'bw') {
+        lines.push(`${lbl}: Start in black and white — solve the mark in one colour first. Colour can be introduced once the silhouette and form are working.`);
+      } else {
+        lines.push(`${lbl}: No specific colours defined — choose a palette that best fits this brief and tone.`);
+      }
+    } else if (f.type === 'toggle') {
+      lines.push(`${lbl}: ${S.toggles[f.id] ? 'Yes' : 'No'}`);
+    } else if (f.type === 'range') {
+      const val = S.form[f.id] !== undefined ? S.form[f.id] : (f.default !== undefined ? f.default : 50);
+      if (f.promptMap) {
+        const keys = Object.keys(f.promptMap).map(Number).sort((a, b) => a - b);
+        let text = f.promptMap[keys[0]];
+        for (const k of keys) { if (val >= k) text = f.promptMap[k]; }
+        lines.push(`${lbl}: ${text}`);
+      } else {
+        lines.push(`${lbl}: ${val}`);
+      }
+    } else if (f.type === 'chips' || f.type === 'chips-one' || f.type === 'chips-grouped') {
+      const sel = S.chips[f.id] || [];
+      if (!sel.length) return;
+      if (f.multiPrompt) {
+        const customField = content.fields.find(cf => cf.showIf && cf.showIf.field === f.id && cf.showIf.value === 'Custom');
+        const customVal   = customField ? (S.form[customField.id] || '').trim() : '';
+        const resolved    = sel.map(s => s === 'Custom' ? (customVal || 'Custom size (specify)') : s);
+        if (resolved.length > 1) {
+          lines.push(`Generate ${resolved.length} separate images in these sizes:`);
+          lines.push('');
+          resolved.forEach((s, i) => lines.push(`${i + 1}. Image ${i + 1} — ${s}`));
+        } else {
+          lines.push(`${lbl}: ${resolved[0]}`);
+        }
+      } else {
+        if (sel.length === 1 && /let ai decide/i.test(sel[0])) {
+          lines.push(`${lbl}: AI's choice — pick what best fits the brief, mood, and subject.`);
+        } else {
+          lines.push(`${lbl}: ${sel.join(', ')}`);
+        }
+      }
+    } else {
+      const val = (S.form[f.id] || '').trim();
+      if (val) lines.push(`${lbl}: ${val}`);
+    }
+  });
+
+  if (content.closing) {
+    lines.push('');
+    lines.push(content.closing);
+  }
+
+  const PHOTO_TYPES = ['photo', 'portrait', 'landscape', 'nature-wildlife', 'street', 'product-photo'];
+  const SELF_DIRECTED = new Set(['logo', 'chardesign']);
+  const deliverable = PHOTO_TYPES.includes(content.id) ? 'photograph' : content.label.toLowerCase();
+
+  lines.push('');
+  lines.push('─────────────────────────────────────────────────');
+  lines.push('');
+  lines.push('Constraints:');
+  lines.push('Do not add unrelated text, random logos, watermarks, or unrelated objects.');
+  lines.push('');
+  lines.push(`Before producing the final ${deliverable}, ask me exactly 5 targeted questions to better understand my vision.`);
+  lines.push('');
+  lines.push('Question rules:');
+  lines.push(`- Make each question specific to this ${content.label.toLowerCase()}, not generic.`);
+  lines.push(`- Ask about details that would meaningfully sharpen the final ${deliverable}.`);
+  lines.push('- Where useful, include short examples so the questions are easy to answer.');
+  lines.push('- Do not ask more than 5 questions.');
+  lines.push(`- Do not start producing the ${deliverable} yet.`);
+
+  if (!SELF_DIRECTED.has(content.id)) {
+    lines.push('');
+    lines.push('After I answer the 5 questions:');
+    lines.push(`- Immediately produce the final ${deliverable} based on the brief and my answers.`);
+    lines.push('- Do not ask any further questions.');
+    lines.push('- Do not restate the brief outside the final deliverable.');
+    lines.push('- Do not explain your process.');
+  }
+
+  if (content.id === 'logo') {
+    lines.push('');
+    lines.push('Once I have answered your questions, generate 3 distinct logo concept directions based on this brief. For each concept, provide:');
+    lines.push('');
+    lines.push('Concept 1 — [Name / Direction]');
+    lines.push('• Description: what it looks like and why it fits the brand');
+    lines.push('• Visual elements: shapes, type treatment, mark style');
+    lines.push('• Scalability note: how it works in one colour and at small sizes');
+    lines.push('• Colour suggestion: primary + accent');
+    lines.push('• Mood / feeling it conveys');
+    lines.push('');
+    lines.push('Concept 2 — [Name / Direction]');
+    lines.push('• Description');
+    lines.push('• Visual elements');
+    lines.push('• Scalability note');
+    lines.push('• Colour suggestion');
+    lines.push('• Mood / feeling');
+    lines.push('');
+    lines.push('Concept 3 — [Name / Direction]');
+    lines.push('• Description');
+    lines.push('• Visual elements');
+    lines.push('• Scalability note');
+    lines.push('• Colour suggestion');
+    lines.push('• Mood / feeling');
+    lines.push('');
+    lines.push('After presenting all 3 concepts, ask:');
+    lines.push('"Would you like to redo all 3 with a different direction, or shall we pick one and develop it further into final artwork?"');
+  }
+
+  if (content.id === 'illustration' && S.toggles['charInclude']) {
+    const styleApproach = (S.chips['charStyleApproach'] || [])[0];
+    lines.push('');
+    lines.push('─── STYLE CONSISTENCY ───────────────────────────');
+    lines.push('');
+    if (styleApproach === "Match character's style") {
+      lines.push('Style direction: Use the character reference images as the visual style guide for the entire illustration. The background, environment, and all scene elements must be rendered in the same style as the character — not just in a similar genre, but the same visual language, line weight, rendering technique, and medium.');
+    } else {
+      lines.push('Style direction: You have creative freedom to choose the art style that best fits this brief. Base your style choice on the overall mood, composition, and subject — not necessarily on the character references.');
+    }
+    lines.push('');
+    lines.push('Style uniformity (non-negotiable): Every element in the illustration — the character, background, objects, and scene — must share one consistent art style and medium. Do not mix styles or rendering techniques under any circumstances. For example: no vector character on a painted background, no digital character in a watercolour scene, no 3D figure against a flat graphic environment. The piece must read as one cohesive artwork.');
+  }
+
+  if (content.id === 'chardesign') {
+    const selectedAngles      = S.chips['angles']      || [];
+    const selectedExpressions = S.chips['expressions'] || [];
+
+    lines.push('');
+    lines.push('─── OUTPUT FORMAT ───────────────────────────────');
+    lines.push('');
+    lines.push('All character sheets must use a plain white background. This is a character design reference document — the background should never distract from the character itself.');
+    lines.push('');
+
+    if (selectedAngles.length > 0 || selectedExpressions.length > 0) {
+      lines.push('Once you have answered my questions, generate the following as separate images:');
+      lines.push('');
+
+      if (selectedAngles.length > 0) {
+        lines.push(`Character views (${selectedAngles.length} image${selectedAngles.length > 1 ? 's' : ''}):`);
+        selectedAngles.forEach((a, i) => lines.push(`  ${i + 1}. Full-body character sheet — ${a} — plain white background`));
+        lines.push('');
+      }
+
+      if (selectedExpressions.length > 0) {
+        lines.push(`Facial expressions (${selectedExpressions.length} image${selectedExpressions.length > 1 ? 's' : ''}):`);
+        selectedExpressions.forEach((e, i) => lines.push(`  ${i + 1}. Facial close-up — ${e} — plain white background`));
+        lines.push('');
+      }
+    } else {
+      lines.push('Once I have answered these 5 questions, generate the character design immediately based on this brief and my answers. Do not ask further questions or describe your plan — produce the character sheet directly.');
+      lines.push('');
+    }
+
+    lines.push('Maintain exact character consistency (face, proportions, colours, costume) across all views and expressions.');
+  }
+
+  return lines.join('\n');
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════
+
+function render() {
+  renderProgress();
+
+  const main = document.getElementById('main');
+  const wrap = document.createElement('div');
+  wrap.className = 'step-in';
+
+  switch (S.step) {
+    case 1: wrap.innerHTML = step1(); break;
+    case 2: wrap.innerHTML = step2(); break;
+    case 3: wrap.innerHTML = step3(); break;
+    case 4: wrap.innerHTML = step4(); break;
+  }
+
+  main.innerHTML = '';
+  main.appendChild(wrap);
+}
+
+function renderProgress() {
+  const el = document.getElementById('progress-bar');
+  el.innerHTML = STEPS.map((s, i) => {
+    const n   = i + 1;
+    const cls = S.step > n ? 'is-done' : S.step === n ? 'is-active' : '';
+    const dot = S.step > n ? I.check : String(n);
+    return `
+      ${i > 0 ? '<div class="prog-line"></div>' : ''}
+      <div class="prog-step ${cls}">
+        <div class="prog-dot">${dot}</div>
+        <span class="prog-label">${s.label}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Step 1: Role ─────────────────────────────────
+
+const ACTIVE_ROLES = new Set(['uiux', 'graphic', 'artist', 'photographer']);
+
+function step1() {
+  const roles = getRoles();
+  const cards = roles.map(r => {
+    const active = r.custom || ACTIVE_ROLES.has(r.id);
+    const sel = S.role === r.id ? 'is-selected' : '';
+    const dis = !active ? 'is-disabled' : '';
+    const actions = r.custom ? `
+      <div class="rc-actions">
+        <button class="rc-btn" onclick="onEditRole(event,'${r.id}')" title="Edit">${I.edit}</button>
+        <button class="rc-btn" onclick="onDeleteRole(event,'${r.id}')" title="Delete">${I.trash}</button>
+      </div>` : '';
+    return `
+      <div class="role-card ${sel} ${dis}" data-rid="${r.id}" onclick="onSelectRole('${r.id}')">
+        <div class="rc-icon">${I[r.icon] || I.brand}</div>
+        <div class="rc-name">${r.name}</div>
+        <div class="rc-desc">${r.desc}</div>
+        <div class="rc-soon">Coming soon</div>
+        ${actions}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="step-header">
+      <div class="step-tag">Step 1 of 4</div>
+      <h1 class="step-title">${STEPS[0].title}</h1>
+      <p class="step-sub">${STEPS[0].sub}</p>
+    </div>
+    <div class="role-grid">
+      ${cards}
+      <button class="add-role-card" onclick="openRoleModal()">
+        <span class="arc-icon">${I.plus}</span>
+        <span class="arc-label">Add Custom Role</span>
+      </button>
+    </div>`;
+}
+
+// ── Step 2: Content type ──────────────────────────
+
+function step2() {
+  const roles = getRoles();
+  const role  = roles.find(r => r.id === S.role);
+
+  const visible = CONTENT_TYPES.filter(ct => {
+    if (ct.onlyFor    && !ct.onlyFor.includes(S.role))    return false;
+    if (ct.excludeFor &&  ct.excludeFor.includes(S.role)) return false;
+    return true;
+  });
+
+  const cards = visible.map(ct => {
+    const sel = S.content === ct.id ? 'is-selected' : '';
+    return `
+      <div class="content-card ${sel}" data-cid="${ct.id}" onclick="onSelectContent('${ct.id}')">
+        <button class="cc-info" title="What skills will this add?" onclick="event.stopPropagation(); openTaskInfo('${ct.id}')">${I.info}</button>
+        <div class="cc-icon">${I[ct.icon] || I.brand}</div>
+        <div class="cc-label">${ct.label}</div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="step-header">
+      <div class="step-tag">Step 2 of 4</div>
+      <h1 class="step-title">${STEPS[1].title}</h1>
+      <p class="step-sub">${STEPS[1].sub}</p>
+    </div>
+    ${role ? `<div class="summary-bar"><div class="summary-item">Role: <b>${role.name}</b></div></div>` : ''}
+    <div class="content-grid">${cards}</div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="prevStep()">${ico('arrowL')} Back</button>
+      <div></div>
+    </div>`;
+}
+
+// ── Step 3: Details form ──────────────────────────
+
+function step3() {
+  const roles   = getRoles();
+  const role    = roles.find(r => r.id === S.role);
+  const content = CONTENT_TYPES.find(c => c.id === S.content);
+  if (!content) return '';
+
+  const fields = renderFieldsWithSections(content);
+
+  return `
+    <div class="step-header">
+      <div class="step-tag">Step 3 of 4</div>
+      <h1 class="step-title">${STEPS[2].title}</h1>
+      <p class="step-sub">${STEPS[2].sub}</p>
+    </div>
+    <div class="summary-bar">
+      <div class="summary-item">Role: <b>${role?.name || ''}</b></div>
+      <div class="summary-sep"></div>
+      <div class="summary-item">Creating: <b>${content.label}</b></div>
+    </div>
+    <div class="form-stack">${fields}</div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="prevStep()">${ico('arrowL')} Back</button>
+      <button class="btn-primary" onclick="onGenerate()">
+        Generate Prompt ${ico('arrowR')}
+      </button>
+    </div>`;
+}
+
+function renderFieldsWithSections(content) {
+  const out = [];
+  let inCollapsed = false;
+  let collapsedFields = [];
+  let collapsedLabel = '';
+  let advCounter = 0;
+
+  const flushCollapsed = () => {
+    if (!inCollapsed) return;
+    const aid = `adv-${advCounter++}`;
+    out.push(`
+      <div class="advanced-section">
+        <button class="advanced-toggle" type="button" onclick="toggleAdvanced(this,'${aid}')">
+          <span>${esc(collapsedLabel)}</span>
+          <span class="advanced-chev">${I.arrowR}</span>
+        </button>
+        <div class="advanced-panel" id="${aid}" hidden>
+          ${collapsedFields.join('')}
+        </div>
+      </div>`);
+    inCollapsed = false;
+    collapsedFields = [];
+    collapsedLabel = '';
+  };
+
+  content.fields.forEach(f => {
+    if (f.type === 'section') {
+      flushCollapsed();
+      if (f.collapsed) {
+        inCollapsed = true;
+        collapsedLabel = f.label;
+      } else {
+        out.push(`<h2 class="form-section-title">${esc(f.label)}</h2>`);
+      }
+      return;
+    }
+    const rendered = renderField(f);
+    if (inCollapsed) collapsedFields.push(rendered);
+    else out.push(rendered);
+  });
+  flushCollapsed();
+  return out.join('');
+}
+
+function toggleAdvanced(btn, panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  const open = panel.hasAttribute('hidden') ? false : true;
+  if (open) { panel.setAttribute('hidden', ''); btn.classList.remove('is-open'); }
+  else      { panel.removeAttribute('hidden'); btn.classList.add('is-open'); }
+}
+
+function renderField(f) {
+  if (f.type === 'section') return '';
+  const val      = esc(S.form[f.id] || '');
+  const toggleOn = S.toggles[f.id] || false;
+  const selChips = S.chips[f.id] || [];
+  const optBadge = f.required === false ? `<span class="opt-tag">optional</span>` : '';
+  const reqStar  = f.required !== false ? `<span class="req">*</span>` : '';
+
+  let inner = '';
+
+  if (f.type === 'text') {
+    inner = `
+      <div class="field">
+        <label class="field-label" for="fi-${f.id}">${f.label} ${reqStar}${optBadge}</label>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        <input class="fi" id="fi-${f.id}" type="text" placeholder="${esc(f.placeholder || '')}" value="${val}" oninput="S.form['${f.id}']=this.value">
+      </div>`;
+  }
+
+  else if (f.type === 'textarea') {
+    inner = `
+      <div class="field">
+        <label class="field-label" for="fi-${f.id}">${f.label} ${reqStar}${optBadge}</label>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        <textarea class="fi" id="fi-${f.id}" placeholder="${esc(f.placeholder || '')}" oninput="S.form['${f.id}']=this.value">${val}</textarea>
+      </div>`;
+  }
+
+  else if (f.type === 'select') {
+    const opts = f.options.map(o =>
+      `<option value="${esc(o)}" ${S.form[f.id] === o ? 'selected' : ''}>${o}</option>`
+    ).join('');
+    inner = `
+      <div class="field">
+        <label class="field-label" for="fi-${f.id}">${f.label} ${reqStar}</label>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        <select class="fi" id="fi-${f.id}" onchange="S.form['${f.id}']=this.value; updateConditionals('${f.id}')">
+          <option value="">— Select —</option>
+          ${opts}
+        </select>
+      </div>`;
+  }
+
+  else if (f.type === 'toggle') {
+    inner = `
+      <div class="field">
+        <div class="field-label">${f.label}</div>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        <div class="toggle-row" onclick="onToggle('${f.id}')">
+          <div class="toggle-track ${toggleOn ? 'is-on' : ''}" id="tt-${f.id}"></div>
+          <span class="toggle-label-text" id="tl-${f.id}">${toggleOn ? 'Yes' : 'No'}</span>
+        </div>
+      </div>`;
+  }
+
+  else if (f.type === 'range') {
+    const rVal = S.form[f.id] !== undefined ? S.form[f.id] : (f.default !== undefined ? f.default : 50);
+    const pct  = ((rVal - (f.min || 0)) / ((f.max || 100) - (f.min || 0))) * 100;
+    inner = `
+      <div class="field">
+        <div class="field-label">${f.label}</div>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        <div class="range-wrap">
+          <input class="range-input" type="range"
+            min="${f.min || 0}" max="${f.max || 100}" step="${f.step || 10}"
+            value="${rVal}" style="--fill:${pct}%"
+            oninput="onRange('${f.id}', this)">
+          <div class="range-row">
+            <span class="range-end">${f.minLabel || 'Loose'}</span>
+            <span class="range-current" id="rl-${f.id}">${getRangeLabel(rVal, f)}</span>
+            <span class="range-end">${f.maxLabel || 'Tight'}</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  else if (f.type === 'chips' || f.type === 'chips-one') {
+    const single = f.type === 'chips-one';
+    const badge  = single ? '<span class="opt-tag">choose one</span>' : '<span class="opt-tag">select all that apply</span>';
+    const chips  = f.options.map(o => {
+      const sel = selChips.includes(o) ? 'is-selected' : '';
+      return `<div class="chip ${sel}" data-field="${f.id}" data-val="${esc(o)}" data-single="${single}" onclick="onChip(this)">${o}</div>`;
+    }).join('');
+    inner = `
+      <div class="field">
+        <div class="field-label">${f.label} ${badge}</div>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        <div class="chips-wrap">${chips}</div>
+      </div>`;
+  }
+
+  else if (f.type === 'chips-grouped') {
+    const renderGroup = g => {
+      const chips = g.options.map(o => {
+        const sel = selChips.includes(o) ? 'is-selected' : '';
+        return `<div class="chip ${sel}" data-field="${f.id}" data-val="${esc(o)}" data-single="false" onclick="onChip(this)">${o}</div>`;
+      }).join('');
+      return `
+        <div class="chips-group">
+          <div class="chips-group-label">${g.label}</div>
+          <div class="chips-wrap">${chips}</div>
+        </div>`;
+    };
+    const visible = f.groups.filter(g => !g.collapsed);
+    const collapsedGroups = f.groups.filter(g => g.collapsed);
+    let primaryBlock;
+    if (visible.length === 1) {
+      // Single visible group → render as plain chips (no bordered container, no group label)
+      const chips = visible[0].options.map(o => {
+        const sel = selChips.includes(o) ? 'is-selected' : '';
+        return `<div class="chip ${sel}" data-field="${f.id}" data-val="${esc(o)}" data-single="false" onclick="onChip(this)">${o}</div>`;
+      }).join('');
+      primaryBlock = `<div class="chips-wrap">${chips}</div>`;
+    } else {
+      primaryBlock = `<div class="chips-grouped-wrap">${visible.map(renderGroup).join('')}</div>`;
+    }
+    let expander = '';
+    if (collapsedGroups.length) {
+      const hasSel = collapsedGroups.some(g => g.options.some(o => selChips.includes(o)));
+      const moreLabel = f.expandLabel || 'More sizes';
+      expander = `
+        <button type="button" class="chips-more-toggle ${hasSel ? 'is-open' : ''}" aria-expanded="${hasSel}" onclick="toggleChipsMore(this)">
+          <span class="chips-more-text">${moreLabel}</span><span class="chips-more-caret">▾</span>
+        </button>
+        <div class="chips-grouped-wrap chips-more-panel" ${hasSel ? '' : 'hidden'}>${collapsedGroups.map(renderGroup).join('')}</div>`;
+    }
+    inner = `
+      <div class="field">
+        <div class="field-label">${f.label} <span class="opt-tag">select all that apply</span></div>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        ${primaryBlock}
+        ${expander}
+      </div>`;
+  }
+
+  else if (f.type === 'refpicker') {
+    const refs = S.refs[f.id] || [];
+    const rows = refs.map((r, i) => {
+      if (r.type === 'url') {
+        return `
+          <div class="ref-row">
+            <span class="ref-icon">${I.link}</span>
+            <input class="ref-input" type="text" value="${esc(r.value)}" placeholder="https://…"
+                   oninput="onRefUrl('${f.id}',${i},this.value)">
+            <button class="ref-remove" onclick="removeRef('${f.id}',${i})">${I.trash}</button>
+          </div>`;
+      } else {
+        return `
+          <div class="ref-row">
+            <img class="ref-thumb" src="${r.thumb}" alt="${esc(r.name)}">
+            <span class="ref-filename">${esc(r.name)}</span>
+            <button class="ref-remove" onclick="removeRef('${f.id}',${i})">${I.trash}</button>
+          </div>`;
+      }
+    }).join('');
+    inner = `
+      <div class="field" id="rffield-${f.id}">
+        <div class="field-label">${f.label} ${optBadge}</div>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        ${rows ? `<div class="ref-list">${rows}</div>` : ''}
+        <div class="ref-add-row">
+          <button class="ref-add-btn" onclick="addRefUrl('${f.id}')">${I.link} Add URL</button>
+          <label class="ref-add-btn" style="cursor:pointer">
+            ${I.image} Add image
+            <input type="file" accept="image/*" style="display:none" onchange="onRefFile('${f.id}',this)">
+          </label>
+        </div>
+      </div>`;
+  }
+
+  else if (f.type === 'colorpicker') {
+    const colors = getColors(f.id);
+    const rows = colors.map((c, i) => `
+        <div class="cp-row">
+          <div class="cp-swatch-wrap">
+            <div class="cp-swatch" style="background:${c.hex}"></div>
+            <input type="color" value="${c.hex}" oninput="onColorChange('${f.id}',${i},this.value)">
+          </div>
+          <span class="cp-hex">${c.hex}</span>
+          <input class="cp-label" type="text" value="${esc(c.label)}" placeholder="Label" oninput="onColorLabel('${f.id}',${i},this.value)">
+          <button class="cp-remove" onclick="removeColor('${f.id}',${i})" title="Remove">${I.trash}</button>
+        </div>`
+    ).join('');
+    const canAdd = colors.length < 8;
+    inner = `
+      <div class="field" id="cpfield-${f.id}">
+        <div class="field-label">${f.label} ${optBadge}</div>
+        ${colors.length === 0
+          ? `<div class="cp-empty">No colours defined — the AI will choose a palette that fits your brief.</div>`
+          : `<div class="cp-grid">${rows}</div>`}
+        ${canAdd ? `<button class="cp-add" onclick="addColor('${f.id}')">${I.plus} Add colour</button>` : ''}
+      </div>`;
+  }
+
+  else if (f.type === 'colorstrategy') {
+    const mode = S.form[f.id + '_mode'] || f.defaultColorMode || 'ai';
+    const showBW = f.defaultColorMode === 'bw';
+    inner = `
+      <div class="field" id="csfield-${f.id}">
+        <div class="field-label">${f.label} ${optBadge}</div>
+        ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ''}
+        <div class="cs-tabs">
+          ${showBW ? `<button class="cs-tab ${mode==='bw'?'is-active':''}" onclick="setColorMode('${f.id}','bw')">Start in B&amp;W</button>` : ''}
+          <button class="cs-tab ${mode==='manual'?'is-active':''}" onclick="setColorMode('${f.id}','manual')">Pick colours</button>
+          <button class="cs-tab ${mode==='upload'?'is-active':''}" onclick="setColorMode('${f.id}','upload')">Upload palette</button>
+          <button class="cs-tab ${mode==='ai'    ?'is-active':''}" onclick="setColorMode('${f.id}','ai')">Let AI decide</button>
+        </div>
+        ${buildCSContent(f.id, mode)}
+      </div>`;
+  }
+
+  if (!inner) return '';
+
+  // Universal showIf wrapper — works for all field types
+  if (f.showIf) {
+    const condMet = isCondMet(f.showIf);
+    return `<div id="cond-${f.id}" style="${condMet ? '' : 'display:none'}">${inner}</div>`;
+  }
+  return inner;
+}
+
+// ── Step 4: Output ────────────────────────────────
+
+function getAttachableImages() {
+  const ct = CONTENT_TYPES.find(c => c.id === S.content);
+  if (!ct) return [];
+  const images = [];
+  ct.fields.forEach(f => {
+    if (f.type === 'refpicker') {
+      (S.refs[f.id] || []).filter(r => r.type === 'file' && r.thumb).forEach(r => {
+        images.push({ label: f.label, name: r.name, thumb: r.thumb });
+      });
+    }
+    if (f.type === 'colorstrategy' && (S.form[f.id + '_mode'] || 'ai') === 'upload') {
+      const pal = S.refs[f.id + '_palette'];
+      if (pal) images.push({ label: 'Colour Palette Reference', name: pal.name, thumb: pal.thumb, isPalette: true });
+    }
+  });
+  return images;
+}
+
+function step4() {
+  const prompt   = buildPrompt();
+  const roles    = getRoles();
+  const role     = roles.find(r => r.id === S.role);
+  const ct       = CONTENT_TYPES.find(c => c.id === S.content);
+  const attachImages = getAttachableImages();
+
+  const attachPanel = attachImages.length ? `
+    <div class="attach-callout">
+      <div class="attach-header">
+        <div class="attach-header-icon">📎</div>
+        <div class="attach-header-text">
+          <div class="attach-header-title">Attach ${attachImages.length === 1 ? 'this image' : 'these images'} to your AI conversation</div>
+          <div class="attach-header-sub">The prompt references ${attachImages.length === 1 ? 'this file' : 'these files'} — paste them directly into the chat alongside the prompt.</div>
+        </div>
+      </div>
+      <div class="attach-images">
+        ${attachImages.map(img => `
+          <div class="attach-item">
+            <img class="attach-thumb" src="${img.thumb}" alt="${esc(img.name)}">
+            <div class="attach-item-info">
+              <div class="attach-item-label">${esc(img.label)}</div>
+              <div class="attach-item-name">${esc(img.name)}</div>
+            </div>
+            <a class="attach-dl-btn" href="${img.thumb}" download="${esc(img.name)}">↓ Download</a>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="step-header">
+      <div class="step-tag">Step 4 of 4</div>
+      <h1 class="step-title">${STEPS[3].title}</h1>
+      <p class="step-sub">${STEPS[3].sub}</p>
+    </div>
+    <div class="summary-bar">
+      <div class="summary-item">Role: <b>${role?.name || ''}</b></div>
+      <div class="summary-sep"></div>
+      <div class="summary-item">Creating: <b>${ct?.label || ''}</b></div>
+      <div class="summary-sep"></div>
+      <div class="summary-item"><b>${prompt.length}</b> characters</div>
+    </div>
+    <div class="output-card">
+      <div class="output-topbar">
+        <div class="output-meta">
+          <span class="output-badge">Prompt</span>
+          <span class="output-chars">Ready to paste</span>
+        </div>
+        <button class="copy-btn" id="copy-btn" onclick="onCopy()">
+          ${ico('copy2')} <span id="copy-label">Copy Prompt</span>
+        </button>
+      </div>
+      <div class="output-body" id="output-body">${esc(prompt)}</div>
+    </div>
+    ${attachPanel}
+    <div class="nav-row">
+      <button class="btn-back" onclick="prevStep()">${ico('arrowL')} Back</button>
+      <button class="btn-ghost" onclick="onStartOver()">
+        ${ico('refresh')} Start Over
+      </button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════════
+
+function openRoleModal(existing = null) {
+  const isEdit = !!existing;
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-backdrop" onclick="closeModal(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModal()">${I.close}</button>
+        <h2 class="modal-title">${isEdit ? 'Edit Role' : 'Add Custom Role'}</h2>
+        <div class="form-stack">
+          <div class="field">
+            <label class="field-label" for="m-name">Role Name <span class="req">*</span></label>
+            <input class="fi" id="m-name" type="text" placeholder="e.g. Frontend Developer" value="${esc(existing?.name || '')}">
+          </div>
+          <div class="field">
+            <label class="field-label" for="m-desc">Description <span class="req">*</span></label>
+            <input class="fi" id="m-desc" type="text" placeholder="Short description of this role's expertise" value="${esc(existing?.desc || '')}">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-back" onclick="closeModal()">Cancel</button>
+          <button class="btn-primary" onclick="onSaveRole('${existing?.id || ''}')">
+            ${isEdit ? 'Save Changes' : 'Add Role'} ${ico('arrowR')}
+          </button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function closeModal(e) {
+  if (!e || e.target === e.currentTarget) {
+    document.getElementById('modal-root').innerHTML = '';
+  }
+}
+
+function openTaskInfo(contentId) {
+  const ct = CONTENT_TYPES.find(c => c.id === contentId);
+  if (!ct) return;
+  const roles = getRoles();
+  const role  = roles.find(r => r.id === S.role);
+
+  const subSection = (label, body) => `
+    <div class="info-sub">
+      <h4>${esc(label)}</h4>
+      ${body}
+    </div>`;
+  const para = (text) => `<p>${esc(text)}${/[.!?]$/.test(text) ? '' : '.'}</p>`;
+  const list = (items) => `<ul>${items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`;
+
+  const groups = [];
+
+  // Slim override: single block, no role+task split
+  if (ct.slimPrompt) {
+    groups.push(`
+      <div class="info-group">
+        <h3>Prompt injection for ${esc(ct.label)}</h3>
+        <div class="info-slim">${esc(ct.slimPrompt)}</div>
+      </div>`);
+    document.getElementById('modal-root').innerHTML = `
+      <div class="modal-backdrop" onclick="closeModal(event)">
+        <div class="modal modal-wide" onclick="event.stopPropagation()">
+          <button class="modal-close" onclick="closeModal()">${I.close}</button>
+          <h2 class="modal-title">${esc(ct.label)} — skills preview</h2>
+          <p class="info-meta">This task uses a slim, self-contained prompt instead of layering the full role injection.</p>
+          <div class="modal-body">${groups.join('')}</div>
+          <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal()">Close</button>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // ── Group 1: Role ───────────────────────────────
+  if (role) {
+    const roleParts = [];
+    roleParts.push(`<p class="info-lede">You are an expert <b>${esc(role.name)}</b>${role.desc ? ` — ${esc(role.desc)}` : ''}.</p>`);
+    if (role.keywords)                              roleParts.push(subSection('Core expertise', para(role.keywords)));
+    if (role.optimizeFor && role.optimizeFor.length) roleParts.push(subSection('Optimize for', list(role.optimizeFor)));
+    if (role.guidance && role.guidance.length)       roleParts.push(subSection('When responding', list(role.guidance)));
+    groups.push(`
+      <div class="info-group">
+        <h3>Role</h3>
+        ${roleParts.join('')}
+      </div>`);
+  }
+
+  // ── Group 2: Skillset for this task ─────────────
+  const hasTaskContent = ct.taskExpertise || (ct.optimizeFor || []).length || (ct.guidance || []).length;
+  if (hasTaskContent) {
+    const taskParts = [];
+    if (ct.taskExpertise)                           taskParts.push(subSection('Skills', para(ct.taskExpertise)));
+    if (ct.optimizeFor && ct.optimizeFor.length)    taskParts.push(subSection('Optimize for', list(ct.optimizeFor)));
+    if (ct.guidance && ct.guidance.length)          taskParts.push(subSection('When responding', list(ct.guidance)));
+    groups.push(`
+      <div class="info-group">
+        <h3>Skillset for ${esc(ct.label)}</h3>
+        ${taskParts.join('')}
+      </div>`);
+  } else {
+    groups.push(`
+      <div class="info-group">
+        <h3>Skillset for ${esc(ct.label)}</h3>
+        <p class="info-empty">No task-specific skills defined yet for ${esc(ct.label)} — only the role-level skills above will be added.</p>
+      </div>`);
+  }
+
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-backdrop" onclick="closeModal(event)">
+      <div class="modal modal-wide" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModal()">${I.close}</button>
+        <h2 class="modal-title">${esc(ct.label)} — skills preview</h2>
+        <p class="info-meta">These are the skills that will be added to the prompt when you choose <b>${esc(ct.label)}</b>${role ? ` as a <b>${esc(role.name)}</b>` : ''}.</p>
+        <div class="modal-body">${groups.join('')}</div>
+        <div class="modal-actions">
+          <button class="btn-primary" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  EVENT HANDLERS
+// ═══════════════════════════════════════════════════
+
+function onSelectRole(id) {
+  S.role = id;
+  confirmCardAndAdvance(`.role-card[data-rid="${id}"]`);
+}
+
+function onSelectContent(id) {
+  if (S.content !== id) {
+    S.content = id;
+    S.form = {};
+    S.chips = {};
+    S.toggles = {};
+    S.colors = {};
+    S.refs = {};
+    seedChipDefaults();
+  }
+  confirmCardAndAdvance(`.content-card[data-cid="${id}"]`);
+}
+
+function seedChipDefaults() {
+  const ct = CONTENT_TYPES.find(c => c.id === S.content);
+  if (!ct) return;
+  ct.fields.forEach(f => {
+    if (!(f.type === 'chips-one' || f.type === 'chips') || !Array.isArray(f.options)) return;
+    const aiOption = f.options.find(o => /let ai decide/i.test(o));
+    if (aiOption && (!S.chips[f.id] || !S.chips[f.id].length)) {
+      S.chips[f.id] = [aiOption];
+    }
+  });
+}
+
+function confirmCardAndAdvance(cardSelector) {
+  const cardClass = cardSelector.startsWith('.role-card') ? 'role-card' : 'content-card';
+  document.querySelectorAll('.' + cardClass).forEach(c => c.classList.remove('is-selected'));
+  const card = document.querySelector(cardSelector);
+  if (card) card.classList.add('is-selected', 'is-confirmed');
+  const wrap = document.querySelector('#main > .step-in');
+  setTimeout(() => {
+    if (wrap) {
+      wrap.classList.remove('step-in');
+      wrap.classList.add('step-out');
+    }
+    setTimeout(nextStep, 200);
+  }, 320);
+}
+
+function onToggle(id) {
+  S.toggles[id] = !S.toggles[id];
+  const track = document.getElementById(`tt-${id}`);
+  const label = document.getElementById(`tl-${id}`);
+  if (track) track.classList.toggle('is-on');
+  if (label) label.textContent = S.toggles[id] ? 'Yes' : 'No';
+  updateConditionals(id);
+}
+
+function getRangeLabel(val, f) {
+  if (!f.rangeLabels) return String(val);
+  const keys = Object.keys(f.rangeLabels).map(Number).sort((a, b) => a - b);
+  let label = f.rangeLabels[keys[0]];
+  for (const k of keys) { if (val >= k) label = f.rangeLabels[k]; }
+  return label;
+}
+
+function onRange(id, input) {
+  const val = parseInt(input.value);
+  S.form[id] = val;
+  const pct = ((val - parseInt(input.min || 0)) / (parseInt(input.max || 100) - parseInt(input.min || 0))) * 100;
+  input.style.setProperty('--fill', pct + '%');
+  const content = CONTENT_TYPES.find(c => c.id === S.content);
+  const f = content && content.fields.find(f => f.id === id);
+  const labelEl = document.getElementById('rl-' + id);
+  if (labelEl && f) labelEl.textContent = getRangeLabel(val, f);
+}
+
+function onChip(el) {
+  const { field, val, single } = el.dataset;
+  const isSingle = single === 'true';
+  if (!S.chips[field]) S.chips[field] = [];
+
+  if (isSingle) {
+    S.chips[field] = S.chips[field].includes(val) ? [] : [val];
+  } else {
+    const idx = S.chips[field].indexOf(val);
+    idx > -1 ? S.chips[field].splice(idx, 1) : S.chips[field].push(val);
+  }
+
+  document.querySelectorAll(`[data-field="${field}"]`).forEach(c => {
+    c.classList.toggle('is-selected', S.chips[field].includes(c.dataset.val));
+  });
+
+  updateConditionals(field);
+}
+
+function toggleChipsMore(btn) {
+  const panel = btn.nextElementSibling;
+  if (!panel) return;
+  const open = panel.hasAttribute('hidden');
+  panel.toggleAttribute('hidden', !open);
+  btn.classList.toggle('is-open', open);
+  btn.setAttribute('aria-expanded', String(open));
+}
+
+function nextStep() {
+  if (S.step < 4) { S.step++; render(); scrollTo({ top: 0, behavior: 'smooth' }); }
+}
+
+function prevStep() {
+  if (S.step > 1) { S.step--; render(); scrollTo({ top: 0, behavior: 'smooth' }); }
+}
+
+function onGenerate() {
+  // Flush any textarea/input values that might not have fired oninput
+  const ct = CONTENT_TYPES.find(c => c.id === S.content);
+  if (ct) {
+    ct.fields.forEach(f => {
+      if (['text','textarea','select'].includes(f.type)) {
+        const el = document.getElementById(`fi-${f.id}`);
+        if (el) S.form[f.id] = el.value;
+      }
+    });
+  }
+  nextStep();
+}
+
+function onCopy() {
+  const prompt = buildPrompt();
+  navigator.clipboard.writeText(prompt).then(() => {
+    const btn   = document.getElementById('copy-btn');
+    const label = document.getElementById('copy-label');
+    if (btn) btn.classList.add('is-copied');
+    if (label) label.textContent = 'Copied!';
+    setTimeout(() => {
+      if (btn) btn.classList.remove('is-copied');
+      if (label) label.textContent = 'Copy Prompt';
+    }, 2200);
+  }).catch(() => {
+    // Fallback for non-https
+    const ta = document.createElement('textarea');
+    ta.value = buildPrompt();
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+function onStartOver() {
+  S = { step: 1, role: null, content: null, form: {}, toggles: {}, chips: {} };
+  render();
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function onEditRole(e, id) {
+  e.stopPropagation();
+  const role = getRoles().find(r => r.id === id);
+  if (role) openRoleModal(role);
+}
+
+function onDeleteRole(e, id) {
+  e.stopPropagation();
+  if (!confirm('Delete this custom role?')) return;
+  const roles = getRoles().filter(r => r.id !== id);
+  setRoles(roles);
+  if (S.role === id) S.role = null;
+  render();
+}
+
+function onSaveRole(existingId) {
+  const name = document.getElementById('m-name')?.value.trim();
+  const desc = document.getElementById('m-desc')?.value.trim();
+  if (!name || !desc) { alert('Please fill in both fields.'); return; }
+
+  const roles = getRoles();
+  if (existingId) {
+    const r = roles.find(r => r.id === existingId);
+    if (r) { r.name = name; r.desc = desc; }
+  } else {
+    roles.push({ id: 'c_' + Date.now(), name, desc, icon: 'brand', custom: true });
+  }
+  setRoles(roles);
+  closeModal();
+  render();
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ═══════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════
+
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// ═══════════════════════════════════════════════════
+//  CONDITIONALS
+// ═══════════════════════════════════════════════════
+
+function redrawRefField(fieldId) {
+  const ct = CONTENT_TYPES.find(c => c.id === S.content);
+  const f  = ct?.fields.find(fi => fi.id === fieldId);
+  const el = document.getElementById(`rffield-${fieldId}`);
+  if (f && el) el.outerHTML = renderField(f);
+  updateConditionals(fieldId);
+}
+
+function addRefUrl(fieldId) {
+  if (!S.refs[fieldId]) S.refs[fieldId] = [];
+  S.refs[fieldId].push({ type: 'url', value: '' });
+  redrawRefField(fieldId);
+  // Focus the new input
+  setTimeout(() => {
+    const rows = document.querySelectorAll(`#rffield-${fieldId} .ref-input`);
+    if (rows.length) rows[rows.length - 1].focus();
+  }, 0);
+}
+
+function onRefUrl(fieldId, idx, value) {
+  if (S.refs[fieldId]) S.refs[fieldId][idx].value = value;
+}
+
+function onRefFile(fieldId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    if (!S.refs[fieldId]) S.refs[fieldId] = [];
+    S.refs[fieldId].push({ type: 'file', name: file.name, thumb: e.target.result });
+    redrawRefField(fieldId);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeRef(fieldId, idx) {
+  if (S.refs[fieldId]) S.refs[fieldId].splice(idx, 1);
+  redrawRefField(fieldId);
+}
+
+function getColors(fieldId) {
+  if (!S.colors[fieldId]) S.colors[fieldId] = [];
+  return S.colors[fieldId];
+}
+
+// ── Color strategy helpers ────────────────────────
+
+function buildCSContent(fieldId, mode) {
+  if (mode === 'manual') {
+    const colors = getColors(fieldId);
+    const rows = colors.map((c, i) => `
+      <div class="cp-row">
+        <div class="cp-swatch-wrap">
+          <div class="cp-swatch" style="background:${c.hex}"></div>
+          <input type="color" value="${c.hex}" oninput="onColorChange('${fieldId}',${i},this.value)">
+        </div>
+        <span class="cp-hex">${c.hex}</span>
+        <input class="cp-label" type="text" value="${esc(c.label)}" placeholder="Label" oninput="onColorLabel('${fieldId}',${i},this.value)">
+        <button class="cp-remove" onclick="removeColorCS('${fieldId}',${i})" title="Remove">${I.trash}</button>
+      </div>`).join('');
+    const canAdd = colors.length < 8;
+    return `
+      ${colors.length === 0 ? `<div class="cp-empty">No colours added yet.</div>` : `<div class="cp-grid">${rows}</div>`}
+      ${canAdd ? `<button class="cp-add" onclick="addColorCS('${fieldId}')">${I.plus} Add colour</button>` : ''}`;
+  }
+  if (mode === 'upload') {
+    const pal = S.refs[fieldId + '_palette'];
+    if (pal) {
+      return `
+        <div class="cs-palette-preview">
+          <img class="cs-palette-thumb" src="${pal.thumb}" alt="${esc(pal.name)}">
+          <div>
+            <div class="cs-palette-name">${esc(pal.name)}</div>
+            <button class="cp-remove" style="display:inline-flex;gap:5px;padding:4px 8px;border-radius:6px" onclick="removePaletteImage('${fieldId}')">${I.trash} Remove</button>
+          </div>
+        </div>`;
+    }
+    return `
+      <label class="cs-upload-btn">
+        <input type="file" accept="image/*" style="display:none" onchange="uploadPaletteImage('${fieldId}',this)">
+        ${I.plus} Upload palette image
+      </label>
+      <div class="field-hint" style="margin-top:6px">Upload a mood board, brand guide, or any image — the AI will base the colour palette on it.</div>`;
+  }
+  if (mode === 'bw') {
+    return `<div class="cs-ai-note">Start in black and white. Colour can be added once the silhouette and form are working.</div>`;
+  }
+  // ai
+  return `<div class="cs-ai-note">The AI will choose a colour palette that best fits your brief and tone.</div>`;
+}
+
+function setColorMode(fieldId, mode) {
+  S.form[fieldId + '_mode'] = mode;
+  redrawColorStrategy(fieldId);
+}
+
+function redrawColorStrategy(fieldId) {
+  const ct = CONTENT_TYPES.find(c => c.id === S.content);
+  const f  = ct?.fields.find(fi => fi.id === fieldId);
+  const el = document.getElementById(`csfield-${fieldId}`);
+  if (f && el) el.outerHTML = renderField(f);
+}
+
+function addColorCS(fieldId) {
+  const colors = getColors(fieldId);
+  if (colors.length >= 8) return;
+  colors.push({ label: COLOR_LABELS[colors.length] || 'Extra', hex: '#888888' });
+  redrawColorStrategy(fieldId);
+}
+
+function removeColorCS(fieldId, idx) {
+  getColors(fieldId).splice(idx, 1);
+  redrawColorStrategy(fieldId);
+}
+
+function uploadPaletteImage(fieldId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    S.refs[fieldId + '_palette'] = { name: file.name, thumb: e.target.result };
+    redrawColorStrategy(fieldId);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePaletteImage(fieldId) {
+  delete S.refs[fieldId + '_palette'];
+  redrawColorStrategy(fieldId);
+}
+
+// ─────────────────────────────────────────────────
+
+function onColorChange(fieldId, idx, hex) {
+  getColors(fieldId)[idx].hex = hex;
+  const wrapper = document.getElementById(`cpfield-${fieldId}`) || document.getElementById(`csfield-${fieldId}`);
+  const row = wrapper?.querySelectorAll('.cp-row')[idx];
+  if (row) {
+    row.querySelector('.cp-swatch').style.background = hex;
+    row.querySelector('.cp-hex').textContent = hex;
+  }
+}
+
+function onColorLabel(fieldId, idx, label) {
+  getColors(fieldId)[idx].label = label;
+}
+
+function redrawColorField(fieldId) {
+  const ct = CONTENT_TYPES.find(c => c.id === S.content);
+  const f  = ct?.fields.find(fi => fi.id === fieldId);
+  const el = document.getElementById(`cpfield-${fieldId}`);
+  if (f && el) el.outerHTML = renderField(f);
+}
+
+const COLOR_LABELS = ['Primary', 'Secondary', 'Accent', 'Highlight', 'Dark', 'Light', 'Neutral', 'Extra'];
+
+function addColor(fieldId) {
+  const colors = getColors(fieldId);
+  if (colors.length >= 8) return;
+  const label = COLOR_LABELS[colors.length] || 'Extra';
+  colors.push({ label, hex: '#888888' });
+  redrawColorField(fieldId);
+}
+
+function removeColor(fieldId, idx) {
+  const colors = getColors(fieldId);
+  colors.splice(idx, 1);
+  redrawColorField(fieldId);
+}
+
+function isCondMet(showIf) {
+  if (showIf.src === 'refs') {
+    return (S.refs[showIf.field] || []).length > 0;
+  }
+  if (showIf.src === 'chips') {
+    return (S.chips[showIf.field] || []).includes(showIf.value);
+  }
+  if (showIf.src === 'toggle') {
+    return !!S.toggles[showIf.field] === showIf.value;
+  }
+  return S.form[showIf.field] === showIf.value;
+}
+
+function updateConditionals(changedFieldId) {
+  const ct = CONTENT_TYPES.find(c => c.id === S.content);
+  if (!ct) return;
+  ct.fields.forEach(f => {
+    if (!f.showIf || f.showIf.field !== changedFieldId) return;
+    const wrapper = document.getElementById(`cond-${f.id}`);
+    if (!wrapper) return;
+    const show = isCondMet(f.showIf);
+    wrapper.style.display = show ? '' : 'none';
+    if (!show) {
+      S.form[f.id]   = '';
+      S.chips[f.id]  = [];
+      S.refs[f.id]   = [];
+      const el = document.getElementById(`fi-${f.id}`);
+      if (el) el.value = '';
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════
+
+render();
+</script>
+</body>
+</html>
