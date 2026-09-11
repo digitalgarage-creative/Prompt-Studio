@@ -13,3 +13,9 @@ Optional **Composition & success checks** fields capture purpose, placement/read
 After generation, expand **Review & repair your result**. Inspect the actual image against your requirements, describe a focused correction, and select/copy the generated repair prompt. Attach the best accepted source in ChatGPT. These are user-directed checks, not automatic image analysis. Form values last for the current page session; save your prompt before reloading.
 
 These additions adapt the practical workflows in [Avid’s image prompting course](https://x.com/Av1dlive/status/2098055179761525165): observable visual decisions, scoped reference roles, acceptance checks, and focused change/preserve/allow edits. No model-version claims or fidelity guarantees are assumed.
+
+## GitHub Pages
+
+Live site: https://digitalgarage-creative.github.io/Prompt-Studio/
+
+Pushing to `main` in the organization repository runs tests, builds the app, and deploys only `dist/` through GitHub Actions. The build includes both `index.html` and `prompt-studio.html`. Pages must use **GitHub Actions** as its publishing source.
