@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite --port 5174",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node tests/prompt-workflow.cjs"
   },
   "devDependencies": {
     "vite": "^6.0.0"
