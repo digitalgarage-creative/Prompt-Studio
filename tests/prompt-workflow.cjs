@@ -32,3 +32,13 @@ for (const lang of ['en', 'ja']) {
   }
 }
 console.log('All 23 illustration presets are selectable and compile in English and Japanese.');
+
+// Selecting a new illustration style replaces the previous selection directly.
+vm.runInContext(`document.querySelectorAll=()=>[]; document.getElementById=()=>null; S.content='illustration'; S.chips={style:['Wabi-sabi']}; selectQuick('style','Liquid Chrome');`, ctx);
+assert.deepEqual(Array.from(vm.runInContext('S.chips.style', ctx)), ['Liquid Chrome']);
+vm.runInContext(`selectQuick('style','Frosted Glass');`, ctx);
+assert.deepEqual(Array.from(vm.runInContext('S.chips.style', ctx)), ['Frosted Glass']);
+vm.runInContext(`selectQuick('style','');`, ctx);
+assert.equal(vm.runInContext('S.chips.style.length', ctx), 0);
+assert(html.includes(`onclick="selectQuick('\${f.id}',this.dataset.val)"><strong>\${esc(t(o))}</strong>`));
+console.log('Illustration styles replace the previous selection and can be cleared.');
