@@ -18,6 +18,21 @@ vm.runInContext(`S.lang='ja'`,ctx);assert(vm.runInContext('buildRepairPrompt()',
 for(const id of vm.runInContext('CONTENT_TYPES.map(c=>c.id)',ctx)) {vm.runInContext(`S.content=${JSON.stringify(id)};S.form={};S.refs={};S.chips={};S.colors={};S.toggles={};`,ctx);vm.runInContext('buildPrompt()',ctx);assert.equal(vm.runInContext('resolveFields(CONTENT_TYPES.find(c=>c.id===S.content)).filter(f=>f.id==="imageChecks").length',ctx),1);}
 console.log('Prompt regressions passed across all content types, reference roles, repair prompts and Japanese.');
 
+// Every generation mode emits its specific professional persona in both languages.
+for (const lang of ['en', 'ja']) {
+  vm.runInContext(`S.lang=${JSON.stringify(lang)}`, ctx);
+  for (const id of vm.runInContext('CONTENT_TYPES.map(c=>c.id)', ctx)) {
+    vm.runInContext(`S.content=${JSON.stringify(id)};S.form={};S.refs={};S.chips={};S.colors={};S.toggles={};`, ctx);
+    const result = vm.runInContext('buildPrompt()', ctx);
+    const persona = vm.runInContext(`GENERATION_PERSONAS[${JSON.stringify(id)}][${JSON.stringify(lang)}]`, ctx);
+    const execution = vm.runInContext(`PERSONA_EXECUTION[${JSON.stringify(lang)}]`, ctx);
+    assert(result.startsWith(persona), `${lang}: missing opening persona for ${id}`);
+    assert(result.includes(execution), `${lang}: missing persona execution instruction for ${id}`);
+  }
+}
+assert.equal(vm.runInContext('Object.keys(GENERATION_PERSONAS).length', ctx), vm.runInContext('CONTENT_TYPES.length', ctx));
+console.log('All generation modes emit their dedicated persona in English and Japanese.');
+
 // Every requested preset is selectable, localized, and contributes actual guidance.
 const newStyles = vm.runInContext('Object.keys(EXTENDED_ILLUSTRATION_STYLES)', ctx);
 assert.equal(newStyles.length, 23);

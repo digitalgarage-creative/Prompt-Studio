@@ -1804,6 +1804,132 @@ const EXTENDED_ILLUSTRATION_STYLES = {
   }
 };
 Object.assign(ILLUSTRATION_STYLES, EXTENDED_ILLUSTRATION_STYLES);
+// The original styles carried long, essay-length guidance that never reached the
+// prompt. Rewritten here to the same terse register as the newer entries above,
+// so every style contributes comparable weight instead of a 60-word block.
+// ── Curated style library ───────────────────────────────────────────────────
+// Every entry names a medium or a concrete visual language. Moods ("Whimsical",
+// "Soft Atmospheric"), quality bars ("Luxury Artbook", "Editorial Magazine")
+// and genres the description already supplies ("Fantasy Concept Art") were
+// removed or merged, because picking one changed nothing about the output.
+const STYLE_LIBRARY = {
+  featured: {
+    'Watercolour':        ['Transparent watercolour washes on white paper, visible paper grain, soft pigment blooms, edges left open.', 'Avoid opaque paint, heavy outlines and fully covered backgrounds.'],
+    'Gouache':            ['Opaque matte gouache, flat blocked shapes, visible brush marks, chalky finish.', 'Avoid transparent washes, glossy surfaces and blended photorealism.'],
+    'Ink and Wash':       ['Black ink linework with grey or single-colour tonal washes, large areas of bare paper.', 'Avoid full colour, even shading and thick outlines.'],
+    'Pencil Sketch':      ['Graphite on paper, visible construction lines, hatching, unfinished edges.', 'Avoid colour, digital smoothness and finished rendering.'],
+    'Flat Vector':        ['Flat solid-colour shapes, no gradients, crisp geometric edges, limited palette.', 'Avoid texture, shading, gradients and hand-drawn line.'],
+    'Minimal Line Art':   ['One continuous thin line of even weight, no fill, no shading, large white space.', 'Avoid colour fills, varied line weight and background detail.'],
+    'Comic Book':         ['Bold ink outlines, flat cel colour, halftone dots, action-panel energy.', 'Avoid soft painterly blending and muted colour.'],
+    'Manga':              ['Black-and-white ink, screentone shading, speed lines, expressive linework.', 'Avoid full colour and Western superhero anatomy.'],
+    'Painterly Digital':  ['Visible oil-like digital brushstrokes, blended edges, thick colour built over form.', 'Avoid flat vector shapes, clean line art and airbrushed smoothness.'],
+    '3D Clay':            ['Matte modelling-clay figures, rounded volumes, fingerprint texture, soft studio light.', 'Avoid untextured grey renders, glossy plastic and photorealistic skin.'],
+    'Cut Paper Collage':  ['Torn and cut paper layers, visible paper edges and fibre, drop shadows between layers.', 'Avoid smooth digital gradients and seamless photorealism.'],
+    'Pixel Art':          ['Low-resolution pixel grid, hard square pixels, limited indexed palette, no anti-aliasing.', 'Avoid smooth curves, gradients and soft edges.'],
+  },
+  more: {
+    'Travel Journal Watercolour': ['Loose pencil underdrawing with quick watercolour washes, sketchbook feel, unpainted margins.', 'Avoid tourist-poster composition and fully rendered architecture.'],
+    'Loose Urban Sketch': ['Fast searching ink lines, wobbly perspective, partial colour, drawn on location.', 'Avoid ruled straight lines and even rendering.'],
+    'Fashion Illustration': ['Elongated nine-head figures, confident gestural strokes, unfinished limbs, fabric suggested not drawn.', 'Avoid anatomical realism and detailed faces.'],
+    'Charcoal':           ['Powdery black charcoal, smudged gradients, deep blacks, white paper highlights.', 'Avoid colour, crisp edges and digital shading.'],
+    'Coloured Pencil':    ['Layered coloured-pencil hatching, visible strokes and paper tooth, colour built by overlaying.', 'Avoid smooth blending, paint texture and flat fills.'],
+    'Pastel':             ['Chalky soft-pastel pigment, velvety blended colour, dusty surface, paper grain showing.', 'Avoid hard edges, linework and glossy finish.'],
+    'Storybook':          ["Warm children's picture-book art, soft shapes, friendly proportions, hand-painted texture.", 'Avoid photorealism, dark mood and complex detail.'],
+    'Anime Key Visual':   ['Polished anime cel rendering, sharp clean lines, saturated colour, glowing rim light, painted background.', 'Avoid sketchy line, muted colour and Western cartoon proportions.'],
+    'Concept Art':        ['Film-still staging: one dominant light source, strong silhouette read against depth, figures included for scale.', 'Avoid flat lighting, centred symmetry and decorative detail with no function.'],
+    'Noir':               ['High-contrast black and white, hard-edged shadow shapes, venetian-blind light, deep pools of black.', 'Avoid even lighting, bright colour and soft shadow.'],
+    'Isometric':          ['30-degree isometric projection, no perspective convergence, uniform scale, clean flat colour.', 'Avoid vanishing points, camera perspective and organic line.'],
+    'Low Poly':           ['Visible flat triangular facets, faceted shading, no smooth surfaces.', 'Avoid smooth curves, texture maps and fine detail.'],
+    '3D Toy-like':        ['Glossy injection-moulded plastic toy, bright saturated colour, chunky rounded parts, visible seams.', 'Avoid matte clay, realistic materials and muted colour.'],
+    'Paper Craft 3D':     ['Folded and scored cardstock built into dimensional forms, crisp creases, visible paper thickness.', 'Avoid flat illustration, painted texture and glossy surfaces.'],
+    'Screen Print':       ['Two to four flat spot-ink layers, slight misregistration, visible ink grain, no gradients.', 'Avoid photographic detail, gradients and large colour counts.'],
+    'Woodcut / Linocut':  ['Carved relief print, thick gouged black marks, chiselled edges, white cut-away areas.', 'Avoid fine line, grey tones and smooth shading.'],
+    'Vintage Travel Poster': ['1930s lithograph travel poster, simplified flat scenery, limited muted palette, bold horizon.', 'Avoid photorealism, modern typography and busy detail.'],
+    'Mid-Century Print':  ['1950s–60s printed illustration, textured overprinted colour, simplified geometric figures, off-register grain.', 'Avoid digital cleanliness, gradients and modern realism.'],
+    'Naive Folk Art':     ['Flat untrained folk painting, no perspective, decorative repeating pattern, bold simple colour.', 'Avoid correct perspective, shading and polished technique.'],
+    'Botanical Plate':    ['Botanical plate: a single specimen centred on white, fine stipple and line, accurate structure.', 'Avoid scenery, cartoon shapes and dramatic light.'],
+    'Scientific Plate':   ['Engraved specimen plate, precise outline, cross-hatched shading, neutral white ground.', 'Avoid painterly colour, scenery and stylisation.'],
+    'Infographic':        ['Diagrammatic flat icons, connecting lines, aligned modular layout, two or three colours only.', 'Avoid texture, realism and decorative illustration.'],
+    'Geometric Vector':   ['Built only from circles, triangles and rectangles, precise alignment, flat colour, modular grid.', 'Avoid organic curves, hand-drawn line and texture.'],
+  },
+};
+// ── Style library ───────────────────────────────────────────────────────────
+// Each entry states what the style IS and what it explicitly is NOT. The NOT
+// half is what keeps neighbouring styles apart — it names the specific look a
+// model would otherwise drift into.
+const STYLE_GUIDANCE = {
+  'Watercolour': ['Pure transparent watercolour on textured white paper, with no visible preliminary drawing. Layered translucent pigment, wet-on-wet blooms, granulation, feathered edges, colour pooling, and generous untouched paper.', 'ink or pencil outlines, visible sketch marks, opaque gouache, chalky paint, hard-edged flat fills, fully covered backgrounds'],
+  'Gouache': ['Opaque matte gouache painting. Dense flat pigment and visibly brushed blocked shapes, with slightly irregular painted edges, dry-brush marks, and a chalky surface.', 'transparent washes, watercolour blooms, visible drawing outlines, glossy paint, digital gradients, photorealistic blending'],
+  'Ink and Wash': ['Black ink is the dominant structural medium, using expressive variable-width lines and brush marks. Restrained grey or one-colour washes add secondary tone, with large areas of bare paper.', 'multicolour watercolour painting, graphite underdrawing, opaque paint, even tonal rendering, heavy comic-style contouring'],
+  'Pencil Sketch': ['Graphite drawing on paper with visible exploratory construction lines, overlapping searching strokes, pressure variation, hatching, and selectively unfinished contours.', 'colour, charcoal smudging, ink outlines, painted washes, polished digital lines, fully finished rendering'],
+  'Flat Vector': ['Clean vector illustration made from unrestricted flat solid-colour silhouettes. Crisp edges, simplified forms, and a limited palette, with no visible physical medium.', 'primitive-shapes-only construction, gradients, texture, dimensional shading, hand-drawn strokes, photographic detail'],
+  'Minimal Line Art': ['Sparse drawing made from one continuous or near-continuous thin line of uniform weight, with open contours and abundant white space.', 'colour fills, closed vector masses, shading, hatching, texture, varied brush weight, detailed backgrounds'],
+  'Comic Book': ['Western comic-book illustration with heavy expressive ink contours, flat cel colour, and visible halftone-dot shadows. Angular anatomy and dynamic action-oriented staging.', 'black-and-white manga rendering, delicate anime linework, painterly blending, pastel washes, muted storybook rendering'],
+  'Manga': ['Black-and-white Japanese manga rendering with expressive variable ink lines, screentone values, sharp black shadow masses, and selective speed or impact lines.', 'full colour, Western superhero rendering, painterly shading, soft graphite sketching, polished anime-key-visual colouring'],
+  'Painterly Digital': ['Digital painting where visible layered brushstrokes are the primary visual feature. Broken edges, colour variation within forms, and oil-like strokes model volume.', 'cinematic concept-art staging as the defining feature, clean line art, flat vector shapes, cel shading, smooth airbrush rendering'],
+  '3D Clay': ['Handmade modelling-clay miniature with visible fingerprints, tool marks, and hand-shaped irregularities. Rounded volumes, matte surfaces, and broad soft studio light.', 'mould seams, manufactured joints, glossy plastic, polished CGI surfaces, metal, photorealistic skin'],
+  'Cut Paper Collage': ['Layered composition assembled from irregular cut and torn paper pieces, with visible fibres, uneven edges, overlaps, and shallow physical cast shadows.', 'uniformly rounded cloud layers, structural folds, scored cardstock, smooth vector edges, painted gradients, seamless digital surfaces'],
+  'Pixel Art': ['Deliberately low-resolution raster illustration with clearly visible square pixels and staircase edges. Clustered pixel shading and a limited indexed palette.', 'anti-aliasing, smooth curves, continuous gradients, vector edges, painterly texture, high-resolution detail'],
+
+  'Wabi-sabi': ['Restrained composition centred on visibly aged, imperfect natural materials. Cracks, patina, uneven handmade surfaces, muted earth tones, asymmetry, and generous breathing room.', 'pristine surfaces, perfectly flat minimalism, polished symmetry, glossy luxury materials, saturated decoration, visual clutter'],
+  'Cloud Cut': ['Layered paper-cut illustration built specifically from smooth, rounded, cloud-like silhouettes. Clean soft edges, restrained colours, and shallow cast-shadow depth.', 'torn fibres, jagged collage edges, folds, scored cardstock, sharp angular geometry, realistic clouds, deep perspective'],
+  'Xspiritualism': ['Abstract ethereal imagery defined by luminous aura fields surrounding simplified silhouettes and precisely arranged symbolic geometry. Radiant gradients, translucency, and spacious symmetry.', 'specific unrequested religious iconography, ordinary fantasy scenery, readable lettering, mundane realism, decorative clutter'],
+  'Asian Store': ['Intimate contemporary neighbourhood-shop scene defined by dense rhythmic rows of colourful packaged goods and compact shelving, with awnings, hanging merchandise, and warm practical lighting.', 'generic East-Asian ornament, temples or historical motifs used as decoration, mixed cultural stereotypes, invented readable brands or signs, empty minimalist retail spaces'],
+  'Cutaway World': ['One coherent miniature environment exposed by a clean physical cross-section, showing readable interconnected interior rooms, floors, and objects at a consistent miniature scale.', 'exploded diagrams, disconnected rooms, accidental extra floors, impossible architecture, inconsistent scale, infographic callouts'],
+  'New Liquid': ['Sculptural translucent flexible gel and membrane forms with flowing contours, inflated soft volume, internal colour transitions, glossy refraction, and semi-transparent overlaps.', 'opaque chrome, rigid frosted glass, hard mechanical geometry, dry matte materials, solid plastic'],
+  'Envelope Reveal': ['Composition physically organised around one recognisable opened envelope or folded wrapper, with the main subject emerging from or revealed inside it. Believable flaps, folds, paper thickness, and shadows.', 'generic paper collage, impossible folds, floating unrelated paper, subject outside the envelope concept, ambiguous container geometry'],
+  'Stitch & Wire': ['Handmade assemblage where soft sewn textile pieces and exposed bent-wire contours visibly coexist. Obvious stitches, thread ends, fabric fibres, and simple wire drawing.', 'pure knitting, paper craft, seamless plastic, hidden construction, polished CGI, tangled unreadable wire'],
+  'Liquid Chrome': ['Opaque mirror-polished silver metal behaving like a liquid, forming continuous flowing curves with stretched specular highlights and coherent environmental reflections.', 'translucent gel, frosted glass, matte metal, rough texture, coloured plastic, inconsistent reflections'],
+  'Gzhel': ['Cobalt-blue hand-painted decoration on glossy white porcelain, with recognisable floral scrolls, leaves, and ornamental brushwork plus tonal variation within blue strokes.', 'multicolour folk painting, paper or fabric surfaces, matte ceramic, geometric vector pattern, unrelated regional ornament'],
+  'Camera Interface': ['Real scene framed specifically as a restrained photographic camera viewfinder, with focus brackets, framing guides, exposure or grid marks, and minimal display graphics kept away from the focal subject.', 'futuristic HUDs, dense sci-fi interfaces, invented readable settings, controls covering the subject, infographic layouts'],
+  'Frosted Glass': ['Rigid translucent matte-glass objects with diffused silhouettes visible through them, milky light scattering, pale refracted colour, and luminous edges.', 'flexible gel, crystal-clear glass, mirror chrome, opaque plastic, sharp objects clearly visible through the material'],
+  'Shape Design': ['Graphic composition dominated by a few enormous overlapping silhouettes cropped aggressively by the frame, using extreme scale contrast and only two or three flat colours.', 'tiny isolated subjects, large empty minimalist fields, outlines, detailed interiors, texture, primitive-shape-only grids, evenly sized elements'],
+  '2000 Web': ['Deliberately early-2000s website aesthetic with bevelled interface panels, pixel borders, tiny bitmap icons, tiled elements, and web-safe accent colours.', 'contemporary minimal UI, glassmorphism, modern mobile-app layouts, large clean typography, photorealistic interfaces, unnecessary readable copy'],
+  'Fairy Tale': ['Environment-led enchanted storybook world with layered woodland or pastoral depth, whimsical architecture, delicate ornament, and magical atmospheric illumination.', 'simple character-only picture-book scenes, horror, sci-fi technology, generic fantasy prop piles, photorealistic grit'],
+  'Cosy Blanket': ['Subjects physically reinterpreted as knitted, crocheted, or quilted soft textile forms, with visible yarn loops, fibres, stitching, padded volume, and warm subdued colour.', 'painted storybook texture, clay, metal, glass, hard plastic, sharp glossy surfaces, smooth CGI materials'],
+  'Electro Biomorph': ['Biological branching forms structurally fused with luminous electronic filaments. Vein-like networks, soft organic curves, and controlled electric nodes embedded into the organism-like form.', 'circuit boards pasted onto objects, ordinary neon lighting, mechanical robots, random cables, circuitry obscuring the main silhouette'],
+  'Scientism': ['Fictional specimen schematic presented like an invented research plate, with an isolated imaginary subject, precise callout lines, measurement ticks, sectional details, and intentionally fictional technical markings.', 'real scientific claims, botanical natural-history plates, historical engraving, environmental scenery, painterly rendering, decorative ornament'],
+  'Kawaii': ['Graphic cute-character language defined by compact proportions, oversized simple facial features, rounded silhouettes, and pastel colour, with minimal surface detail.', 'realistic anatomy, hand-painted narrative scenery, intricate ornament, sharp aggressive forms, uncanny realistic faces'],
+  'Maximalism': ['Deliberately frame-filling ornamental density with layered patterns, saturated colours, contrasting textures, and repeated decorative motifs organised around one dominant focal subject.', 'sparse negative space, restrained palettes, minimalist composition, uniform random noise, decoration with no focal hierarchy'],
+  'Minimalism': ['Extreme visual reduction: one very small simple subject isolated asymmetrically inside a vast uninterrupted flat colour field, with virtually no secondary information.', 'oversized cropped shapes, overlapping masses, linework, texture, patterns, gradients, multiple objects, frame-filling composition'],
+  'Brutalist': ['Monumental visual language of massive hard-edged geometric blocks and raw exposed surfaces, with severe scale, stark tonal contrast, and abrupt asymmetric spatial relationships.', 'delicate ornament, soft organic shapes, pastel styling, polished luxury surfaces, decorative curves, cosy textures'],
+
+  'Travel Journal Watercolour': ['Observational sketchbook page where visible loose graphite underdrawing remains structurally important beneath selective transparent watercolour washes. Incomplete edges, spontaneous marks, and unpainted margins.', 'pure outline-free watercolour, dominant black ink, polished travel posters, meticulously rendered architecture, fully painted pages'],
+  'Loose Urban Sketch': ['On-location architectural drawing where fast searching ink lines and deliberately loose perspective dominate, with doubled contours, broken strokes, and only selective splashes of colour.', 'pencil-dominant travel journals, pure watercolour, ruler-straight architecture, clean technical drawing, uniformly rendered colour'],
+  'Fashion Illustration': ['Fashion-focused gestural drawing with distinctly elongated approximately nine-head figures, sweeping economical strokes, minimally described faces and limbs, and garments communicated through silhouette and movement.', 'realistic body proportions, detailed portraiture, finished anatomy, dense environments, literal fabric rendering'],
+  'Charcoal': ['Drawing built from broad powdery charcoal masses, finger-smudged transitions, and erased highlights, with compressed blacks and visible paper grain.', 'thin graphite construction lines, colour, ink outlines, crisp digital edges, clean hatching-only rendering'],
+  'Coloured Pencil': ['Drawing built from clearly visible layered coloured-pencil strokes on toothy paper, with directional hatching, cross-hatching, and optical colour mixing.', 'seamless pastel blending, wet paint, flat vector fills, glossy surfaces, opaque brushwork'],
+  'Pastel': ['Dry-pastel image dominated by soft chalk pigment masses and rubbed velvety transitions, with dusty edges and paper tooth visible through colour.', 'coloured-pencil hatching, precise outlines, hard vector edges, wet paint effects, glossy surfaces'],
+  'Storybook': ["Character-led children's picture-book illustration with friendly simplified figures, soft hand-painted shapes, warm narrative interaction, and gently simplified surroundings.", 'ornate environment-led fairy-tale panoramas, photorealism, anime cel rendering, dark cinematic mood, dense technical detail'],
+  'Anime Key Visual': ['Polished promotional anime image with precise clean line art, controlled cel shading, saturated colour, dramatic rim lighting, and a fully painted atmospheric background.', 'black-and-white manga, Western comic halftones, rough sketch lines, muted storybook painting, unfinished backgrounds'],
+  'Concept Art': ['Cinematic design image defined by film-still staging, strong silhouette hierarchy, one dominant directional light, atmospheric perspective, and explicit scale cues.', 'brush texture as the sole defining feature, flat lighting, diagrammatic presentation, centred decorative symmetry, arbitrary ornamental detail'],
+  'Noir': ['Severe monochrome cinematic image constructed from large black shadow masses cut by narrow hard-edged light, silhouettes, and venetian-blind or streetlight patterns.', 'colour, evenly exposed scenes, soft ambient illumination, grey pastel rendering, delicate pencil shading'],
+  'Isometric': ['Axonometric illustration using consistent 30-degree axes and parallel receding edges with zero perspective convergence, preserving uniform object scale throughout.', 'vanishing points, lens perspective, camera foreshortening, irregular perspective, loose hand-drawn geometry'],
+  'Low Poly': ['3D forms explicitly constructed from visible flat triangular or polygonal facets, with each plane carrying discrete faceted shading.', 'smooth subdivision, rounded continuous shading, texture maps, fine surface detail, clay fingerprints, glossy toy moulding'],
+  '3D Toy-like': ['Mass-produced injection-moulded toy aesthetic with chunky rounded components, glossy coloured plastic, and visible manufactured seams, part divisions, or joints.', 'fingerprints, handmade clay deformation, matte clay, realistic skin or fabric, weathering, natural materials'],
+  'Paper Craft 3D': ['Three-dimensional objects physically constructed from folded and scored cardstock, with crisp creases, tabs, cut edges, and visible paper thickness.', 'torn collage, rounded cloud layers, flat illustration, painted texture, soft clay modelling, glossy plastic'],
+  'Screen Print': ['Handmade print defined by two to four discrete opaque spot-colour ink layers, coarse ink grain, and intentionally slight registration offsets between layers.', 'lithographic scenery as a defining feature, continuous gradients, photographic detail, unlimited colours, pristine digital alignment'],
+  'Woodcut / Linocut': ['Relief-print image constructed from bold carved positive and negative marks, thick gouged black strokes, rough chiselled edges, and forceful black-white contrast.', 'fine engraved cross-hatching, continuous grey tones, delicate pen drawing, smooth shading, photographic detail'],
+  'Vintage Travel Poster': ['Destination-led 1930s lithographic poster composition featuring monumental simplified scenery, broad flat colour masses, a strong horizon, and a restrained muted palette.', 'mid-century editorial figures, screen-print misregistration as the main effect, photorealism, contemporary graphics, tiny busy detail'],
+  'Mid-Century Print': ['1950s–60s editorial illustration centred on simplified geometric people, domestic objects, or everyday scenes, using limited overprinted colours, coarse print grain, and slight off-register edges.', 'monumental travel landscapes, 1930s poster composition, pristine vectors, gradients, contemporary photorealism, glossy 3D'],
+  'Naive Folk Art': ['Deliberately unschooled painting with flattened perspective, frontal symbolic forms, repeated handmade motifs, and intuitively uneven proportions, using direct bold colour.', 'correct linear perspective, volumetric shading, academic anatomy, geometric precision, polished professional rendering'],
+  'Botanical Plate': ['One botanically convincing plant specimen isolated on clean white paper, with roots, stems, leaves, and flowers clearly articulated through delicate natural-history line, stipple, and restrained botanical colour.', 'animals, minerals or fictional specimens, technical cutaways, cinematic scenery, cartoon forms, dramatic lighting, heavy engraved cross-hatching'],
+  'Scientific Plate': ['Non-botanical historical specimen engraving — animal, anatomical, mineral, or mechanical specimen — using precise outlines, fine cross-hatching, and numbered, sectional, or inset organisation on white.', 'botanical specimens, fictional pseudo-science, painterly colour, scenery, expressive stylisation, modern infographic graphics'],
+  'Infographic': ['Information-first graphic built from multiple simplified icons or data objects organised into clearly separated modules and linked by connectors, arrows, or directional relationships, using two or three flat colours.', 'standalone decorative vector illustration, primitive-shape abstraction, physical texture, photorealism, painterly effects, ornamental complexity'],
+  'Geometric Vector': ['Strict vector composition constructed exclusively from circles, rectangles, and triangles, using precise alignment, repeated modules, and systematic grid relationships.', 'freeform silhouettes, organic curves, hand-drawn lines, texture, painterly shading, irregular geometry'],
+};
+
+const STYLE_GROUPS = {
+  featured: ['Watercolour','Gouache','Ink and Wash','Pencil Sketch','Flat Vector','Minimal Line Art','Comic Book','Manga','Painterly Digital','3D Clay','Cut Paper Collage','Pixel Art'],
+  more: ['Wabi-sabi','Cloud Cut','Xspiritualism','Asian Store','Cutaway World','New Liquid','Envelope Reveal','Stitch & Wire','Liquid Chrome','Gzhel','Camera Interface','Frosted Glass','Shape Design','2000 Web','Fairy Tale','Cosy Blanket','Electro Biomorph','Scientism','Kawaii','Maximalism','Minimalism','Brutalist'],
+  other: ['Travel Journal Watercolour','Loose Urban Sketch','Fashion Illustration','Charcoal','Coloured Pencil','Pastel','Storybook','Anime Key Visual','Concept Art','Noir','Isometric','Low Poly','3D Toy-like','Paper Craft 3D','Screen Print','Woodcut / Linocut','Vintage Travel Poster','Mid-Century Print','Naive Folk Art','Botanical Plate','Scientific Plate','Infographic','Geometric Vector'],
+};
+
+Object.entries(STYLE_GUIDANCE).forEach(([name, [is, not]]) => {
+  ILLUSTRATION_STYLES[name] = { ...(ILLUSTRATION_STYLES[name] || {}),
+    inject: is, avoid: 'Avoid ' + not + '.', description: ILLUSTRATION_STYLES[name]?.description || is };
+});
+
 
 // ── PRODUCT PRINCIPLE ────────────────────────────────────────────────────────
 // Prompt Studio is a lightweight creative brief builder for people who are not
@@ -1849,7 +1975,6 @@ Priorities:
       { id: 'copy',    label: 'Required Text / Copy',       type: 'textarea',  placeholder: 'Any text that must appear: headline, date, location, tagline, etc.', required: false, promptLabel: 'Required text' },
 
       { type: 'section', label: 'Assets & references', collapsed: true },
-      { id: 'logoAsset',   label: 'Logo to Include',            type: 'refpicker', assetMode: true, assetKind: 'logo',  required: false, hint: 'Upload the actual logo that MUST appear in the poster. It is placed into the design exactly as provided — not used as a style reference.' },
       { id: 'photoAssets', label: 'Photos / Imagery to Include', type: 'refpicker', assetMode: true, assetKind: 'photo', required: false, hint: 'Upload product shots or photos that MUST appear in the poster. These are composited into the design — not used as style references. Tip: name files clearly (e.g. "product-shot.jpg").' },
       { id: 'refs',    label: 'Style references',           type: 'refpicker', required: false, hint: 'Inspiration only — the AI takes visual direction from these, it does not copy them.' },
       refStrengthField('refs'),
@@ -1943,7 +2068,6 @@ Priorities:
       { id: 'colors',     label: 'Colour direction',             type: 'colorstrategy', required: false, promptLabel: 'Colour direction' },
 
       { type: 'section', label: 'Assets', collapsed: true },
-      { id: 'logoAsset',   label: 'Logo',              type: 'refpicker', assetMode: true, assetKind: 'logo',  required: false, hint: 'Upload the actual logo that MUST appear in the banner. It is placed into the design exactly as provided — not used as a style reference.' },
       { id: 'photoAssets', label: 'Images that must appear in the banner',   type: 'refpicker', assetMode: true, assetKind: 'photo', required: false, hint: 'Upload products, people, photos, or assets that must be included in the design.' },
       { id: 'refs',        label: 'Style references', type: 'refpicker', required: false, hint: 'Used only for visual inspiration. Do not copy layouts, text, or branding.' },
       refStrengthField('refs'),
@@ -1974,9 +2098,9 @@ Priorities:
       { id: 'mood',  label: 'Mood',              type: 'chips', options: ['Dreamy','Joyful','Peaceful','Whimsical','Mysterious','Melancholic','Epic','Playful','Dark','Surreal','Nostalgic','Raw / Gritty','Intimate','Tense'], hint: 'Choose up to 2.' },
       { id: 'style', label: 'Illustration style', type: 'chips-grouped', styleRegistry: 'illustration', expandLabel: 'More styles',
         groups: [
-          { label: 'Featured', options: ['Watercolour','Ink and Wash','Editorial Magazine Illustration','Minimal Line Art','Flat Vector','Storybook','Gouache','Painterly Digital Art','Cinematic Concept Art','Comic Book','3D Clay','Collage'] },
-          { label: 'More visual styles', options: Object.keys(EXTENDED_ILLUSTRATION_STYLES) },
-          { label: 'All other styles', collapsed: true, options: ['Luminous Travel Watercolour','Loose Urban Sketch','Fashion Editorial Illustration','Line and Wash','Geometric Vector','Bold Poster Illustration','Vintage Travel Poster','Dreamy Storybook Watercolour','Soft Gouache Editorial','Coloured Pencil','Pencil Sketch','Charcoal','Pastel','Fantasy Concept Art','Sci-Fi Concept Art','Manga','Anime Key Visual',"Children's Book",'Whimsical','Surreal','Cut Paper','Isometric','Infographic','Scientific Illustration','Botanical Illustration','Natural History Illustration','Luxury Artbook','Minimal Editorial','Naive Folk Art','Retro Editorial','Screen Print','Woodcut / Linocut','3D Toy-like','Paper Craft 3D','Pixel Art','Low Poly','Noir','Soft Atmospheric'] },
+          { label: 'Featured', options: STYLE_GROUPS.featured },
+          { label: 'More visual styles', options: STYLE_GROUPS.more },
+          { label: 'All other styles', collapsed: true, options: STYLE_GROUPS.other },
         ],
         hint: 'Choose one style. Click another style to replace it.' },
       { id: 'colors', label: 'Colour',            type: 'colorstrategy', required: false, promptLabel: 'Colour direction' },
@@ -2393,8 +2517,90 @@ Edit the attached image according to the instructions below. Change only what is
     { id: 'keep', label: 'What must stay the same?', type: 'textarea', required: false,
       placeholder: 'e.g. Keep the building, the people, the framing, and the overall warm colour exactly as they are.',
       hint: 'Anything the edit must not touch.', promptLabel: 'Must stay unchanged' },
+    { id: 'refs', label: 'Reference images', type: 'refpicker', required: false,
+      hint: 'Optional. Show a style, colour or look to guide the edit. These are only references — the image above is the one being edited.' },
+    // Restyling a photo is one of the commonest edits, so edit mode gets the same
+    // curated registry the illustration workflow uses.
+    { id: 'style', label: 'Restyle the image', type: 'chips-grouped', styleRegistry: 'illustration', expandLabel: 'More styles',
+        groups: [
+        { label: 'Featured', options: STYLE_GROUPS.featured },
+        { label: 'More visual styles', options: STYLE_GROUPS.more },
+        { label: 'All other styles', collapsed: true, options: STYLE_GROUPS.other },
+      ],
+      hint: 'Optional. Re-renders the whole image in this style while keeping what is in it.' },
   ],
 });
+
+// The role preamble actually sent to ChatGPT for each deliverable. Keep these
+// concrete and decision-oriented: the persona should change how the image is
+// composed, lit, styled, or evaluated rather than merely naming a profession.
+const GENERATION_PERSONAS = {
+  poster: {
+    en: `You are an expert graphic designer specialising in high-impact poster design. Think in terms of immediate visual hierarchy, expressive typography, focal point, viewing distance, and print-safe composition. Make one central message unmistakable and keep secondary information clearly subordinate.`,
+    ja: `あなたはインパクトの強いポスターデザインを専門とするグラフィックデザイナーです。瞬時に伝わる視覚的階層、表現力のある文字組み、焦点、見る距離、印刷時の安全性を考えてください。中心となるメッセージを明確にし、それ以外の情報ははっきり従属させてください。`,
+  },
+  logo: {
+    en: `You are an expert brand identity designer specialising in original, scalable logo systems. Develop a distinctive concept from the brand's purpose and personality, then express it through a memorable silhouette, controlled typography, meaningful negative space, and simple vector-like forms that remain recognisable at small sizes and in one colour.`,
+    ja: `あなたは独自性があり拡張可能なロゴシステムを専門とするブランドアイデンティティデザイナーです。ブランドの目的と個性から固有のコンセプトを導き、記憶に残るシルエット、統制された文字組み、意味のある余白、小さなサイズや一色でも識別できるシンプルなベクター調の形で表現してください。`,
+  },
+  banner: {
+    en: `You are an expert digital campaign designer specialising in banners, social graphics, and display advertising. Design for the requested dimensions and viewing context, using a clear message hierarchy, strong subject placement, legible typography, safe margins, and an obvious call to action when one is provided.`,
+    ja: `あなたはバナー、ソーシャル向けグラフィック、ディスプレイ広告を専門とするデジタルキャンペーンデザイナーです。指定された寸法と閲覧環境に合わせ、明快なメッセージ階層、強い被写体配置、読みやすい文字、安全余白、指定がある場合は明確な行動喚起を使って設計してください。`,
+  },
+  illustration: {
+    en: `You are an expert illustrator and visual storyteller. Translate the brief into one clear visual idea using deliberate composition, shape language, gesture, colour, texture, and a consistent artistic medium. Preserve the defining characteristics of the selected illustration style throughout the image rather than applying it as a superficial effect.`,
+    ja: `あなたはイラストレーションと視覚的な物語表現の専門家です。意図的な構図、形の言語、身振り、色、質感、一貫した画材表現を使い、依頼内容をひとつの明快な視覚的アイデアにしてください。選んだイラストスタイルを表面的な効果として加えるのではなく、その特徴を画像全体で保ってください。`,
+  },
+  photo: {
+    en: `You are an expert lifestyle and editorial photographer. Create a believable, observed moment with natural human behaviour, motivated lighting, thoughtful framing, and a coherent relationship between subject, wardrobe, props, and location. Avoid stiff posing, artificial perfection, and generic stock-photo staging.`,
+    ja: `あなたはライフスタイル写真とエディトリアル写真の専門家です。自然な人の動き、場面に根拠のある光、考え抜かれたフレーミング、被写体・衣装・小物・場所の一貫した関係によって、実際に観察されたような説得力のある瞬間をつくってください。硬いポーズ、不自然な完璧さ、ありがちなストックフォト風の演出は避けてください。`,
+  },
+  portrait: {
+    en: `You are an expert portrait photographer and subject director. Reveal the subject's personality through intentional pose, expression, gaze, hand placement, framing, lens perspective, and carefully shaped light. Keep facial anatomy, skin texture, catchlights, and skin tone natural and believable.`,
+    ja: `あなたはポートレート撮影と人物演出の専門家です。意図的なポーズ、表情、視線、手の位置、フレーミング、レンズの遠近感、丁寧に形づくられた光によって、被写体の個性を引き出してください。顔の構造、肌の質感、瞳のキャッチライト、肌色は自然で説得力のある状態に保ってください。`,
+  },
+  landscape: {
+    en: `You are an expert landscape photographer. Build a strong sense of place, scale, depth, weather, and time of day through deliberate foreground, midground, and background relationships. Use light and atmospheric conditions as central parts of the composition while keeping the result photographically believable.`,
+    ja: `あなたは風景写真の専門家です。前景・中景・遠景の関係を意図的に組み立て、場所、スケール、奥行き、天候、時間帯を強く感じさせてください。写真としての説得力を保ちながら、光と大気の状態を構図の中心的な要素として使ってください。`,
+  },
+  'nature-wildlife': {
+    en: `You are an expert nature and wildlife photographer with a documentary understanding of animal behaviour and habitat. Capture a specific natural moment with plausible anatomy, movement, scale, and environmental context. Prioritise the eyes, authentic behaviour, appropriate light, and a clean separation between the subject and its surroundings.`,
+    ja: `あなたは動物の行動と生息環境を記録的に理解する自然・野生動物写真の専門家です。自然な体の構造、動き、大きさ、環境の文脈を備えた具体的な一瞬をとらえてください。瞳、本物らしい行動、適切な光、被写体と周囲の明確な分離を優先してください。`,
+  },
+  street: {
+    en: `You are an expert street and documentary photographer. Create a candid, unposed moment in which timing, gesture, light, reflections, signage, architecture, and layered depth tell the story. Preserve the unpredictability and visual tension of a real street photograph rather than making the scene feel staged.`,
+    ja: `あなたはストリート写真とドキュメンタリー写真の専門家です。タイミング、身振り、光、反射、看板、建築、重なりのある奥行きが物語を伝える、演出のない自然な瞬間をつくってください。場面を作り物のようにせず、実際のストリート写真がもつ予測不能さと視覚的な緊張感を保ってください。`,
+  },
+  'product-photo': {
+    en: `You are an expert commercial product photographer and prop stylist. Present the product faithfully as the unmistakable subject of the frame, preserving its proportions, branding, materials, surface finish, and colour. Shape the lighting, reflections, backdrop, props, and camera angle around the product's physical characteristics and intended market.`,
+    ja: `あなたは商業商品写真とプロップスタイリングの専門家です。商品の比率、ブランド要素、素材、表面仕上げ、色を忠実に保ち、画面の明確な主役として見せてください。商品の物理的な特徴と想定市場に合わせて、照明、映り込み、背景、小物、カメラアングルを設計してください。`,
+  },
+  chardesign: {
+    en: `You are an expert character designer for illustration, animation, games, and visual storytelling. Build the character from a recognisable silhouette, consistent proportions, purposeful shape language, expressive features, and costume or prop choices that reveal personality, role, history, and world.`,
+    ja: `あなたはイラスト、アニメーション、ゲーム、視覚的な物語表現のためのキャラクターデザインの専門家です。識別しやすいシルエット、一貫した比率、目的のある形の言語、表情豊かな特徴、性格・役割・来歴・世界観を伝える衣装や小物からキャラクターを組み立ててください。`,
+  },
+  conceptart: {
+    en: `You are an expert concept artist and production designer. Design subjects that feel native to their world, with readable silhouettes, believable function, coherent materials, clear scale, and purposeful details. The result should communicate how the subject works and be useful as a production reference.`,
+    ja: `あなたはコンセプトアートとプロダクションデザインの専門家です。読み取りやすいシルエット、説得力のある機能、一貫した素材、明確なスケール、目的のあるディテールを備え、その世界に自然に属していると感じられる対象を設計してください。対象の仕組みが伝わり、制作資料として役立つ画像にしてください。`,
+  },
+  bookcover: {
+    en: `You are an expert book and editorial cover designer. Translate the subject's tone and central idea into a distinctive cover concept that remains compelling and legible at thumbnail size. Treat typography, imagery, symbolism, negative space, and genre expectations as one integrated composition rather than separate layers.`,
+    ja: `あなたは書籍とエディトリアルの表紙デザインの専門家です。題材のトーンと中心的なアイデアを、サムネイルサイズでも魅力と可読性を保つ独自の表紙コンセプトに変換してください。文字、画像、象徴、余白、ジャンルの期待を別々の層ではなく、ひとつの統合された構図として扱ってください。`,
+  },
+  storyboard: {
+    en: `You are an expert storyboard artist with a strong command of cinematography, visual continuity, and sequential storytelling. Convert the described action into clear, purposeful shots with readable staging, consistent characters and environments, coherent eyelines and screen direction, and camera choices that communicate the intended emotion and pacing.`,
+    ja: `あなたは撮影設計、視覚的な連続性、連続した物語表現に精通したストーリーボード作家です。説明された動きを、読み取りやすい演出、一貫したキャラクターと環境、つながりのある視線と画面方向、意図した感情とテンポを伝えるカメラ選択を備えた、明快で目的のあるショットに変換してください。`,
+  },
+  imageedit: {
+    en: `You are an expert image editor, compositor, and retoucher. Apply only the requested changes while preserving every unmentioned aspect of the source image, including identity, anatomy, composition, framing, perspective, lighting, colour, texture, and visual style. Make edited areas blend naturally with the original.`,
+    ja: `あなたは画像編集、合成、レタッチの専門家です。指定された変更だけを行い、人物や物の同一性、体の構造、構図、フレーミング、遠近感、光、色、質感、画風など、言及されていない元画像の要素はすべて保ってください。編集箇所を元画像に自然になじませてください。`,
+  },
+};
+
+const PERSONA_EXECUTION = {
+  en: `Resolve unspecified creative details using professional judgement. Follow the brief precisely and return the finished generated image rather than an explanation of what you would create.`,
+  ja: `指定されていない創造上の細部は、専門的な判断で補ってください。依頼内容に正確に従い、何をつくるかの説明ではなく、完成した生成画像を返してください。`,
+};
 
 // Role is no longer a step the user walks through — the deliverable already
 // implies the expertise. This maps each deliverable to the lens the AI adopts;
@@ -2751,7 +2957,6 @@ function resolveFields(content) {
   }
   content._fields.forEach(f => {
     if (f.assetKind === 'product') f.hint = S.lang === 'ja' ? 'スマホで撮った写真でも大丈夫です。同じ画像をChatGPTにも添付し、完成画像の商品やラベルを確認してください。' : 'A phone snapshot is fine. Attach the same photo in ChatGPT and check the product and labels in the result.';
-    if (f.assetKind === 'logo') f.hint = S.lang === 'ja' ? '使いたいロゴを追加してください。同じファイルをChatGPTにも添付し、完成後に細部を確認してください。' : 'Add the logo you want included. Attach the same file in ChatGPT, and check its details in the result.';
     if (f.id === 'logoRules') f.hint = S.lang === 'ja' ? 'ロゴ案をシンプルに保つための設定です。用途に合わせて変更できます。' : 'These defaults keep the initial concept simple. Adjust them to suit your brand.';
     if (!f.maxChips && f.hint) {
       const limit = f.hint.match(/Choose up to (\d+)/);
@@ -2876,6 +3081,330 @@ function isSuperseded(f) {
 
 const JA = {};
 Object.assign(JA, {
+  'Observational sketchbook page where visible loose graphite underdrawing remains structurally important beneath selective transparent watercolour washes. Incomplete edges, spontaneous marks, and unpainted margins.': '観察スケッチのページ。ゆるい鉛筆の下描きが骨格として残り、その上に部分的な透明水彩を重ねる。描き切らない輪郭、とっさの筆致、塗り残した余白。',
+  'Avoid pure outline-free watercolour, dominant black ink, polished travel posters, meticulously rendered architecture, fully painted pages.': '線のない純粋な水彩、黒い墨が主役になること、洗練された旅行ポスター、精密に描いた建築、全面を塗ることを避ける。',
+  'On-location architectural drawing where fast searching ink lines and deliberately loose perspective dominate, with doubled contours, broken strokes, and only selective splashes of colour.': '現場で描く建築のスケッチ。素早く探るペンの線とあえて崩した遠近が主役。二重になる輪郭、途切れる線、色は部分的に置くだけ。',
+  'Avoid pencil-dominant travel journals, pure watercolour, ruler-straight architecture, clean technical drawing, uniformly rendered colour.': '鉛筆が主役の旅日記、純粋な水彩、定規で引いた建築、清書した製図、均一な彩色を避ける。',
+  'Fashion-focused gestural drawing with distinctly elongated approximately nine-head figures, sweeping economical strokes, minimally described faces and limbs, and garments communicated through silhouette and movement.': 'ファッションのための素早い線描。約九頭身の明確に伸びた人物、無駄のない大きな筆致、顔や手足は最小限、服はシルエットと動きで見せる。',
+  'Avoid realistic body proportions, detailed portraiture, finished anatomy, dense environments, literal fabric rendering.': '写実的な体の比率、描き込んだ顔、仕上げた人体、密度の高い背景、布地の写実描写を避ける。',
+  'Drawing built from broad powdery charcoal masses, finger-smudged transitions, and erased highlights, with compressed blacks and visible paper grain.': '木炭の粉っぽい大きな面、指で擦ったぼかし、消しゴムで抜いたハイライトで構成する。締まった黒と、見える紙の目。',
+  'Avoid thin graphite construction lines, colour, ink outlines, crisp digital edges, clean hatching-only rendering.': '細い鉛筆の下描き線、彩色、ペンの輪郭、くっきりしたデジタルの縁、ハッチングだけの整った描写を避ける。',
+  'Drawing built from clearly visible layered coloured-pencil strokes on toothy paper, with directional hatching, cross-hatching, and optical colour mixing.': '目の粗い紙に、はっきり見える色鉛筆の筆致を重ねる。方向のあるハッチング、交差ハッチング、目で混ざる色。',
+  'Avoid seamless pastel blending, wet paint, flat vector fills, glossy surfaces, opaque brushwork.': 'パステルのような継ぎ目のないぼかし、濡れた絵具、平坦なベクター塗り、光沢、不透明な筆致を避ける。',
+  'Dry-pastel image dominated by soft chalk pigment masses and rubbed velvety transitions, with dusty edges and paper tooth visible through colour.': 'ドライパステルの絵。やわらかなチョーク顔料の面と、擦って作るビロード状の移ろいが主役。粉っぽい縁と、色の下に見える紙の目。',
+  'Avoid coloured-pencil hatching, precise outlines, hard vector edges, wet paint effects, glossy surfaces.': '色鉛筆のハッチング、正確な輪郭、硬いベクターの縁、濡れた絵具の効果、光沢を避ける。',
+  "Character-led children's picture-book illustration with friendly simplified figures, soft hand-painted shapes, warm narrative interaction, and gently simplified surroundings.": 'キャラクターを主役にした児童絵本の絵。親しみやすく単純化した人物、やわらかな手描きの形、温かいやりとり、穏やかに省略した背景。',
+  'Avoid ornate environment-led fairy-tale panoramas, photorealism, anime cel rendering, dark cinematic mood, dense technical detail.': '装飾的で風景主体のおとぎ話パノラマ、写実、アニメのセル塗り、暗く映画的な雰囲気、緻密な技術描写を避ける。',
+  'Polished promotional anime image with precise clean line art, controlled cel shading, saturated colour, dramatic rim lighting, and a fully painted atmospheric background.': '宣伝用に作り込んだアニメの一枚絵。正確で清潔な線画、整理されたセル塗り、鮮やかな色、劇的なリムライト、描き込んだ空気感のある背景。',
+  'Avoid black-and-white manga, Western comic halftones, rough sketch lines, muted storybook painting, unfinished backgrounds.': '白黒の漫画、アメコミの網点、ラフな線、落ち着いた絵本の彩色、描き込みのない背景を避ける。',
+  'Cinematic design image defined by film-still staging, strong silhouette hierarchy, one dominant directional light, atmospheric perspective, and explicit scale cues.': '映画のワンシーンのような演出で成立するデザイン画。シルエットの明確な主従、支配的な方向性のある光ひとつ、空気遠近、大きさを示す手がかり。',
+  'Avoid brush texture as the sole defining feature, flat lighting, diagrammatic presentation, centred decorative symmetry, arbitrary ornamental detail.': '筆致だけを特徴にすること、平坦な光、図解的な見せ方、中央寄せの装飾的対称、意味のない装飾を避ける。',
+  'Severe monochrome cinematic image constructed from large black shadow masses cut by narrow hard-edged light, silhouettes, and venetian-blind or streetlight patterns.': '厳しいモノクロの映画的画面。大きな黒い影の塊を、輪郭の硬い細い光が切り裂く。シルエット、ブラインドや街灯の光の模様。',
+  'Avoid colour, evenly exposed scenes, soft ambient illumination, grey pastel rendering, delicate pencil shading.': '彩色、均一に露出した画面、やわらかな環境光、グレーのパステル調、繊細な鉛筆の陰影を避ける。',
+  'Axonometric illustration using consistent 30-degree axes and parallel receding edges with zero perspective convergence, preserving uniform object scale throughout.': '30度の軸で統一した軸測投影。奥行きの辺は平行のままで、消失点はなし。全体を通して物の縮尺を一定に保つ。',
+  'Avoid vanishing points, lens perspective, camera foreshortening, irregular perspective, loose hand-drawn geometry.': '消失点、レンズの遠近、カメラ的な圧縮、不規則な遠近、手描きの崩れた幾何を避ける。',
+  '3D forms explicitly constructed from visible flat triangular or polygonal facets, with each plane carrying discrete faceted shading.': '見える三角形や多角形の平らな面だけで組んだ立体。面ごとに独立した陰影を持たせる。',
+  'Avoid smooth subdivision, rounded continuous shading, texture maps, fine surface detail, clay fingerprints, glossy toy moulding.': '滑らかな細分割、丸く連続した陰影、テクスチャ、細かい表面描写、粘土の指跡、玩具的な光沢成形を避ける。',
+  'Mass-produced injection-moulded toy aesthetic with chunky rounded components, glossy coloured plastic, and visible manufactured seams, part divisions, or joints.': '量産された成形玩具の見た目。太く丸いパーツ、光沢のある色付きプラスチック、見える合わせ目、パーツの分割、関節。',
+  'Avoid fingerprints, handmade clay deformation, matte clay, realistic skin or fabric, weathering, natural materials.': '指紋、手びねりの歪み、マットな粘土、写実的な肌や布、風化、自然素材を避ける。',
+  'Three-dimensional objects physically constructed from folded and scored cardstock, with crisp creases, tabs, cut edges, and visible paper thickness.': '折り筋をつけた厚紙で実際に組み立てた立体。鋭い折り目、のりしろ、切断面、見える紙の厚み。',
+  'Avoid torn collage, rounded cloud layers, flat illustration, painted texture, soft clay modelling, glossy plastic.': 'ちぎったコラージュ、丸い雲状の層、平面的なイラスト、絵具の質感、やわらかな粘土造形、光沢プラスチックを避ける。',
+  'Handmade print defined by two to four discrete opaque spot-colour ink layers, coarse ink grain, and intentionally slight registration offsets between layers.': '2〜4版の不透明な特色インクで刷る手仕事の版画。粗いインクの粒と、版どうしのわずかなズレを意図的に残す。',
+  'Avoid lithographic scenery as a defining feature, continuous gradients, photographic detail, unlimited colours, pristine digital alignment.': '石版画的な風景を主役にすること、連続したグラデーション、写真的描写、無制限の色数、完璧なデジタルの見当合わせを避ける。',
+  'Relief-print image constructed from bold carved positive and negative marks, thick gouged black strokes, rough chiselled edges, and forceful black-white contrast.': '彫りの陽刻と陰刻で組み立てる凸版。太く彫り込んだ黒い線、荒い刃の跡、強い白黒の対比。',
+  'Avoid fine engraved cross-hatching, continuous grey tones, delicate pen drawing, smooth shading, photographic detail.': '銅版画の細かい交差ハッチング、連続したグレー、繊細なペン画、滑らかな陰影、写真的描写を避ける。',
+  'Destination-led 1930s lithographic poster composition featuring monumental simplified scenery, broad flat colour masses, a strong horizon, and a restrained muted palette.': '行き先を主役にした1930年代の石版ポスター。雄大に単純化した風景、広い平らな色面、強い地平線、抑えた配色。',
+  'Avoid mid-century editorial figures, screen-print misregistration as the main effect, photorealism, contemporary graphics, tiny busy detail.': 'ミッドセンチュリーの人物イラスト、版ズレを主役にすること、写実、現代的なグラフィック、細かすぎる描写を避ける。',
+  '1950s–60s editorial illustration centred on simplified geometric people, domestic objects, or everyday scenes, using limited overprinted colours, coarse print grain, and slight off-register edges.': '1950〜60年代の雑誌イラスト。単純化した幾何学的な人物、日用品、日常の場面が主役。限られた色の重ね刷り、粗い印刷の粒、わずかな版ズレ。',
+  'Avoid monumental travel landscapes, 1930s poster composition, pristine vectors, gradients, contemporary photorealism, glossy 3D.': '雄大な旅の風景、1930年代のポスター構図、完璧なベクター、グラデーション、現代的な写実、光沢のある3Dを避ける。',
+  'Deliberately unschooled painting with flattened perspective, frontal symbolic forms, repeated handmade motifs, and intuitively uneven proportions, using direct bold colour.': 'あえて素朴に描く絵。平面的な遠近、正面向きの象徴的な形、繰り返す手仕事の文様、直感的で不揃いな比率、率直で大胆な色。',
+  'Avoid correct linear perspective, volumetric shading, academic anatomy, geometric precision, polished professional rendering.': '正確な線遠近法、立体的な陰影、学術的な人体、幾何学的な精密さ、洗練されたプロの仕上げを避ける。',
+  'One botanically convincing plant specimen isolated on clean white paper, with roots, stems, leaves, and flowers clearly articulated through delicate natural-history line, stipple, and restrained botanical colour.': '白い紙に一点だけ置く、植物学的に説得力のある標本。根・茎・葉・花を、博物画の繊細な線と点描、抑えた植物色で明確に描き分ける。',
+  'Avoid animals, minerals or fictional specimens, technical cutaways, cinematic scenery, cartoon forms, dramatic lighting, heavy engraved cross-hatching.': '動物・鉱物・架空の標本、技術的な断面図、映画的な風景、漫画的な形、劇的な光、濃い交差ハッチングを避ける。',
+  'Non-botanical historical specimen engraving — animal, anatomical, mineral, or mechanical specimen — using precise outlines, fine cross-hatching, and numbered, sectional, or inset organisation on white.': '植物以外の歴史的な標本図。動物、解剖、鉱物、機械などを、正確な輪郭と細かい交差ハッチングで描き、白地に番号・断面・別枠で整理する。',
+  'Avoid botanical specimens, fictional pseudo-science, painterly colour, scenery, expressive stylisation, modern infographic graphics.': '植物標本、架空の疑似科学、絵画的な彩色、風景、表現的な様式化、現代的なインフォグラフィックを避ける。',
+  'Information-first graphic built from multiple simplified icons or data objects organised into clearly separated modules and linked by connectors, arrows, or directional relationships, using two or three flat colours.': '情報を第一とする図。単純化した複数のアイコンやデータを明確に分かれた区画に整理し、線や矢印、方向性で結ぶ。色は2〜3色の平塗り。',
+  'Avoid standalone decorative vector illustration, primitive-shape abstraction, physical texture, photorealism, painterly effects, ornamental complexity.': '単体の装飾的なベクターイラスト、基本図形だけの抽象、物質的な質感、写実、絵画的効果、装飾の複雑さを避ける。',
+  'Strict vector composition constructed exclusively from circles, rectangles, and triangles, using precise alignment, repeated modules, and systematic grid relationships.': '円・長方形・三角形だけで構成する厳密なベクター。正確な整列、反復するモジュール、体系的なグリッド関係。',
+  'Avoid freeform silhouettes, organic curves, hand-drawn lines, texture, painterly shading, irregular geometry.': '自由な形のシルエット、有機的な曲線、手描きの線、質感、絵画的な陰影、不規則な幾何を避ける。',
+});
+Object.assign(JA, {
+  'Pure transparent watercolour on textured white paper, with no visible preliminary drawing. Layered translucent pigment, wet-on-wet blooms, granulation, feathered edges, colour pooling, and generous untouched paper.': '目のある白い紙に透明水彩のみ。下描きは見せない。透明な顔料の重ね、ウェット・オン・ウェットのにじみ、粒状感、羽根のような輪郭、色だまり、大きく残した白場。',
+  'Avoid ink or pencil outlines, visible sketch marks, opaque gouache, chalky paint, hard-edged flat fills, fully covered backgrounds.': 'ペンや鉛筆の輪郭線、下描きの跡、不透明なグアッシュ、粉っぽい絵具、硬い輪郭のベタ塗り、塗りつぶした背景を避ける。',
+  'Opaque matte gouache painting. Dense flat pigment and visibly brushed blocked shapes, with slightly irregular painted edges, dry-brush marks, and a chalky surface.': '不透明でマットなグアッシュ。密度の高い平らな顔料と、筆跡の見える色面。わずかに不揃いな塗りの縁、かすれ、粉っぽい表面。',
+  'Avoid transparent washes, watercolour blooms, visible drawing outlines, glossy paint, digital gradients, photorealistic blending.': '透明な淡彩、水彩のにじみ、見える下描きの線、光沢のある絵具、デジタルのグラデーション、写実的なぼかしを避ける。',
+  'Black ink is the dominant structural medium, using expressive variable-width lines and brush marks. Restrained grey or one-colour washes add secondary tone, with large areas of bare paper.': '黒い墨を骨格とし、強弱のある線と筆致で構成する。グレーまたは一色の抑えた淡彩を従として重ね、紙の白を大きく残す。',
+  'Avoid multicolour watercolour painting, graphite underdrawing, opaque paint, even tonal rendering, heavy comic-style contouring.': '多色の水彩画、鉛筆の下描き、不透明な絵具、均一な調子、漫画的な太い輪郭を避ける。',
+  'Graphite drawing on paper with visible exploratory construction lines, overlapping searching strokes, pressure variation, hatching, and selectively unfinished contours.': '紙に鉛筆。探るような下描き線、重なる筆致、筆圧の変化、ハッチング、あえて描き切らない輪郭。',
+  'Avoid colour, charcoal smudging, ink outlines, painted washes, polished digital lines, fully finished rendering.': '彩色、木炭のぼかし、ペンの輪郭、絵具の淡彩、整ったデジタルの線、完全な仕上げを避ける。',
+  'Clean vector illustration made from unrestricted flat solid-colour silhouettes. Crisp edges, simplified forms, and a limited palette, with no visible physical medium.': '形を制限しない平らな単色シルエットによる、清潔なベクターイラスト。明瞭な輪郭、単純化した形、絞った配色。画材の質感は出さない。',
+  'Avoid primitive-shapes-only construction, gradients, texture, dimensional shading, hand-drawn strokes, photographic detail.': '基本図形だけの構成、グラデーション、質感、立体的な陰影、手描きの線、写真的な描写を避ける。',
+  'Sparse drawing made from one continuous or near-continuous thin line of uniform weight, with open contours and abundant white space.': '太さの均一な一本の細い線（ほぼ途切れない）で描く簡素な絵。輪郭は閉じきらず、余白を大きく取る。',
+  'Avoid colour fills, closed vector masses, shading, hatching, texture, varied brush weight, detailed backgrounds.': '色の塗り、閉じたベクターの面、陰影、ハッチング、質感、線の強弱、描き込んだ背景を避ける。',
+  'Western comic-book illustration with heavy expressive ink contours, flat cel colour, and visible halftone-dot shadows. Angular anatomy and dynamic action-oriented staging.': '欧米アメコミの作画。力強い墨の輪郭、ベタ塗りのセル彩色、網点の影。角張った人体と動きのある演出。',
+  'Avoid black-and-white manga rendering, delicate anime linework, painterly blending, pastel washes, muted storybook rendering.': '白黒の漫画表現、繊細なアニメの線、絵画的なぼかし、パステルの淡彩、落ち着いた絵本調を避ける。',
+  'Black-and-white Japanese manga rendering with expressive variable ink lines, screentone values, sharp black shadow masses, and selective speed or impact lines.': '白黒の日本の漫画表現。強弱のある墨の線、スクリーントーンの調子、鋭い黒ベタ、要所の効果線。',
+  'Avoid full colour, Western superhero rendering, painterly shading, soft graphite sketching, polished anime-key-visual colouring.': 'フルカラー、欧米ヒーロー的な作画、絵画的な陰影、やわらかな鉛筆スケッチ、アニメのキービジュアル的な彩色を避ける。',
+  'Digital painting where visible layered brushstrokes are the primary visual feature. Broken edges, colour variation within forms, and oil-like strokes model volume.': '重ねた筆跡そのものを主役とするデジタル絵画。途切れる輪郭、面の中での色の揺れ、油彩のような筆致で立体をつくる。',
+  'Avoid cinematic concept-art staging as the defining feature, clean line art, flat vector shapes, cel shading, smooth airbrush rendering.': '映画的なコンセプトアートの演出を主役にすること、清書した線画、平坦なベクター形、セル塗り、滑らかなエアブラシを避ける。',
+  'Handmade modelling-clay miniature with visible fingerprints, tool marks, and hand-shaped irregularities. Rounded volumes, matte surfaces, and broad soft studio light.': '手びねりの粘土ミニチュア。指紋、へらの跡、手作業ならではの歪み。丸みのある塊、マットな表面、広くやわらかいスタジオ光。',
+  'Avoid mould seams, manufactured joints, glossy plastic, polished CGI surfaces, metal, photorealistic skin.': '成形の合わせ目、工業的な継ぎ目、光沢プラスチック、磨かれたCG表面、金属、写実的な肌を避ける。',
+  'Layered composition assembled from irregular cut and torn paper pieces, with visible fibres, uneven edges, overlaps, and shallow physical cast shadows.': '不揃いに切った紙とちぎった紙を重ねた構成。見える繊維、ふぞろいな縁、重なり、浅い落ち影。',
+  'Avoid uniformly rounded cloud layers, structural folds, scored cardstock, smooth vector edges, painted gradients, seamless digital surfaces.': '均一に丸い雲状の層、構造的な折り、折り筋をつけた厚紙、滑らかなベクターの縁、絵具のグラデーション、継ぎ目のないデジタル表面を避ける。',
+  'Deliberately low-resolution raster illustration with clearly visible square pixels and staircase edges. Clustered pixel shading and a limited indexed palette.': '意図的に低解像度のドット絵。四角い画素と階段状の輪郭がはっきり見える。画素のかたまりで陰影をつけ、配色は限定する。',
+  'Avoid anti-aliasing, smooth curves, continuous gradients, vector edges, painterly texture, high-resolution detail.': 'アンチエイリアス、滑らかな曲線、連続したグラデーション、ベクターの輪郭、絵画的な質感、高精細な描写を避ける。',
+
+  'Restrained composition centred on visibly aged, imperfect natural materials. Cracks, patina, uneven handmade surfaces, muted earth tones, asymmetry, and generous breathing room.': '経年した不完全な自然素材を主題とする抑制された構成。ひび、風合い、手仕事の不均一な表面、くすんだ土の色、非対称、ゆとりのある余白。',
+  'Avoid pristine surfaces, perfectly flat minimalism, polished symmetry, glossy luxury materials, saturated decoration, visual clutter.': '新品同様の表面、完全に平坦なミニマル、磨かれた対称、光沢のある高級素材、彩度の高い装飾、雑然さを避ける。',
+  'Layered paper-cut illustration built specifically from smooth, rounded, cloud-like silhouettes. Clean soft edges, restrained colours, and shallow cast-shadow depth.': '滑らかで丸い雲のようなシルエットだけで組む切り紙の重ね。清潔でやわらかな縁、抑えた配色、浅い落ち影の奥行き。',
+  'Avoid torn fibres, jagged collage edges, folds, scored cardstock, sharp angular geometry, realistic clouds, deep perspective.': 'ちぎった繊維、ぎざぎざのコラージュの縁、折り、折り筋をつけた厚紙、鋭い角、写実的な雲、深い遠近を避ける。',
+  'Abstract ethereal imagery defined by luminous aura fields surrounding simplified silhouettes and precisely arranged symbolic geometry. Radiant gradients, translucency, and spacious symmetry.': '単純化したシルエットを包む光のオーラと、精密に配置された象徴的な幾何で成り立つ抽象的で幽玄な画。放射状のグラデーション、透明感、余白のある対称。',
+  'Avoid specific unrequested religious iconography, ordinary fantasy scenery, readable lettering, mundane realism, decorative clutter.': '指定のない特定の宗教図像、ありふれたファンタジー風景、読める文字、平凡な写実、装飾過多を避ける。',
+  'Intimate contemporary neighbourhood-shop scene defined by dense rhythmic rows of colourful packaged goods and compact shelving, with awnings, hanging merchandise, and warm practical lighting.': '現代の街角の小さな店。色とりどりの商品が密にリズムよく並ぶ棚、庇、吊り下げた商品、温かい実用的な照明。',
+  'Avoid generic East-Asian ornament, temples or historical motifs used as decoration, mixed cultural stereotypes, invented readable brands or signs, empty minimalist retail spaces.': '紋切り型の東アジア装飾、装飾として使う寺院や歴史的モチーフ、文化の混同、架空の読める商標や看板、がらんとしたミニマルな店内を避ける。',
+  'One coherent miniature environment exposed by a clean physical cross-section, showing readable interconnected interior rooms, floors, and objects at a consistent miniature scale.': 'きれいな断面で切り開いた、ひと続きのミニチュア空間。つながった部屋、階層、物が一定の縮尺で読み取れる。',
+  'Avoid exploded diagrams, disconnected rooms, accidental extra floors, impossible architecture, inconsistent scale, infographic callouts.': '分解図、つながらない部屋、意図しない階の追加、成立しない建築、縮尺の不統一、図解の引き出し線を避ける。',
+  'Sculptural translucent flexible gel and membrane forms with flowing contours, inflated soft volume, internal colour transitions, glossy refraction, and semi-transparent overlaps.': '半透明でやわらかいゲルや膜の造形。流れる輪郭、膨らんだ量感、内部の色の移ろい、つやのある屈折、半透明の重なり。',
+  'Avoid opaque chrome, rigid frosted glass, hard mechanical geometry, dry matte materials, solid plastic.': '不透明なクロム、硬い曇りガラス、機械的な硬い幾何、乾いたマット素材、中身の詰まったプラスチックを避ける。',
+  'Composition physically organised around one recognisable opened envelope or folded wrapper, with the main subject emerging from or revealed inside it. Believable flaps, folds, paper thickness, and shadows.': '開いた封筒か折った包み紙を軸に組む構図。主役がその中から現れる、または内側に見える。自然なフラップ、折り、紙の厚み、影。',
+  'Avoid generic paper collage, impossible folds, floating unrelated paper, subject outside the envelope concept, ambiguous container geometry.': 'ありきたりな紙コラージュ、成立しない折り、浮遊する無関係な紙、封筒と関係のない主役、曖昧な容器の形を避ける。',
+  'Handmade assemblage where soft sewn textile pieces and exposed bent-wire contours visibly coexist. Obvious stitches, thread ends, fabric fibres, and simple wire drawing.': '縫った布と露出した針金の輪郭が同居する手づくりの造形。はっきりした縫い目、糸端、布の繊維、単純な針金の線。',
+  'Avoid pure knitting, paper craft, seamless plastic, hidden construction, polished CGI, tangled unreadable wire.': '編み物だけ、ペーパークラフト、継ぎ目のないプラスチック、隠れた構造、磨かれたCG、読み取れない絡んだ針金を避ける。',
+  'Opaque mirror-polished silver metal behaving like a liquid, forming continuous flowing curves with stretched specular highlights and coherent environmental reflections.': '鏡面に磨かれた不透明な銀が液体のように振る舞う。途切れない流れる曲面、引き伸ばされたハイライト、筋の通った環境の映り込み。',
+  'Avoid translucent gel, frosted glass, matte metal, rough texture, coloured plastic, inconsistent reflections.': '半透明のゲル、曇りガラス、マットな金属、粗い質感、色付きプラスチック、辻褄の合わない反射を避ける。',
+  'Cobalt-blue hand-painted decoration on glossy white porcelain, with recognisable floral scrolls, leaves, and ornamental brushwork plus tonal variation within blue strokes.': '白い磁器につやのあるコバルトブルーの手描き装飾。花唐草、葉、装飾的な筆致、青の中の濃淡。',
+  'Avoid multicolour folk painting, paper or fabric surfaces, matte ceramic, geometric vector pattern, unrelated regional ornament.': '多色の民画、紙や布の地、マットな陶器、幾何学的なベクター文様、無関係な地域装飾を避ける。',
+  'Real scene framed specifically as a restrained photographic camera viewfinder, with focus brackets, framing guides, exposure or grid marks, and minimal display graphics kept away from the focal subject.': '実際の情景を、抑制されたカメラのファインダー越しに切り取る。フォーカス枠、構図ガイド、露出やグリッドの目盛り。表示は最小限にし、主役にかぶせない。',
+  'Avoid futuristic HUDs, dense sci-fi interfaces, invented readable settings, controls covering the subject, infographic layouts.': '近未来的なHUD、情報過多のSF的UI、架空の読める設定値、主役を覆う操作系、図解的なレイアウトを避ける。',
+  'Rigid translucent matte-glass objects with diffused silhouettes visible through them, milky light scattering, pale refracted colour, and luminous edges.': '硬く半透明な曇りガラスの物体。向こう側の輪郭がぼんやり透け、乳白色に光が散り、淡く屈折した色と光る縁をもつ。',
+  'Avoid flexible gel, crystal-clear glass, mirror chrome, opaque plastic, sharp objects clearly visible through the material.': 'やわらかいゲル、透明なガラス、鏡面クロム、不透明なプラスチック、はっきり透けて見える物体を避ける。',
+  'Graphic composition dominated by a few enormous overlapping silhouettes cropped aggressively by the frame, using extreme scale contrast and only two or three flat colours.': '画面に大きく切れる巨大なシルエットを少数だけ重ねた構成。極端な大小の対比と、2〜3色の平らな色だけで組む。',
+  'Avoid tiny isolated subjects, large empty minimalist fields, outlines, detailed interiors, texture, primitive-shape-only grids, evenly sized elements.': '小さく孤立した主役、広い空白のミニマル、輪郭線、内部の描き込み、質感、基本図形だけの格子、同じ大きさの要素を避ける。',
+  'Deliberately early-2000s website aesthetic with bevelled interface panels, pixel borders, tiny bitmap icons, tiled elements, and web-safe accent colours.': '2000年代初頭のウェブを意識した表現。面取りされたパネル、ドットの罫線、小さなビットマップアイコン、敷き詰めた要素、ウェブセーフカラー。',
+  'Avoid contemporary minimal UI, glassmorphism, modern mobile-app layouts, large clean typography, photorealistic interfaces, unnecessary readable copy.': '現代的なミニマルUI、グラスモーフィズム、今風のアプリ画面、大きく整った文字組み、写実的なUI、不要な読める文章を避ける。',
+  'Environment-led enchanted storybook world with layered woodland or pastoral depth, whimsical architecture, delicate ornament, and magical atmospheric illumination.': '風景を主役にした魔法の絵本世界。層になった森や田園の奥行き、風変わりな建築、繊細な装飾、幻想的な光。',
+  'Avoid simple character-only picture-book scenes, horror, sci-fi technology, generic fantasy prop piles, photorealistic grit.': 'キャラクターだけの単純な絵本場面、ホラー、SF的な技術、ありがちなファンタジー小道具の羅列、写実的な生々しさを避ける。',
+  'Subjects physically reinterpreted as knitted, crocheted, or quilted soft textile forms, with visible yarn loops, fibres, stitching, padded volume, and warm subdued colour.': '対象を編み物・かぎ針編み・キルトのやわらかな布として作り直す。見える毛糸の輪、繊維、縫い目、詰め物の量感、温かく落ち着いた色。',
+  'Avoid painted storybook texture, clay, metal, glass, hard plastic, sharp glossy surfaces, smooth CGI materials.': '絵本の絵具の質感、粘土、金属、ガラス、硬いプラスチック、鋭く光る表面、滑らかなCG素材を避ける。',
+  'Biological branching forms structurally fused with luminous electronic filaments. Vein-like networks, soft organic curves, and controlled electric nodes embedded into the organism-like form.': '枝分かれする生物的な形と、光る電子繊維が構造として融合する。血管のような網、やわらかな有機曲線、生体に埋め込まれた電気的な節。',
+  'Avoid circuit boards pasted onto objects, ordinary neon lighting, mechanical robots, random cables, circuitry obscuring the main silhouette.': '基板を貼り付けただけの表現、ただのネオン、機械的なロボット、脈絡のない配線、主役のシルエットを埋める回路を避ける。',
+  'Fictional specimen schematic presented like an invented research plate, with an isolated imaginary subject, precise callout lines, measurement ticks, sectional details, and intentionally fictional technical markings.': '架空の標本図。研究図版のような体裁で、想像上の対象を単独で置き、正確な引き出し線、計測の目盛り、断面の詳細、意図的に架空の技術記号を添える。',
+  'Avoid real scientific claims, botanical natural-history plates, historical engraving, environmental scenery, painterly rendering, decorative ornament.': '実在の科学的主張、植物の博物図版、歴史的な銅版画、風景、絵画的な描写、装飾を避ける。',
+  'Graphic cute-character language defined by compact proportions, oversized simple facial features, rounded silhouettes, and pastel colour, with minimal surface detail.': 'かわいいキャラクター表現。小さくまとまった比率、大きく単純な顔の要素、丸いシルエット、パステルの色、表面の描き込みは最小限。',
+  'Avoid realistic anatomy, hand-painted narrative scenery, intricate ornament, sharp aggressive forms, uncanny realistic faces.': '写実的な人体、手描きの物語的背景、緻密な装飾、鋭く攻撃的な形、不気味なほど写実的な顔を避ける。',
+  'Deliberately frame-filling ornamental density with layered patterns, saturated colours, contrasting textures, and repeated decorative motifs organised around one dominant focal subject.': '画面を埋め尽くす装飾の密度。重なる文様、鮮やかな色、対比する質感、反復する装飾を、ひとつの明確な主役の周りに配置する。',
+  'Avoid sparse negative space, restrained palettes, minimalist composition, uniform random noise, decoration with no focal hierarchy.': '広い余白、抑えた配色、ミニマルな構成、一様なノイズ、主役のない装飾を避ける。',
+  'Extreme visual reduction: one very small simple subject isolated asymmetrically inside a vast uninterrupted flat colour field, with virtually no secondary information.': '極限まで削ぎ落とす。広く途切れのない単色の面の中に、とても小さく単純な主役を非対称に置く。副次的な情報はほぼ入れない。',
+  'Avoid oversized cropped shapes, overlapping masses, linework, texture, patterns, gradients, multiple objects, frame-filling composition.': '画面を切る巨大な形、重なる面、線画、質感、文様、グラデーション、複数の物、画面を埋める構成を避ける。',
+  'Monumental visual language of massive hard-edged geometric blocks and raw exposed surfaces, with severe scale, stark tonal contrast, and abrupt asymmetric spatial relationships.': '巨大で硬質な幾何の塊と、むき出しの素材面による記念碑的な表現。厳しいスケール、強い明暗差、唐突で非対称な空間関係。',
+  'Avoid delicate ornament, soft organic shapes, pastel styling, polished luxury surfaces, decorative curves, cosy textures.': '繊細な装飾、やわらかな有機的形、パステル調、磨かれた高級感、装飾的な曲線、居心地のよい質感を避ける。',
+});
+Object.assign(JA, {
+  'Large flat fields of a single colour, one small subject placed off-centre, no line and no texture.': '単色の大きな色面、中心を外して置いた小さな主役、線も質感もなし。',
+  'Avoid linework, pattern, gradients and filling the frame.': '線画、文様、グラデーション、画面を埋めることを避ける。',
+  'Oversized overlapping silhouettes cropped by the frame edge, extreme scale contrast, two or three colours.': '画面の端で切れる巨大な重なり合うシルエット、極端な大小の対比、2〜3色。',
+  'Avoid outlines, small detail and evenly sized elements.': '輪郭線、細かい描写、同じ大きさの要素を避ける。',
+  'Invented specimen diagram: fictional labels, measurement marks, callout lines and technical-manual spacing.': '架空の標本図。実在しないラベル、計測の目盛り、引き出し線、技術マニュアル的な余白。',
+  'Avoid painterly rendering, real scenery and decorative ornament.': '絵画的な描写、実在の風景、装飾を避ける。',
+});
+Object.assign(JA, {
+  // Style names
+  'Painterly Digital': 'デジタルペインティング',
+  'Cut Paper Collage': '切り紙コラージュ',
+  'Travel Journal Watercolour': '旅の水彩スケッチ',
+  'Fashion Illustration': 'ファッションイラスト',
+  'Concept Art': 'コンセプトアート',
+  'Mid-Century Print': 'ミッドセンチュリー印刷',
+  'Botanical Plate': '植物図版',
+  'Scientific Plate': '博物図版',
+
+  // Featured guidance
+  'Transparent watercolour washes on white paper, visible paper grain, soft pigment blooms, edges left open.': '白い紙に透明な水彩の滲み、紙の目、やわらかなにじみ、開いたままの輪郭。',
+  'Avoid opaque paint, heavy outlines and fully covered backgrounds.': '不透明な絵具、太い輪郭線、塗りつぶした背景を避ける。',
+  'Opaque matte gouache, flat blocked shapes, visible brush marks, chalky finish.': '不透明でマットなグアッシュ、平らな色面、筆跡、粉っぽい質感。',
+  'Avoid transparent washes, glossy surfaces and blended photorealism.': '透明な滲み、光沢のある表面、写実的なぼかしを避ける。',
+  'Black ink linework with grey or single-colour tonal washes, large areas of bare paper.': '黒い墨の線に、グレーか一色の淡彩。紙の白を大きく残す。',
+  'Avoid full colour, even shading and thick outlines.': 'フルカラー、均一な陰影、太い輪郭線を避ける。',
+  'Graphite on paper, visible construction lines, hatching, unfinished edges.': '紙に鉛筆、下描きの線、ハッチング、描き切らない輪郭。',
+  'Avoid colour, digital smoothness and finished rendering.': '彩色、デジタル的な滑らかさ、仕上げすぎを避ける。',
+  'Flat solid-colour shapes, no gradients, crisp geometric edges, limited palette.': '単色の平らな面、グラデーションなし、幾何学的で明瞭な輪郭、絞った配色。',
+  'Avoid texture, shading, gradients and hand-drawn line.': '質感、陰影、グラデーション、手描きの線を避ける。',
+  'One continuous thin line of even weight, no fill, no shading, large white space.': '太さの均一な一本の細い線、塗りなし、陰影なし、大きな余白。',
+  'Avoid colour fills, varied line weight and background detail.': '色の塗り、線の強弱、背景の描き込みを避ける。',
+  'Bold ink outlines, flat cel colour, halftone dots, action-panel energy.': '力強い墨の輪郭、ベタ塗りのセル彩色、網点、コマ割りの勢い。',
+  'Avoid soft painterly blending and muted colour.': 'やわらかな絵画的ぼかし、くすんだ色を避ける。',
+  'Black-and-white ink, screentone shading, speed lines, expressive linework.': '白黒の墨、スクリーントーン、効果線、表情のある線。',
+  'Avoid full colour and Western superhero anatomy.': 'フルカラー、欧米ヒーロー的な体型を避ける。',
+  'Visible oil-like digital brushstrokes, blended edges, thick colour built over form.': '油彩のようなデジタルの筆跡、溶け合う輪郭、形の上に厚く重ねた色。',
+  'Avoid flat vector shapes, clean line art and airbrushed smoothness.': '平坦なベクター形、清書した線画、エアブラシ的な滑らかさを避ける。',
+  'Matte modelling-clay figures, rounded volumes, fingerprint texture, soft studio light.': 'マットな粘土の造形、丸みのある塊、指跡の質感、やわらかなスタジオ光。',
+  'Avoid untextured grey renders, glossy plastic and photorealistic skin.': '質感のないグレーのレンダー、光沢プラスチック、写実的な肌を避ける。',
+  'Torn and cut paper layers, visible paper edges and fibre, drop shadows between layers.': 'ちぎった紙と切った紙の層、紙の縁と繊維、層の間の落ち影。',
+  'Avoid smooth digital gradients and seamless photorealism.': '滑らかなデジタルグラデーション、継ぎ目のない写実を避ける。',
+  'Low-resolution pixel grid, hard square pixels, limited indexed palette, no anti-aliasing.': '低解像度のドット、角張った四角い画素、限定した配色、アンチエイリアスなし。',
+  'Avoid smooth curves, gradients and soft edges.': '滑らかな曲線、グラデーション、ぼけた輪郭を避ける。',
+
+  // Remaining guidance
+  'Loose pencil underdrawing with quick watercolour washes, sketchbook feel, unpainted margins.': 'ゆるい鉛筆の下描きに素早い水彩、スケッチブックの雰囲気、塗り残した余白。',
+  'Avoid tourist-poster composition and fully rendered architecture.': '観光ポスター的な構図、描き込んだ建築を避ける。',
+  'Fast searching ink lines, wobbly perspective, partial colour, drawn on location.': '素早く探る墨の線、ゆがんだ遠近、部分的な彩色、その場で描いた感じ。',
+  'Avoid ruled straight lines and even rendering.': '定規の直線、均一な描き込みを避ける。',
+  'Elongated nine-head figures, confident gestural strokes, unfinished limbs, fabric suggested not drawn.': '九頭身の伸びた人物、迷いのない筆致、描き切らない手足、布は描かず示唆する。',
+  'Avoid anatomical realism and detailed faces.': '解剖学的な写実、描き込んだ顔を避ける。',
+  'Powdery black charcoal, smudged gradients, deep blacks, white paper highlights.': '粉っぽい木炭の黒、擦ったぼかし、深い黒、紙の白いハイライト。',
+  'Avoid colour, crisp edges and digital shading.': '彩色、くっきりした輪郭、デジタルの陰影を避ける。',
+  'Layered coloured-pencil hatching, visible strokes and paper tooth, colour built by overlaying.': '色鉛筆を重ねたハッチング、見える筆致と紙の目、重ね塗りでつくる色。',
+  'Avoid smooth blending, paint texture and flat fills.': '滑らかなぼかし、絵具の質感、平坦な塗りを避ける。',
+  'Chalky soft-pastel pigment, velvety blended colour, dusty surface, paper grain showing.': 'チョークのようなパステル、ビロード状に溶けた色、粉っぽい表面、見える紙の目。',
+  'Avoid hard edges, linework and glossy finish.': '硬い輪郭、線画、光沢仕上げを避ける。',
+  "Warm children's picture-book art, soft shapes, friendly proportions, hand-painted texture.": '温かい絵本の絵、やわらかな形、親しみやすい比率、手描きの質感。',
+  'Avoid photorealism, dark mood and complex detail.': '写実、暗い雰囲気、複雑な描き込みを避ける。',
+  'Polished anime cel rendering, sharp clean lines, saturated colour, glowing rim light, painted background.': '作り込んだアニメのセル彩色、シャープな線、鮮やかな色、光るリムライト、描き込んだ背景。',
+  'Avoid sketchy line, muted colour and Western cartoon proportions.': 'ラフな線、くすんだ色、欧米カートゥーン的な比率を避ける。',
+  'Film-still staging: one dominant light source, strong silhouette read against depth, figures included for scale.': '映画のワンシーンのような演出。主となる光源はひとつ、奥行きに対して際立つシルエット、大きさがわかる人物。',
+  'Avoid flat lighting, centred symmetry and decorative detail with no function.': '平坦な光、中央対称、意味のない装飾を避ける。',
+  'High-contrast black and white, hard-edged shadow shapes, venetian-blind light, deep pools of black.': '強いコントラストの白黒、輪郭の硬い影、ブラインド越しの光、深い黒の溜まり。',
+  'Avoid even lighting, bright colour and soft shadow.': '均一な光、明るい色、やわらかい影を避ける。',
+  '30-degree isometric projection, no perspective convergence, uniform scale, clean flat colour.': '30度のアイソメ投影、消失点なし、一定の縮尺、平らで清潔な色。',
+  'Avoid vanishing points, camera perspective and organic line.': '消失点、カメラ的な遠近、有機的な線を避ける。',
+  'Visible flat triangular facets, faceted shading, no smooth surfaces.': '見える三角形の面、面ごとの陰影、滑らかな面はなし。',
+  'Avoid smooth curves, texture maps and fine detail.': '滑らかな曲線、テクスチャ、細かい描写を避ける。',
+  'Glossy injection-moulded plastic toy, bright saturated colour, chunky rounded parts, visible seams.': '光沢のある成形プラスチックの玩具、明るく鮮やかな色、太く丸いパーツ、見える合わせ目。',
+  'Avoid matte clay, realistic materials and muted colour.': 'マットな粘土、写実的な素材、くすんだ色を避ける。',
+  'Folded and scored cardstock built into dimensional forms, crisp creases, visible paper thickness.': '折り筋をつけた厚紙で組んだ立体、鋭い折り目、見える紙の厚み。',
+  'Avoid flat illustration, painted texture and glossy surfaces.': '平面的なイラスト、絵具の質感、光沢のある表面を避ける。',
+  'Two to four flat spot-ink layers, slight misregistration, visible ink grain, no gradients.': '2〜4色の平らな特色インク、わずかな版ズレ、インクの粒、グラデーションなし。',
+  'Avoid photographic detail, gradients and large colour counts.': '写真的な描写、グラデーション、多色使いを避ける。',
+  'Carved relief print, thick gouged black marks, chiselled edges, white cut-away areas.': '彫りの版画、太く削った黒い跡、刃の入った縁、白く彫り抜いた面。',
+  'Avoid fine line, grey tones and smooth shading.': '細い線、中間のグレー、滑らかな陰影を避ける。',
+  '1930s lithograph travel poster, simplified flat scenery, limited muted palette, bold horizon.': '1930年代の石版旅行ポスター、単純化した平らな風景、絞った落ち着いた配色、大胆な地平線。',
+  'Avoid photorealism, modern typography and busy detail.': '写実、現代的な書体、細かすぎる描写を避ける。',
+  '1950s–60s printed illustration, textured overprinted colour, simplified geometric figures, off-register grain.': '1950〜60年代の印刷イラスト、重ね刷りの質感、単純化した幾何学的な人物、版ズレの粒。',
+  'Avoid digital cleanliness, gradients and modern realism.': 'デジタル的な清潔さ、グラデーション、現代的な写実を避ける。',
+  'Flat untrained folk painting, no perspective, decorative repeating pattern, bold simple colour.': '素朴な民画、遠近法なし、繰り返しの装飾文様、大胆で単純な色。',
+  'Avoid correct perspective, shading and polished technique.': '正確な遠近、陰影、洗練された技法を避ける。',
+  'Botanical plate: a single specimen centred on white, fine stipple and line, accurate structure.': '植物図版。白地の中央に一点の標本、細かい点描と線、正確な構造。',
+  'Avoid scenery, cartoon shapes and dramatic light.': '風景、漫画的な形、劇的な光を避ける。',
+  'Engraved specimen plate, precise outline, cross-hatched shading, neutral white ground.': '銅版画風の標本図、正確な輪郭、交差ハッチングの陰影、中立的な白地。',
+  'Avoid painterly colour, scenery and stylisation.': '絵画的な彩色、風景、様式化を避ける。',
+  'Diagrammatic flat icons, connecting lines, aligned modular layout, two or three colours only.': '図解的な平面アイコン、つなぐ線、整列したモジュール構成、2〜3色のみ。',
+  'Avoid texture, realism and decorative illustration.': '質感、写実、装飾的なイラストを避ける。',
+  'Built only from circles, triangles and rectangles, precise alignment, flat colour, modular grid.': '円・三角・四角だけで構成、正確な整列、平らな色、モジュールのグリッド。',
+  'Avoid organic curves, hand-drawn line and texture.': '有機的な曲線、手描きの線、質感を避ける。',
+});
+Object.assign(JA, {
+  'Subject / character': '被写体・キャラクター',
+  'Pose': 'ポーズ',
+});
+Object.assign(JA, {
+  'Reference images': '参考画像',
+  'Optional. Show a style, colour or look to guide the edit. These are only references — the image above is the one being edited.':
+    '任意。編集の方向性を示すスタイル、色、雰囲気などの画像です。これらは参考であり、編集されるのは上の画像だけです。',
+});
+// ── Style guidance for the original 50 (concise register, matching the newer entries)
+Object.assign(JA, {
+  'Transparent washes, soft pigment variation, visible paper grain, gentle edges, luminous colour.': '透明な滲み、やわらかな色の揺らぎ、紙の目、やさしい輪郭、澄んだ発色。',
+  'Avoid muddy pigment, heavy outlines and dense over-rendering.': '濁った色、太い輪郭線、描き込みすぎを避ける。',
+  'Delicate pencil-and-ink lines, transparent washes, sunlight and atmosphere, generous white space.': '繊細な鉛筆とペンの線、透明な淡彩、陽ざしと空気感、広い余白。',
+  'Avoid postcard collage, sepia dominance and rigid architectural precision.': '絵はがき的な寄せ集め、セピア一色、硬い建築的正確さを避ける。',
+  'Expressive fine linework, loose contours, transparent tonal washes, elegant negative space.': '表情のある細い線、ゆるい輪郭、透明な濃淡、端正な余白。',
+  'Avoid hard comic outlines, heavy black fills and muddy washes.': '漫画的な硬い輪郭、黒のベタ塗り、濁った淡彩を避ける。',
+  'Searching hand-drawn lines, imperfect perspective, selective colour washes, drawn-on-location immediacy.': '探るような手描きの線、崩れた遠近、部分的な淡彩、その場で描いた臨場感。',
+  'Avoid rigid drafting, photorealism and sterile symmetry.': '硬い製図、写実、無機質な左右対称を避ける。',
+  'Refined composition, clear hierarchy, sophisticated simplification, intentional negative space.': '洗練された構図、明快な階層、知的な省略、意図的な余白。',
+  'Avoid clutter, stock-image aesthetics and literal visual metaphors.': '雑然とした要素、ストック画像的な見た目、直訳的な比喩を避ける。',
+  'Elongated elegant forms, confident gestural line, refined silhouettes, airy composition.': '伸びやかで優美なフォルム、迷いのない線、洗練されたシルエット、軽やかな構図。',
+  'Avoid stiff posing, cartoon exaggeration and cheap glamour effects.': '硬いポーズ、漫画的な誇張、安っぽい華美な効果を避ける。',
+  'Clean continuous lines, simplified forms, generous white space, only the essential contours.': '途切れない清潔な線、単純化した形、広い余白、必要な輪郭だけ。',
+  'Avoid heavy shading, unnecessary texture and busy backgrounds.': '濃い陰影、不要な質感、賑やかな背景を避ける。',
+  'Clean drawn contours with transparent colour washes and soft tonal variation.': '清潔な描線に、透明な淡彩とやわらかな濃淡を重ねる。',
+  'Avoid heavy outlines, muddy colour mixing and dense backgrounds.': '太い輪郭、濁った混色、密度の高い背景を避ける。',
+  'Simplified geometric forms, crisp edges, clean silhouettes, limited palette.': '単純な幾何形、くっきりした輪郭、整ったシルエット、絞った配色。',
+  'Avoid gradients, painterly texture, photorealism and 3D shading.': 'グラデーション、絵画的質感、写実、立体的な陰影を避ける。',
+  'Precise shapes, modular structure, balanced proportions, controlled symmetry.': '正確な図形、モジュール的な構成、均整、制御された対称。',
+  'Avoid sketchiness, rough edges and decorative clutter.': 'ラフさ、粗い輪郭、装飾過多を避ける。',
+  'Strong silhouettes, graphic colour blocking, one clear focal point, reads instantly from a distance.': '強いシルエット、大胆な色面、明確な主役、遠くからでも一瞬で伝わる。',
+  'Avoid tiny detail, weak contrast and cluttered layouts.': '細かすぎる要素、弱いコントラスト、詰め込んだ構成を避ける。',
+  'Simplified scenery, bold composition, limited retro palette, screen-print shapes.': '単純化した風景、大胆な構図、レトロで絞った配色、シルクスクリーン的な形。',
+  'Avoid photorealism, excessive detail and muddy low-contrast colour.': '写実、過剰なディテール、濁って眠い色を避ける。',
+  'Gentle stylization, warm characterful forms, inviting composition, playful proportions.': '穏やかなデフォルメ、温かく愛嬌のある形、親しみやすい構図、遊びのある比率。',
+  'Avoid horror tones, harsh realism and visual clutter.': '怖い雰囲気、厳しい写実、雑然とした要素を避ける。',
+  'Soft transparent washes, gentle forms, glowing light, visible paper texture.': 'やわらかな透明の滲み、やさしい形、光のにじみ、紙の質感。',
+  'Avoid harsh outlines, dark realism and stiff character posing.': '硬い輪郭、暗い写実、こわばったポーズを避ける。',
+  'Opaque matte colour, visible brush texture, soft layered shapes, painterly edges.': '不透明でマットな色、筆跡、重ねたやわらかな形、絵画的な輪郭。',
+  'Avoid glossy digital surfaces, transparent watercolour effects and photorealism.': '光沢のあるデジタル表面、水彩的な透明感、写実を避ける。',
+  'Matte painted surfaces, soft simplified forms, warm colour, refined composition.': 'マットな塗り面、やわらかく単純化した形、温かい色、整った構図。',
+  'Avoid messy paint buildup, harsh outlines and plastic digital gradients.': '絵具の塗り重ねすぎ、硬い輪郭、人工的なグラデーションを避ける。',
+  'Visible pencil grain, layered strokes, soft colour blending, tactile paper texture.': '鉛筆の粒子、重ねた筆致、やわらかな混色、紙の手触り。',
+  'Avoid airbrushed smoothness, glossy rendering and hard vector edges.': 'エアブラシ的な滑らかさ、光沢、硬いベクター輪郭を避ける。',
+  'Graphite texture, visible construction lines, varied line weight, natural paper surface.': '黒鉛の質感、下描きの線、強弱のある線、自然な紙の表面。',
+  'Avoid digital airbrush, flat vector shapes and heavy colour.': 'デジタルのエアブラシ、平坦なベクター形、濃い彩色を避ける。',
+  'Rich blacks, smudged gradients, powdery texture, strong tonal contrast.': '深い黒、擦ったぼかし、粉っぽい質感、強い明暗差。',
+  'Avoid crisp vector edges, bright palettes and flat digital shading.': 'くっきりしたベクター輪郭、明るい配色、平坦なデジタル陰影を避ける。',
+  'Soft chalk texture, velvety blending, visible paper grain, gentle edges.': 'やわらかなチョークの質感、ビロードのようなぼかし、紙の目、やさしい輪郭。',
+  'Avoid hard edges, glossy finish and harsh contrast.': '硬い輪郭、光沢仕上げ、きつい明暗差を避ける。',
+  'Expressive brushwork, layered colour, atmospheric light, readable focal point.': '表情のある筆致、重ねた色、空気を含んだ光、明確な主役。',
+  'Avoid plastic airbrushing, generic AI gloss and muddy lighting.': '人工的なエアブラシ、AIらしい安易な光沢、濁った光を避ける。',
+  'Dramatic lighting, strong silhouettes, atmospheric depth, immersive worldbuilding.': '劇的な光、強いシルエット、空気感のある奥行き、没入感のある世界。',
+  'Avoid flat lighting, clutter without hierarchy and generic fantasy detail.': '平坦な光、整理されていない情報量、ありがちなファンタジー要素を避ける。',
+  'Imaginative worldbuilding, dramatic atmosphere, designed costume and environment detail.': '想像力のある世界設定、劇的な空気、練られた衣装と環境のディテール。',
+  'Avoid fantasy clichés, random ornament and cluttered silhouettes.': 'ファンタジーの紋切り型、意味のない装飾、読み取れないシルエットを避ける。',
+  'Believable technology, precise material definition, cinematic scale, controlled detail density.': '説得力のある技術、正確な素材表現、映画的なスケール、整理された情報量。',
+  'Avoid random greebles, neon overload and plastic-looking surfaces.': '意味のない凹凸、ネオンの過剰、安っぽい表面を避ける。',
+  'Dynamic composition, expressive posing, confident linework, dramatic lighting.': '躍動的な構図、表情のあるポーズ、迷いのない線、劇的な光。',
+  'Avoid stiff posing, muddy colour and unclear action.': '硬いポーズ、濁った色、動きの読めない描写を避ける。',
+  'Expressive character design, clean confident lines, cinematic framing, selective tonal shading.': '表情豊かなキャラクター、清潔で迷いのない線、映画的な画面構成、要所のトーン。',
+  'Avoid Western superhero anatomy, stiff expressions and inconsistent line quality.': '欧米ヒーロー的な体型、こわばった表情、線の質のばらつきを避ける。',
+  'Polished character rendering, cinematic composition, vibrant colour, atmospheric background.': '作り込んだキャラクター描写、映画的な構図、鮮やかな色、空気感のある背景。',
+  'Avoid low-detail backgrounds, generic poses and awkward anatomy.': '描き込みの薄い背景、ありきたりなポーズ、破綻した体を避ける。',
+  'Friendly shapes, expressive characters, warm colour, clear readable storytelling.': '親しみやすい形、表情豊かな登場人物、温かい色、読み取りやすい物語。',
+  'Avoid frightening realism, harsh shadows and visual clutter.': '怖い写実、きつい影、雑然とした要素を避ける。',
+  'Playful exaggeration, imaginative shapes, gentle humour, a light magical quality.': '楽しい誇張、想像力のある形、やさしいユーモア、軽やかな魔法的雰囲気。',
+  'Avoid dark horror mood, cynical tone and muddy colour.': '暗いホラー調、皮肉な調子、濁った色を避ける。',
+  'Dreamlike logic, unexpected object relationships, poetic symbolism, atmospheric space.': '夢のような論理、意外な物の取り合わせ、詩的な象徴、空気のある空間。',
+  'Avoid random incoherence, cheap shock imagery and unclear focal points.': '脈絡のなさ、安易な衝撃表現、主役の不明瞭さを避ける。',
+  'Layered cut-paper forms, assembled textures, overlapping shapes, tactile edges.': '切り紙を重ねた形、組み合わせた質感、重なり合う形、手触りのある縁。',
+  'Avoid seamless photorealism, flat untextured surfaces and crowded layering.': '継ぎ目のない写実、質感のない平面、重ねすぎを避ける。',
+  'Layered paper shapes, crisp handcrafted edges, soft shadows between layers.': '重ねた紙の形、手作業のくっきりした縁、層の間のやわらかな影。',
+  'Avoid painterly brushwork, glossy plastic texture and messy cuts.': '絵画的な筆致、光沢のある質感、雑な切り口を避ける。',
+  'Consistent angled perspective, clean geometric construction, organised spatial layout.': '一定の斜め視点、整然とした幾何構成、整理された空間配置。',
+  'Avoid inconsistent perspective, lens distortion and cluttered micro-detail.': '視点の不統一、レンズ的な歪み、細部の詰め込みを避ける。',
+  'Simplified elements, clear hierarchy, readable spacing, symbolic clarity, restrained colour.': '単純化した要素、明快な階層、読みやすい間隔、記号としての明瞭さ、抑えた色。',
+  'Avoid decorative clutter, ambiguous icons and unreadable detail.': '装飾過多、意味の曖昧なアイコン、読めない細部を避ける。',
+  'Precise accurate forms, controlled detail, neutral composition, educational clarity.': '正確な形、整理されたディテール、中立的な構図、教育的な明瞭さ。',
+  'Avoid exaggerated stylization, fantasy embellishment and misleading detail.': '過度なデフォルメ、空想的な脚色、誤解を招く描写を避ける。',
+  'Delicate observational detail, accurate plant structure, natural colour, generous white space.': '繊細な観察描写、正確な植物構造、自然な色、広い余白。',
+  'Avoid cartoon flowers, generic leaf shapes and heavy backgrounds.': '漫画的な花、ありきたりな葉の形、重い背景を避ける。',
+  'Accurate biological structure, refined linework, subtle colour, clean plate presentation.': '正確な生物構造、端正な線、控えめな色、図版らしい清潔な見せ方。',
+  'Avoid cartoon stylization, fantasy anatomy and cluttered scenery.': '漫画的な省略、空想的な解剖、雑然とした背景を避ける。',
+  'Refined composition, premium finish, elegant spacing, rich but restrained texture.': '洗練された構図、上質な仕上げ、端正な余白、豊かだが抑制された質感。',
+  'Avoid cheap poster effects, overdone decoration and clutter.': '安っぽいポスター効果、過剰な装飾、雑然さを避ける。',
+  'Simplified forms, conceptual clarity, generous negative space, one strong focal point.': '単純化した形、着想の明快さ、広い余白、強い主役をひとつ。',
+  'Avoid clutter, literal over-explanation and weak hierarchy.': '雑然さ、説明しすぎ、弱い階層を避ける。',
+  'Simplified handmade forms, decorative pattern, flattened perspective, charming imperfection.': '素朴で単純な形、装飾的な文様、平面的な遠近、愛嬌のある不揃いさ。',
+  'Avoid photorealism, strict perspective and corporate vector smoothness.': '写実、厳密な遠近、企業的に整いすぎたベクター表現を避ける。',
+  'Simplified forms, controlled grain, limited vintage palette, mid-century sensibility.': '単純化した形、抑えた粒状感、絞ったヴィンテージ配色、ミッドセンチュリーの感覚。',
+  'Avoid over-aged paper, excessive distress and kitsch overload.': '過度な古紙表現、やりすぎた汚し、キッチュの過剰を避ける。',
+  'Layered flat colour, slight ink texture, bold simplified shapes, limited palette.': '重ねた平面の色、わずかなインクの質感、大胆に単純化した形、絞った配色。',
+  'Avoid smooth gradients, photorealistic shading and glossy digital finish.': '滑らかなグラデーション、写実的な陰影、光沢のあるデジタル仕上げを避ける。',
+  'Carved mark-making, bold high-contrast shapes, rough organic edges, rhythmic hatching.': '彫り跡、明暗の強い大胆な形、荒く有機的な縁、律動的な線。',
+  'Avoid airbrushing, glossy gradients and clean vector edges.': 'エアブラシ、光沢グラデーション、整いすぎたベクター輪郭を避ける。',
+  'Soft rounded sculpted forms, matte clay surfaces, gentle lighting, handmade miniature feel.': 'やわらかく丸い造形、マットな粘土の表面、やさしい光、手づくりのミニチュア感。',
+  'Avoid untextured grey renders, metallic surfaces, photorealistic skin and glossy plastic.': '質感のないグレーのレンダー、金属的な表面、写実的な肌、光沢プラスチックを避ける。',
+  'Rounded simplified forms, soft materials, friendly proportions, bright clear lighting.': '丸く単純化した形、やわらかな素材、親しみやすい比率、明るく澄んだ光。',
+  'Avoid uncanny realism, harsh shadows and gritty texture.': '不気味な写実、きつい影、ざらついた質感を避ける。',
+  'Folded paper forms, layered construction, crisp edges, subtle shadows, fibre texture.': '折った紙の形、層状の構成、くっきりした縁、控えめな影、紙の繊維感。',
+  'Avoid liquid paint effects, photorealistic materials and glossy plastic.': '絵具のような表現、写実的な素材、光沢プラスチックを避ける。',
+  'Visible pixel grid, limited palette, crisp blocky edges, readable sprite silhouettes.': '見えるドットの格子、絞った配色、角ばった輪郭、読み取れるシルエット。',
+  'Avoid anti-aliasing, painterly brushwork and vector gradients.': 'アンチエイリアス、絵画的な筆致、ベクターのグラデーションを避ける。',
+  'Faceted geometric surfaces, angular planes, clean silhouettes, controlled lighting.': '多面体の表面、角張った面、整ったシルエット、制御された光。',
+  'Avoid smooth blending, high-detail realism and messy geometry.': '滑らかなぼかし、緻密な写実、崩れた形状を避ける。',
+  'Dramatic chiaroscuro, deep shadow, high contrast, restrained palette, atmospheric haze.': '劇的な明暗法、深い影、強いコントラスト、抑えた配色、空気の霞。',
+  'Avoid pastel palettes, flat lighting and over-bright backgrounds.': 'パステル調の配色、平坦な光、明るすぎる背景を避ける。',
+  'Diffused light, subtle gradients, gentle edges, airy composition, a quiet mood.': '拡散した光、繊細なグラデーション、やさしい輪郭、軽やかな構図、静かな気配。',
+  'Avoid harsh outlines, extreme contrast and loud colour.': '硬い輪郭、極端なコントラスト、強すぎる色を避ける。',
+});
+Object.assign(JA, {
   "More visual styles": "その他の表現スタイル",
   "Wabi-sabi": "侘び寂び",
   "Quiet asymmetry, weathered natural surfaces, earthy colours and generous empty space.": "静かな非対称、風化した自然素材、土の色、広い余白。",
@@ -2993,7 +3522,7 @@ Object.assign(JA, {
   'Your brief is ready': 'ブリーフができました',
   'Copy this into ChatGPT.': 'これを ChatGPT に貼り付けてください。',
   'Attach your reference images in ChatGPT, then paste the brief below.':
-    '参考画像を ChatGPT に添付してから、下のブリーフを貼り付けてください。',
+    '参考画像を ChatGPT に添付してから、下のプロンプトを貼り付けてください。',
 
   'Step 1 of 3': 'ステップ 1 / 3',
   'Step 2 of 3': 'ステップ 2 / 3',
@@ -3048,7 +3577,7 @@ Object.assign(JA, {
 
   "Don't forget your images": '画像の添付を忘れずに',
   'Attach these images to ChatGPT when you paste the brief — copying the text does not carry the files.':
-    'ブリーフを貼り付けるとき、この画像も ChatGPT に添付してください。テキストのコピーだけではファイルは送られません。',
+    'プロンプトを貼り付けるとき、この画像も ChatGPT に添付してください。テキストのコピーだけではファイルは送られません。',
   'No details filled in yet — go back and add a description.':
     'まだ何も入力されていません — 戻って説明を追加してください。',
   'Full brief text': 'ブリーフ全文',
@@ -3369,7 +3898,6 @@ Object.assign(JA, {
   'Required Text / Copy': '入れる文言',
   'Required text': '入れる文言',
   'Assets & references': '素材・参考画像',
-  'Logo to Include': '入れるロゴ',
   'Photos / Imagery to Include': '入れる写真・画像',
   'Style references': 'スタイルの参考',
   'Anything else?': 'その他',
@@ -3604,7 +4132,9 @@ Object.assign(JA, {
   'Moody indoor light': '陰影のある室内光', 'Night / ambient lights': '夜・環境光',
   'Bright flash look': 'フラッシュを効かせた', 'Polished but natural': '整っているが自然',
   'Shape / aspect ratio': '画面の形・比率',
-  'Square (1:1)': '正方形 (1:1)', 'Portrait — tall (4:5)': '縦長 (4:5)',
+  'Square (1:1)': '正方形 (1:1)',
+  'Portrait (4:5)': '縦長 (4:5)',
+  'Landscape (3:2)': '横長 (3:2)', 'Portrait — tall (4:5)': '縦長 (4:5)',
   'Vertical (9:16)': '縦 (9:16)', 'Landscape — wide (3:2)': '横長 (3:2)',
   'Widescreen (16:9)': 'ワイド (16:9)',
   'Special Requirements': '必須条件',
@@ -4942,16 +5472,16 @@ const BUILTIN_BRANDS = [
     "name": "DG",
     "summary": "Restrained editorial design · blue accents · serif headlines · dark abstract imagery",
     "summaryJa": "抑制のあるエディトリアルデザイン・青のアクセント・セリフ体見出し・暗い抽象的なビジュアル",
-    "rules": "Visual identity: restrained, minimal, editorial Japanese corporate design. Use generous whitespace, deliberate alignment and a clear typographic hierarchy.\nPalette: light layouts use #F0F0F0 with white areas, primary text #151515 and muted text #545454. Use Digital Garage blue #0050A4 sparingly as an accent. Dark imagery may use #060606 and cool blue depth. Only when the brief identifies a business segment, use its accent: Platform Solution #0050A4; Long-Term Incubation #662B95; Global Investment Incubation #0A626B; Technology #353A9D. Do not combine segment colours by default.\nTypography, when text is requested: Cardinal Fruit high-contrast serif for large English display headlines, New Grotesk for Latin supporting text and Source Han Sans JP for Japanese. Aim for their visual character; font files are not supplied in this prompt. Keep headlines tightly composed and body copy readable. Use the brief's requested language; pair Japanese and English only when requested or supplied.\nImagery: where the subject allows, favour immersive dark abstract particle fields, network lattices and cool blue depth. Keep real subjects specified in the brief; formal environmental portraits use controlled cool lighting. Segment key visuals may use a single segment hue, partial figures at work and restrained translucent information layers. Do not replace a specified subject with an abstract scene.\nGraphic layouts stay flat and quiet. Avoid decorative glow, gratuitous shapes, doodles, emoji, glossy 3D, isometric art and warm golden grading unless explicitly requested. For diagrams only, restrained blue or indigo two-stop gradients may express depth inside shapes.\nCopy tone, if extra decorative wording is allowed: calm, declarative and editorial. Preserve supplied wording, dates and facts exactly; do not add the company tagline, corporate claims, copyright dates or bilingual text automatically.\nLogo: include a logo only if requested and supplied separately. Do not reconstruct it from the brand name. Adapt these rules to the requested creative; do not introduce website navigation, buttons or interface components.",
-    "rulesJa": "ビジュアルの方向性：抑制されたミニマルな、日本企業らしいエディトリアルデザイン。広い余白、意図的な整列、明確な文字の階層を使う。\n配色：明るいレイアウトは #F0F0F0 と白、主な文字色 #151515、補助文字色 #545454。Digital Garageブルー #0050A4 は控えめなアクセントに。暗い画像には #060606 と冷たい青の奥行きを使える。依頼に事業セグメントの指定がある場合のみ、Platform Solution #0050A4、Long-Term Incubation #662B95、Global Investment Incubation #0A626B、Technology #353A9D を使う。複数セグメントの色を標準で混ぜない。\n文字が必要な場合：大きな英語見出しは高コントラストのセリフ体 Cardinal Fruit、欧文の補助文字は New Grotesk、日本語は Source Han Sans JP の特徴を目指す。このプロンプトにはフォントファイルは含まれない。見出しは引き締め、本文は読みやすくする。依頼で指定された言語を使い、日英併記は指定または提供された場合に限る。\n画像：主題に合う場合は、暗く没入感のある抽象的な粒子、ネットワーク状の構造、冷たい青の奥行きを好む。依頼された実在の被写体は保つ。フォーマルな環境ポートレートには制御された冷たい光を使う。セグメントのキービジュアルでは、単一のセグメント色、働く人物の一部、控えめな半透明の情報レイヤーを使える。指定の被写体を抽象画に置き換えない。\nグラフィックは平面的で静かに。明示的な依頼がない限り、装飾的な光彩、無意味な図形、落書き、絵文字、光沢の強い3D、アイソメトリック表現、暖かなゴールドの色調は避ける。図解内の形に限り、青またはインディゴの控えめな2色グラデーションで奥行きを表現できる。\n装飾的な言葉の追加が許可された場合も、落ち着いた断定的なエディトリアル調に。提供された文言、日付、事実を正確に保ち、社のスローガン、企業の主張、著作権表記の日付、日英併記を自動追加しない。\nロゴは依頼され、別途提供された場合のみ使う。ブランド名から再現しない。依頼されたクリエイティブに合わせて適用し、Webナビゲーション、ボタン、UI部品を追加しない。"
+    "rules": "Visual identity: restrained, minimal, editorial Japanese corporate design. Use generous whitespace, deliberate alignment and a clear typographic hierarchy.\nPalette: light layouts use #F0F0F0 with white areas, primary text #151515 and muted text #545454. Use Digital Garage blue #0050A4 sparingly as an accent. Dark imagery may use #060606 and cool blue depth. Only when the brief identifies a business segment, use its accent: Platform Solution #0050A4; Long-Term Incubation #662B95; Global Investment Incubation #0A626B; Technology #353A9D. Do not combine segment colours by default.\nTypography, when text is requested: Cardinal Fruit high-contrast serif for large English display headlines, New Grotesk for Latin supporting text and Source Han Sans JP for Japanese. Aim for their visual character; font files are not supplied in this prompt. Keep headlines tightly composed and body copy readable. Use the brief's requested language; pair Japanese and English only when requested or supplied.\nImagery: where the subject allows, favour immersive dark abstract particle fields, network lattices and cool blue depth. Keep real subjects specified in the brief; formal environmental portraits use controlled cool lighting. Segment key visuals may use a single segment hue, partial figures at work and restrained translucent information layers. Do not replace a specified subject with an abstract scene.\nGraphic layouts stay flat and quiet. Avoid decorative glow, gratuitous shapes, doodles, emoji, glossy 3D, isometric art and warm golden grading unless explicitly requested. For diagrams only, restrained blue or indigo two-stop gradients may express depth inside shapes.\nCopy tone, if extra decorative wording is allowed: calm, declarative and editorial. Preserve supplied wording, dates and facts exactly; do not add the company tagline, corporate claims, copyright dates or bilingual text automatically.\nLogo: do not draw, place or recreate any logo, and do not reconstruct one from the brand name. A real logo is added after the image is generated, so leave clear space for it instead. Adapt these rules to the requested creative; do not introduce website navigation, buttons or interface components.",
+    "rulesJa": "ビジュアルの方向性：抑制されたミニマルな、日本企業らしいエディトリアルデザイン。広い余白、意図的な整列、明確な文字の階層を使う。\n配色：明るいレイアウトは #F0F0F0 と白、主な文字色 #151515、補助文字色 #545454。Digital Garageブルー #0050A4 は控えめなアクセントに。暗い画像には #060606 と冷たい青の奥行きを使える。依頼に事業セグメントの指定がある場合のみ、Platform Solution #0050A4、Long-Term Incubation #662B95、Global Investment Incubation #0A626B、Technology #353A9D を使う。複数セグメントの色を標準で混ぜない。\n文字が必要な場合：大きな英語見出しは高コントラストのセリフ体 Cardinal Fruit、欧文の補助文字は New Grotesk、日本語は Source Han Sans JP の特徴を目指す。このプロンプトにはフォントファイルは含まれない。見出しは引き締め、本文は読みやすくする。依頼で指定された言語を使い、日英併記は指定または提供された場合に限る。\n画像：主題に合う場合は、暗く没入感のある抽象的な粒子、ネットワーク状の構造、冷たい青の奥行きを好む。依頼された実在の被写体は保つ。フォーマルな環境ポートレートには制御された冷たい光を使う。セグメントのキービジュアルでは、単一のセグメント色、働く人物の一部、控えめな半透明の情報レイヤーを使える。指定の被写体を抽象画に置き換えない。\nグラフィックは平面的で静かに。明示的な依頼がない限り、装飾的な光彩、無意味な図形、落書き、絵文字、光沢の強い3D、アイソメトリック表現、暖かなゴールドの色調は避ける。図解内の形に限り、青またはインディゴの控えめな2色グラデーションで奥行きを表現できる。\n装飾的な言葉の追加が許可された場合も、落ち着いた断定的なエディトリアル調に。提供された文言、日付、事実を正確に保ち、社のスローガン、企業の主張、著作権表記の日付、日英併記を自動追加しない。\nロゴは描かず、配置せず、再現しない。ブランド名からも作らない。実際のロゴは画像生成後に載せるため、そのための余白を空けておく。依頼されたクリエイティブに合わせて適用し、Webナビゲーション、ボタン、UI部品を追加しない。"
   },
   {
     "id": "onlab",
     "name": "Onlab",
     "summary": "Blue-to-teal gradient · bold sans-serif type · network motifs · natural documentary photos",
     "summaryJa": "青からティールのグラデーション・太めのサンセリフ体・ネットワークのモチーフ・自然な記録写真",
-    "rules": "Identity: Open Network Lab (Onlab). Institutional, evidence-led and quietly confident. Keep information clear with generous whitespace and an orderly hierarchy. Apply Onlab's own identity, not DG's serif-led style.\nPalette: signature 45-degree gradient #324EA7 → #0D83B9 → #00968F, from indigo blue through cyan to teal. Solid brand blue #324EA7 supports headlines and accents. Neutral grounds are white, #F0F0F0, #111111 or #262626; body text #515151. Reserve yellow #EDD706 for explicitly requested application calls to action; do not add yellow decoration or an APPLY label automatically.\nTypography when text is requested: Barlow for Latin headings, dates, programme names and numerals; Noto Sans JP for Japanese. Use bold sans-serif headlines and readable supporting copy. Uppercase short English labels where compatible with the supplied wording. A sparse calligraphic italic accent may highlight a supplied batch numeral or short promotional caption, never body copy. Font names describe the intended appearance; no font files are attached. Japanese is the brand's default editorial language, but follow the brief's requested language and exact wording; do not invent Japanese copy or translations.\nFor Onlab-authored promotional posters and banners: use a relevant photo or blue-to-teal gradient ground, sparse small circular nodes joined by fine lines, and a strong headline. White headline text may sit on a restrained translucent plate for readability. Supplied deadlines or metadata can use small rounded plates. Keep the requested size and orientation; do not force a 16:9 crop.\nFor documentary photography: use believable available light and natural colour for founders, teams, events and stages. Do not impose duotone, grain, a uniform colour grade, or network overlays. Preserve the colours, type and layout of supplied alumni press artwork unless explicitly asked to change them. Dark cosmic imagery with sparse white particles is an option for a requested hero visual, not a replacement for a specified subject.\nLayout: favour flat colour areas, crisp alignment and fine rules over shadows, textures or frosted glass. Do not invent an Onlab illustration style; follow the requested medium for illustrations. Avoid emoji and decorative icon clutter.\nCopy: polite, factual and restrained. Preserve all provided titles, dates, deadlines, cohort numbers and claims exactly. Do not import example statistics, achievements, dates, slogans or programme names from the design-system documentation.\nLogo: use only the separately supplied, requested Onlab or programme lockup, with generous clear space. Use a supplied white version on dark backgrounds; do not invert a coloured gradient logo or recreate it from its name. Never add DG branding automatically. Apply these visual rules to the creative without adding website navigation, buttons or interface chrome.",
-    "rulesJa": "ブランド：Open Network Lab（Onlab）。根拠を大切にする、落ち着いた自信のある表現。広い余白と整理された階層で情報を明確にする。DGのセリフ体中心のスタイルではなく、Onlab独自の表現を使う。\n配色：45度の #324EA7 → #0D83B9 → #00968F のグラデーション。インディゴブルーからシアン、ティールへ移る。単色の #324EA7 は見出しやアクセントに。背景は白、#F0F0F0、#111111、#262626、本文は #515151。黄色 #EDD706 は明示された応募の呼びかけに限定し、黄色の装飾やAPPLYの文字を自動追加しない。\n文字が必要な場合：欧文見出し、日付、プログラム名、数字には Barlow、日本語には Noto Sans JP の特徴を使う。太いサンセリフ体の見出しと読みやすい補助文を組み合わせる。短い英語ラベルは指定文言に反しない範囲で大文字に。提供された期の数字や短い宣伝文には、控えめな筆記体・カリグラフィーの斜体をアクセントに使えるが、本文には使わない。フォント名は見た目の指定であり、フォントファイルは添付されない。ブランドの基本は日本語だが、依頼された言語と正確な文言を優先し、日本語文や翻訳を勝手に追加しない。\nOnlab制作の宣伝ポスターやバナー：関連する写真または青からティールのグラデーションを背景に、小さな丸いノードと細い接続線をまばらに配置し、強い見出しを使う。白い見出しには読みやすさのため控えめな半透明の帯を使える。指定された締切や補足情報には小さな角丸のプレートを使える。サイズと縦横比は依頼を守り、16:9に固定しない。\n記録写真：創業者、チーム、イベント、登壇風景には自然な現場の光と色を使う。ダブルトーン、粒状感、統一的な色調整、ネットワークの重ね描きを強制しない。提供された支援先企業の広報画像は、変更の明示がない限り色、文字、レイアウトを保つ。暗い宇宙的な背景とまばらな白い粒子は、ヒーロービジュアルを依頼された場合の選択肢であり、指定の主題を置き換えない。\n構成：影、質感、曇りガラスよりも、平面的な色面、明確な整列、細い罫線を好む。独自のOnlabイラスト画風を創作せず、イラストでは指定された画材や表現を守る。絵文字や装飾的なアイコンの多用は避ける。\n文体：丁寧で事実に即した、抑制のある表現。提供された見出し、日付、締切、期の数字、主張は正確に保つ。デザインシステムの例に載った統計、実績、日付、スローガン、プログラム名を転用しない。\nロゴ：別途提供され、使用を依頼されたOnlabまたはプログラムのロゴのみを十分な余白とともに使う。暗い背景には提供された白版を使い、グラデーションのあるカラーロゴを反転したり、名前から再現したりしない。DGのブランド表現を自動追加しない。Webナビゲーション、ボタン、UI部品を追加せず、今回の作品に合うビジュアルのルールだけを適用する。"
+    "rules": "Identity: Open Network Lab (Onlab). Institutional, evidence-led and quietly confident. Keep information clear with generous whitespace and an orderly hierarchy. Apply Onlab's own identity, not DG's serif-led style.\nPalette: signature 45-degree gradient #324EA7 → #0D83B9 → #00968F, from indigo blue through cyan to teal. Solid brand blue #324EA7 supports headlines and accents. Neutral grounds are white, #F0F0F0, #111111 or #262626; body text #515151. Reserve yellow #EDD706 for explicitly requested application calls to action; do not add yellow decoration or an APPLY label automatically.\nTypography when text is requested: Barlow for Latin headings, dates, programme names and numerals; Noto Sans JP for Japanese. Use bold sans-serif headlines and readable supporting copy. Uppercase short English labels where compatible with the supplied wording. A sparse calligraphic italic accent may highlight a supplied batch numeral or short promotional caption, never body copy. Font names describe the intended appearance; no font files are attached. Japanese is the brand's default editorial language, but follow the brief's requested language and exact wording; do not invent Japanese copy or translations.\nFor Onlab-authored promotional posters and banners: use a relevant photo or blue-to-teal gradient ground, sparse small circular nodes joined by fine lines, and a strong headline. White headline text may sit on a restrained translucent plate for readability. Supplied deadlines or metadata can use small rounded plates. Keep the requested size and orientation; do not force a 16:9 crop.\nFor documentary photography: use believable available light and natural colour for founders, teams, events and stages. Do not impose duotone, grain, a uniform colour grade, or network overlays. Preserve the colours, type and layout of supplied alumni press artwork unless explicitly asked to change them. Dark cosmic imagery with sparse white particles is an option for a requested hero visual, not a replacement for a specified subject.\nLayout: favour flat colour areas, crisp alignment and fine rules over shadows, textures or frosted glass. Do not invent an Onlab illustration style; follow the requested medium for illustrations. Avoid emoji and decorative icon clutter.\nCopy: polite, factual and restrained. Preserve all provided titles, dates, deadlines, cohort numbers and claims exactly. Do not import example statistics, achievements, dates, slogans or programme names from the design-system documentation.\nLogo: do not draw, place or recreate any Onlab, programme or DG logo or lockup, and do not reconstruct one from a name. A real logo is added after the image is generated, so leave generous clear space for it instead. Apply these visual rules to the creative without adding website navigation, buttons or interface chrome.",
+    "rulesJa": "ブランド：Open Network Lab（Onlab）。根拠を大切にする、落ち着いた自信のある表現。広い余白と整理された階層で情報を明確にする。DGのセリフ体中心のスタイルではなく、Onlab独自の表現を使う。\n配色：45度の #324EA7 → #0D83B9 → #00968F のグラデーション。インディゴブルーからシアン、ティールへ移る。単色の #324EA7 は見出しやアクセントに。背景は白、#F0F0F0、#111111、#262626、本文は #515151。黄色 #EDD706 は明示された応募の呼びかけに限定し、黄色の装飾やAPPLYの文字を自動追加しない。\n文字が必要な場合：欧文見出し、日付、プログラム名、数字には Barlow、日本語には Noto Sans JP の特徴を使う。太いサンセリフ体の見出しと読みやすい補助文を組み合わせる。短い英語ラベルは指定文言に反しない範囲で大文字に。提供された期の数字や短い宣伝文には、控えめな筆記体・カリグラフィーの斜体をアクセントに使えるが、本文には使わない。フォント名は見た目の指定であり、フォントファイルは添付されない。ブランドの基本は日本語だが、依頼された言語と正確な文言を優先し、日本語文や翻訳を勝手に追加しない。\nOnlab制作の宣伝ポスターやバナー：関連する写真または青からティールのグラデーションを背景に、小さな丸いノードと細い接続線をまばらに配置し、強い見出しを使う。白い見出しには読みやすさのため控えめな半透明の帯を使える。指定された締切や補足情報には小さな角丸のプレートを使える。サイズと縦横比は依頼を守り、16:9に固定しない。\n記録写真：創業者、チーム、イベント、登壇風景には自然な現場の光と色を使う。ダブルトーン、粒状感、統一的な色調整、ネットワークの重ね描きを強制しない。提供された支援先企業の広報画像は、変更の明示がない限り色、文字、レイアウトを保つ。暗い宇宙的な背景とまばらな白い粒子は、ヒーロービジュアルを依頼された場合の選択肢であり、指定の主題を置き換えない。\n構成：影、質感、曇りガラスよりも、平面的な色面、明確な整列、細い罫線を好む。独自のOnlabイラスト画風を創作せず、イラストでは指定された画材や表現を守る。絵文字や装飾的なアイコンの多用は避ける。\n文体：丁寧で事実に即した、抑制のある表現。提供された見出し、日付、締切、期の数字、主張は正確に保つ。デザインシステムの例に載った統計、実績、日付、スローガン、プログラム名を転用しない。\nロゴ：Onlab、プログラム、DGのロゴやロゴタイプを描かず、配置せず、再現しない。名前からも作らない。実際のロゴは画像生成後に載せるため、十分な余白を空けておく。Webナビゲーション、ボタン、UI部品を追加せず、今回の作品に合うビジュアルのルールだけを適用する。"
   }
 ];
 const uploadedBrands = [];
@@ -4982,8 +5512,8 @@ const BRAND_PROMPT_DIRECTIONS = {
       "自然な現場の光と色、観察するような記録写真の雰囲気を使ってください。依頼の被写体とカメラ設定を優先し、一律の色調整やグラフィックの重ね描きは控えてください。"
     ],
     "logo": [
-      "For the requested logo concept, explore clear network relationships and simple geometry using #324EA7, #0D83B9 and #00968F. Follow the specified brand name and any supplied logo reference.",
-      "依頼されたロゴ案では、#324EA7、#0D83B9、#00968F を使い、明確なネットワークの関係とシンプルな幾何学形状を検討してください。指定のブランド名と、提供されたロゴの参考資料に従ってください。"
+      "For the requested logo concept, explore clear network relationships and simple geometry using #324EA7, #0D83B9 and #00968F. Follow the specified brand name.",
+      "依頼されたロゴ案では、#324EA7、#0D83B9、#00968F を使い、明確なネットワークの関係とシンプルな幾何学形状を検討してください。指定のブランド名に従ってください。"
     ],
     "edit": [
       "Within the requested changes, use Onlab blue #324EA7, cyan #0D83B9 and teal #00968F where appropriate. Any requested lettering should suggest Barlow for Latin and Noto Sans JP for Japanese. Keep documentary photo colours natural unless a colour treatment is requested.",
@@ -5008,8 +5538,8 @@ const BRAND_PROMPT_DIRECTIONS = {
       "依頼の被写体とカメラ設定に合う範囲で、制御された冷たい光、抑えた色、エディトリアルな雰囲気を好み、被写体を画像の中心に据えてください。"
     ],
     "logo": [
-      "For the requested logo concept, use restrained geometry, balanced negative space and a near-monochrome palette with #0050A4 as an optional accent. Follow the specified brand name and supplied logo references.",
-      "依頼されたロゴ案では、抑制された幾何学形状、バランスの取れた余白、ほぼ単色の配色を使い、必要に応じて #0050A4 をアクセントにしてください。指定のブランド名と提供されたロゴの参考資料に従ってください。"
+      "For the requested logo concept, use restrained geometry, balanced negative space and a near-monochrome palette with #0050A4 as an optional accent. Follow the specified brand name.",
+      "依頼されたロゴ案では、抑制された幾何学形状、バランスの取れた余白、ほぼ単色の配色を使い、必要に応じて #0050A4 をアクセントにしてください。指定のブランド名に従ってください。"
     ],
     "edit": [
       "Within the requested changes, use restrained #0050A4 blue accents and an editorial finish. If typography is part of the change, use Cardinal Fruit-style serif display lettering, New Grotesk-style Latin supporting text and Source Han Sans JP-style Japanese.",
@@ -5045,7 +5575,7 @@ function renderBrandDetails() {
   const brand = selectedBrand();
   if (!brand) return '';
   const ja = S.lang === 'ja';
-  return `<p class="field-hint">${esc(ja ? brand.summaryJa || brand.summary : brand.summary)}</p><details class="all-sizes"><summary>${ja ? 'プロンプトに追加するルールを見る' : 'View rules added to your prompt'}</summary><pre class="brand-rules">${esc(brandPrompt())}</pre></details><p class="field-hint">${ja ? 'ロゴや参考画像は別途追加し、ChatGPTにも添付してください。' : 'Add any logo or reference images separately and attach them in ChatGPT too.'}</p>`;
+  return `<p class="field-hint">${esc(ja ? brand.summaryJa || brand.summary : brand.summary)}</p><details class="all-sizes"><summary>${ja ? 'プロンプトに追加するルールを見る' : 'View rules added to your prompt'}</summary><pre class="brand-rules">${esc(brandPrompt())}</pre></details><p class="field-hint">${ja ? 'ロゴは画像には描かれません。生成後にご自身で載せてください。参考画像はChatGPTにも添付してください。' : 'Logos are never drawn into the image — add the real one yourself afterwards. Attach any reference images in ChatGPT too.'}</p>`;
 }
 function brandControls() {
   const ja = S.lang === 'ja';
@@ -5088,14 +5618,17 @@ function buildPrompt() {
   if (!content) return '';
   const ja = S.lang === 'ja';
   const say = (en, jp) => ja ? jp : en;
+  const persona = GENERATION_PERSONAS[content.id];
   const editing = content.id === 'imageedit';
   const guidance = CREATIVE_GUIDANCE[content.id];
   const questionTopics = guidance ? guidance[ja ? 3 : 2] : say('mood, setting or visual style', '雰囲気、背景、スタイル');
   const photo = ['photo','portrait','landscape','nature-wildlife','street','product-photo'].includes(content.id);
   const subject = content.id === 'logo' ? 'logo concept' : content.id === 'chardesign' ? 'character design image' : photo ? `${content.label.toLowerCase()} photograph` : `${content.label.toLowerCase()} image`;
-  const lines = [editing
+  const lines = [];
+  if (persona) lines.push(persona[ja ? 'ja' : 'en'], '', PERSONA_EXECUTION[ja ? 'ja' : 'en'], '');
+  lines.push(editing
     ? say('Edit the supplied image as described below. Preserve unrelated content; allow only the necessary physical consequences of the requested change.', '指定した画像を以下の内容で編集してください。関係のない部分を保ち、変更に必要な物理的な影響だけを調整してください。')
-    : say(`Create a new ${subject} from scratch. Return the generated image.`, `${t(content.label)}の画像を新規に作成し、完成した画像を返してください。`)];
+    : say(`Create a new ${subject} from scratch.`, `${t(content.label)}の画像を新規に作成してください。`));
   const hasImageInputs = Object.values(S.refs).some(value => (Array.isArray(value) ? value : [value]).some(r => r && (r.name || (r.type === 'url' && /^https?:\/\//i.test(r.value || '')))));
   if (!editing && hasImageInputs) lines.push(say(
     'Build a new composition using the supplied images only in their assigned roles: style references or assets to include.',
@@ -5153,10 +5686,10 @@ function buildPrompt() {
       } else add(label, choices.join(ja ? '、' : ', '));
       if (f.styleRegistry === 'illustration') {
         for (const choice of (S.chips[f.id] || [])) {
-          const style = EXTENDED_ILLUSTRATION_STYLES[choice];
+          const style = ILLUSTRATION_STYLES[choice];
           if (style) lines.push(say('Style guidance', 'スタイルの指針') + ' (' + t(choice) + '): ' + t(style.inject) + ' ' + t(style.avoid));
         }
-        if ((S.chips[f.id] || []).some(choice => EXTENDED_ILLUSTRATION_STYLES[choice])) lines.push(say('Apply style guidance only where compatible with my subject, exact text, reference roles and explicit custom instructions. Those requirements take priority.', 'スタイルの指針は主題、正確な文言、参考の役割、明示的な自由入力の指定に合う範囲で適用し、それらの条件を優先してください。'));
+        if ((S.chips[f.id] || []).some(choice => ILLUSTRATION_STYLES[choice])) lines.push(say('Apply style guidance only where compatible with my subject, exact text, reference roles and explicit custom instructions. Those requirements take priority.', 'スタイルの指針は主題、正確な文言、参考の役割、明示的な自由入力の指定に合う範囲で適用し、それらの条件を優先してください。'));
       }
     } else {
       const value = CAMERA_OPTIONS[f.id] ? cameraValue(f.id) : (S.form[f.id] || '').trim();
@@ -5191,7 +5724,27 @@ function buildPrompt() {
   }
   if ((S.form.imageChecks || '').trim()) lines.push('', say('Check the result against the stated requirements. Distinguish visible failures from anything you cannot verify; do not claim unchecked requirements passed.', '結果を指定の条件と照合してください。目視できる失敗と確認できない点を区別し、未確認の条件を合格としないでください。'));
   if (hasImageInputs) lines.push(say('Use only visible reference evidence. Do not treat hidden details as known. Explicit changes override reference appearance only for the named target.', '参考画像に見える情報だけを根拠にし、隠れた詳細を既知として扱わないでください。明示的な変更は指定した対象だけに適用してください。'));
+  const editGuideRefs = content.id === 'imageedit' && (S.refs.refs || [])
+    .some(r => r.use !== 'Include this image' && (r.type === 'url' ? r.value.trim() : r.name));
+  if (editGuideRefs) lines.push(say(
+    'Only the image listed as the image to edit may be modified. Images marked as references guide the look only — do not edit them and do not copy their subject matter into the result.',
+    '編集してよいのは「編集する画像」として指定した画像だけです。参考として指定した画像は見た目の方向性を示すためのもので、編集したり、その被写体を結果に取り込んだりしないでください。'
+  ));
+  if (content.id === 'imageedit' && (S.chips.style || []).length) lines.push(say(
+    'Re-render the entire image in the style above. This takes priority over any instruction to preserve the original rendering — how the image is drawn changes throughout. Keep the subject, composition, framing and everything visible in it unchanged; only the rendering changes.',
+    '画像全体を上記のスタイルで描き直してください。描き方は画面全体で変わり、元の描写を保つ指示よりこちらを優先します。被写体、構図、画面に写っているものはそのままにし、描き方だけを変えてください。'
+  ));
+  if (content.id !== 'logo') lines.push(say(
+    'Do not draw, recreate or invent any logo, wordmark, lockup, app icon or company symbol anywhere in the image, and do not add a brand or company name that is not in the wording I supplied. This applies to the selected brand\'s own marks as well.',
+    'ロゴ、ワードマーク、ロゴタイプ、アプリアイコン、企業のシンボルを画像内に描いたり、再現したり、創作したりしないでください。指定した文言に含まれないブランド名や社名も追加しないでください。選択したブランド自身のマークについても同様です。'
+  ));
   if (selectedBrand()) lines.push('', brandPrompt());
+  // Choosing a brand means a real logo gets placed later, so reserve room for it
+  // rather than making the user ask.
+  if (selectedBrand() && ['poster', 'banner'].includes(content.id)) lines.push(say(
+    'Leave a clean, uncluttered area near an edge or corner where a logo can be placed afterwards.',
+    '後からロゴを配置できるよう、端または隅にすっきりとした余白を残してください。'
+  ));
   if (S.toggles.helpDecide) lines.push('', say(
     `Before ${editing ? 'editing' : 'creating'} the image, ask 3 short questions together about choices I haven't specified that could improve the result, such as ${questionTopics}. Give simple suggested answers and "Choose for me". Don't repeat information I've provided. Wait for my reply, then ${editing ? 'edit' : 'create'} the image without another question round. Skip questions only if I explicitly ask you to proceed immediately or all relevant choices are already specified.`,
     `画像を${editing ? '編集' : '作成'}する前に、${questionTopics}など、まだ指定されておらず仕上がりを良くできる点について、短い質問を3つまとめて聞いてください。わかりやすい回答例と「おまかせ」を添え、指定済みの情報は聞き直さないでください。私の返答を待ち、その後は追加の質問をせずに画像を${editing ? '編集' : '作成'}してください。質問を省略するのは、私がすぐに進めるよう明示した場合か、関連する選択肢がすべて指定済みの場合だけです。`
@@ -5412,13 +5965,16 @@ function fieldForDisplay(field) {
     f.label = ja ? '参考画像や作品に入れる画像' : 'A reference or image to include';
     f.hint = ja ? '写真やスクリーンショットを追加し、見た目の参考にするか、作品に入れるかを選んでください。' : 'Add a photo or screenshot, then choose: use its look, or include the image itself.';
   }
+  if (S.content === 'imageedit' && f.type === 'refpicker' && !f.assetMode) {
+    f.label = ja ? '参考画像' : 'Reference images';
+    f.hint = ja
+      ? '任意。仕上がりの方向性を示す画像です。編集されるのは上の画像だけで、参考画像は変更されません。'
+      : 'Optional. Show the look you want the edit to move towards. Only the image above is edited; these are not.';
+  }
   if (S.content === 'banner' && f.type === 'refpicker') {
     if (!f.assetMode) {
       f.label = ja ? 'スタイルの参考画像' : 'Style reference images';
       f.hint = ja ? '好きな雰囲気、色、レイアウトがわかる画像。見た目の参考に使い、画像そのものは作品に入れません。' : 'Show a style, colour palette or layout you like. These guide the look; they are not placed in the design.';
-    } else if (f.assetKind === 'logo') {
-      f.label = ja ? '作品に入れるロゴ' : 'Logo to include';
-      f.hint = ja ? '作品に掲載するロゴを追加してください。' : 'Add the actual logo that should appear in your post or banner.';
     } else {
       f.label = ja ? '作品に入れる画像' : 'Images to include';
       f.hint = ja ? '作品に掲載する商品写真、人物写真などを追加してください。参考画像とは別に扱います。' : 'Add product photos, people or other images that must appear in the finished post or banner.';
@@ -5994,6 +6550,7 @@ function closeModal(e) {
 function openTaskInfo(contentId) {
   const ct = CONTENT_TYPES.find(c => c.id === contentId);
   if (!ct) return;
+  const persona = GENERATION_PERSONAS[contentId];
   const roles = getRoles();
   const role  = roles.find(r => r.id === (S.role || CONTENT_ROLE[contentId]));
 
@@ -6007,12 +6564,14 @@ function openTaskInfo(contentId) {
 
   const groups = [];
 
-  // Slim override: single block, no role+task split
-  if (ct.slimPrompt) {
+  // Persona override: show the same role and execution direction the prompt uses.
+  if (persona || ct.slimPrompt) {
+    const lang = S.lang === 'ja' ? 'ja' : 'en';
+    const promptText = persona ? `${persona[lang]}\n\n${PERSONA_EXECUTION[lang]}` : t(ct.slimPrompt);
     groups.push(`
       <div class="info-group">
         <h3>${t('What the AI is told')}</h3>
-        <div class="info-slim">${esc(t(ct.slimPrompt))}</div>
+        <div class="info-slim">${esc(promptText)}</div>
       </div>`);
     document.getElementById('modal-root').innerHTML = `
       <div class="modal-backdrop" onclick="closeModal(event)">
