@@ -33,20 +33,33 @@ for (const lang of ['en', 'ja']) {
 assert.equal(vm.runInContext('Object.keys(GENERATION_PERSONAS).length', ctx), vm.runInContext('CONTENT_TYPES.length', ctx));
 console.log('All generation modes emit their dedicated persona in English and Japanese.');
 
-// Every requested preset is selectable, localized, and contributes actual guidance.
-const newStyles = vm.runInContext('Object.keys(EXTENDED_ILLUSTRATION_STYLES)', ctx);
-assert.equal(newStyles.length, 23);
+// Every visible style has distinct positive and negative guidance that reaches the prompt.
+const visibleStyles = vm.runInContext('[...STYLE_GROUPS.featured,...STYLE_GROUPS.more,...STYLE_GROUPS.other]', ctx);
+assert.equal(new Set(visibleStyles).size, visibleStyles.length, 'duplicate style name in picker');
+const guidance = visibleStyles.map(style => vm.runInContext(`ILLUSTRATION_STYLES[${JSON.stringify(style)}]`, ctx));
+guidance.forEach((entry, index) => {
+  assert(entry, `missing registry entry for ${visibleStyles[index]}`);
+  assert(entry.description?.trim(), `missing description for ${visibleStyles[index]}`);
+  assert(entry.inject?.trim(), `missing positive guidance for ${visibleStyles[index]}`);
+  assert(entry.avoid?.trim(), `missing negative guidance for ${visibleStyles[index]}`);
+});
+assert.equal(new Set(guidance.map(entry => entry.inject)).size, visibleStyles.length, 'duplicate positive style guidance');
+assert.equal(new Set(guidance.map(entry => entry.avoid)).size, visibleStyles.length, 'duplicate negative style guidance');
 for (const lang of ['en', 'ja']) {
-  for (const style of newStyles) {
+  for (const style of visibleStyles) {
     vm.runInContext(`S.lang=${JSON.stringify(lang)}; S.content='illustration'; S.form={mainVisual:'A tiny garden'}; S.chips={style:[${JSON.stringify(style)}]}; S.refs={}; S.colors={}; S.toggles={helpDecide:true};`, ctx);
     const result = vm.runInContext('buildPrompt()', ctx);
-    const direction = vm.runInContext(`t(EXTENDED_ILLUSTRATION_STYLES[${JSON.stringify(style)}].inject)`, ctx);
-    assert(result.includes(direction), `${lang}: missing guidance for ${style}`);
-    assert(vm.runInContext(`resolveFields(CONTENT_TYPES.find(c=>c.id==='illustration')).find(f=>f.id==='style').groups.flatMap(g=>g.options).includes(${JSON.stringify(style)})`, ctx));
-    if (lang === 'ja') assert.notEqual(direction, vm.runInContext(`EXTENDED_ILLUSTRATION_STYLES[${JSON.stringify(style)}].inject`, ctx));
+    const direction = vm.runInContext(`t(ILLUSTRATION_STYLES[${JSON.stringify(style)}].inject)`, ctx);
+    const avoid = vm.runInContext(`t(ILLUSTRATION_STYLES[${JSON.stringify(style)}].avoid)`, ctx);
+    assert(result.includes(direction), `${lang}: missing positive guidance for ${style}`);
+    assert(result.includes(avoid), `${lang}: missing negative guidance for ${style}`);
+    if (lang === 'ja') {
+      assert.notEqual(direction, vm.runInContext(`ILLUSTRATION_STYLES[${JSON.stringify(style)}].inject`, ctx), `missing Japanese positive guidance for ${style}`);
+      assert.notEqual(avoid, vm.runInContext(`ILLUSTRATION_STYLES[${JSON.stringify(style)}].avoid`, ctx), `missing Japanese negative guidance for ${style}`);
+    }
   }
 }
-console.log('All 23 illustration presets are selectable and compile in English and Japanese.');
+console.log(`All ${visibleStyles.length} visible illustration styles have distinct guidance in English and Japanese.`);
 
 // Selecting a new illustration style replaces the previous selection directly.
 vm.runInContext(`document.querySelectorAll=()=>[]; document.getElementById=()=>null; S.content='illustration'; S.chips={style:['Wabi-sabi']}; selectQuick('style','Liquid Chrome');`, ctx);

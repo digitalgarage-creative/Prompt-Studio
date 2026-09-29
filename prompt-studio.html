@@ -1847,7 +1847,7 @@ const STYLE_LIBRARY = {
     'Vintage Travel Poster': ['1930s lithograph travel poster, simplified flat scenery, limited muted palette, bold horizon.', 'Avoid photorealism, modern typography and busy detail.'],
     'Mid-Century Print':  ['1950s–60s printed illustration, textured overprinted colour, simplified geometric figures, off-register grain.', 'Avoid digital cleanliness, gradients and modern realism.'],
     'Naive Folk Art':     ['Flat untrained folk painting, no perspective, decorative repeating pattern, bold simple colour.', 'Avoid correct perspective, shading and polished technique.'],
-    'Botanical Plate':    ['Botanical plate: a single specimen centred on white, fine stipple and line, accurate structure.', 'Avoid scenery, cartoon shapes and dramatic light.'],
+    'Botanical Illustration': ['Botanically accurate plant study on clean white or warm natural paper, with delicate line, stipple, restrained transparent colour, and correct morphology.', 'Avoid fictional specimens, cartoon flowers, cinematic scenery, dramatic light, decorative clutter, and invented labels.'],
     'Scientific Plate':   ['Engraved specimen plate, precise outline, cross-hatched shading, neutral white ground.', 'Avoid painterly colour, scenery and stylisation.'],
     'Infographic':        ['Diagrammatic flat icons, connecting lines, aligned modular layout, two or three colours only.', 'Avoid texture, realism and decorative illustration.'],
     'Geometric Vector':   ['Built only from circles, triangles and rectangles, precise alignment, flat colour, modular grid.', 'Avoid organic curves, hand-drawn line and texture.'],
@@ -1913,7 +1913,7 @@ const STYLE_GUIDANCE = {
   'Vintage Travel Poster': ['Destination-led 1930s lithographic poster composition featuring monumental simplified scenery, broad flat colour masses, a strong horizon, and a restrained muted palette.', 'mid-century editorial figures, screen-print misregistration as the main effect, photorealism, contemporary graphics, tiny busy detail'],
   'Mid-Century Print': ['1950s–60s editorial illustration centred on simplified geometric people, domestic objects, or everyday scenes, using limited overprinted colours, coarse print grain, and slight off-register edges.', 'monumental travel landscapes, 1930s poster composition, pristine vectors, gradients, contemporary photorealism, glossy 3D'],
   'Naive Folk Art': ['Deliberately unschooled painting with flattened perspective, frontal symbolic forms, repeated handmade motifs, and intuitively uneven proportions, using direct bold colour.', 'correct linear perspective, volumetric shading, academic anatomy, geometric precision, polished professional rendering'],
-  'Botanical Plate': ['One botanically convincing plant specimen isolated on clean white paper, with roots, stems, leaves, and flowers clearly articulated through delicate natural-history line, stipple, and restrained botanical colour.', 'animals, minerals or fictional specimens, technical cutaways, cinematic scenery, cartoon forms, dramatic lighting, heavy engraved cross-hatching'],
+  'Botanical Illustration': ['A botanically accurate study of one plant specimen isolated on clean white or warm natural paper. Clearly articulate roots, stems, leaves, flowers, petals, and veins through delicate natural-history linework, fine stippling, restrained transparent colour, and accurate plant morphology.', 'animals, minerals, fictional specimens, cartoon flowers, generic leaf shapes, cinematic scenery, dramatic lighting, heavy engraved cross-hatching, decorative clutter, invented labels'],
   'Scientific Plate': ['Non-botanical historical specimen engraving — animal, anatomical, mineral, or mechanical specimen — using precise outlines, fine cross-hatching, and numbered, sectional, or inset organisation on white.', 'botanical specimens, fictional pseudo-science, painterly colour, scenery, expressive stylisation, modern infographic graphics'],
   'Infographic': ['Information-first graphic built from multiple simplified icons or data objects organised into clearly separated modules and linked by connectors, arrows, or directional relationships, using two or three flat colours.', 'standalone decorative vector illustration, primitive-shape abstraction, physical texture, photorealism, painterly effects, ornamental complexity'],
   'Geometric Vector': ['Strict vector composition constructed exclusively from circles, rectangles, and triangles, using precise alignment, repeated modules, and systematic grid relationships.', 'freeform silhouettes, organic curves, hand-drawn lines, texture, painterly shading, irregular geometry'],
@@ -1922,7 +1922,7 @@ const STYLE_GUIDANCE = {
 const STYLE_GROUPS = {
   featured: ['Watercolour','Gouache','Ink and Wash','Pencil Sketch','Flat Vector','Minimal Line Art','Comic Book','Manga','Painterly Digital','3D Clay','Cut Paper Collage','Pixel Art'],
   more: ['Wabi-sabi','Cloud Cut','Xspiritualism','Asian Store','Cutaway World','New Liquid','Envelope Reveal','Stitch & Wire','Liquid Chrome','Gzhel','Camera Interface','Frosted Glass','Shape Design','2000 Web','Fairy Tale','Cosy Blanket','Electro Biomorph','Scientism','Kawaii','Maximalism','Minimalism','Brutalist'],
-  other: ['Travel Journal Watercolour','Loose Urban Sketch','Fashion Illustration','Charcoal','Coloured Pencil','Pastel','Storybook','Anime Key Visual','Concept Art','Noir','Isometric','Low Poly','3D Toy-like','Paper Craft 3D','Screen Print','Woodcut / Linocut','Vintage Travel Poster','Mid-Century Print','Naive Folk Art','Botanical Plate','Scientific Plate','Infographic','Geometric Vector'],
+  other: ['Travel Journal Watercolour','Loose Urban Sketch','Fashion Illustration','Charcoal','Coloured Pencil','Pastel','Storybook','Anime Key Visual','Concept Art','Noir','Isometric','Low Poly','3D Toy-like','Paper Craft 3D','Screen Print','Woodcut / Linocut','Vintage Travel Poster','Mid-Century Print','Naive Folk Art','Botanical Illustration','Scientific Plate','Infographic','Geometric Vector'],
 };
 
 Object.entries(STYLE_GUIDANCE).forEach(([name, [is, not]]) => {
@@ -3119,8 +3119,8 @@ Object.assign(JA, {
   'Avoid monumental travel landscapes, 1930s poster composition, pristine vectors, gradients, contemporary photorealism, glossy 3D.': '雄大な旅の風景、1930年代のポスター構図、完璧なベクター、グラデーション、現代的な写実、光沢のある3Dを避ける。',
   'Deliberately unschooled painting with flattened perspective, frontal symbolic forms, repeated handmade motifs, and intuitively uneven proportions, using direct bold colour.': 'あえて素朴に描く絵。平面的な遠近、正面向きの象徴的な形、繰り返す手仕事の文様、直感的で不揃いな比率、率直で大胆な色。',
   'Avoid correct linear perspective, volumetric shading, academic anatomy, geometric precision, polished professional rendering.': '正確な線遠近法、立体的な陰影、学術的な人体、幾何学的な精密さ、洗練されたプロの仕上げを避ける。',
-  'One botanically convincing plant specimen isolated on clean white paper, with roots, stems, leaves, and flowers clearly articulated through delicate natural-history line, stipple, and restrained botanical colour.': '白い紙に一点だけ置く、植物学的に説得力のある標本。根・茎・葉・花を、博物画の繊細な線と点描、抑えた植物色で明確に描き分ける。',
-  'Avoid animals, minerals or fictional specimens, technical cutaways, cinematic scenery, cartoon forms, dramatic lighting, heavy engraved cross-hatching.': '動物・鉱物・架空の標本、技術的な断面図、映画的な風景、漫画的な形、劇的な光、濃い交差ハッチングを避ける。',
+  'A botanically accurate study of one plant specimen isolated on clean white or warm natural paper. Clearly articulate roots, stems, leaves, flowers, petals, and veins through delicate natural-history linework, fine stippling, restrained transparent colour, and accurate plant morphology.': '白または温かみのある自然な紙に、一点の植物標本を置く植物学的に正確な図。根、茎、葉、花、花びら、葉脈を、博物画の繊細な線、細かな点描、抑えた透明色、正確な植物形態で明瞭に描き分ける。',
+  'Avoid animals, minerals, fictional specimens, cartoon flowers, generic leaf shapes, cinematic scenery, dramatic lighting, heavy engraved cross-hatching, decorative clutter, invented labels.': '動物、鉱物、架空の標本、漫画的な花、ありきたりな葉の形、映画的な風景、劇的な光、濃い交差ハッチング、装飾的な混雑、創作したラベルを避ける。',
   'Non-botanical historical specimen engraving — animal, anatomical, mineral, or mechanical specimen — using precise outlines, fine cross-hatching, and numbered, sectional, or inset organisation on white.': '植物以外の歴史的な標本図。動物、解剖、鉱物、機械などを、正確な輪郭と細かい交差ハッチングで描き、白地に番号・断面・別枠で整理する。',
   'Avoid botanical specimens, fictional pseudo-science, painterly colour, scenery, expressive stylisation, modern infographic graphics.': '植物標本、架空の疑似科学、絵画的な彩色、風景、表現的な様式化、現代的なインフォグラフィックを避ける。',
   'Information-first graphic built from multiple simplified icons or data objects organised into clearly separated modules and linked by connectors, arrows, or directional relationships, using two or three flat colours.': '情報を第一とする図。単純化した複数のアイコンやデータを明確に分かれた区画に整理し、線や矢印、方向性で結ぶ。色は2〜3色の平塗り。',
@@ -3215,7 +3215,7 @@ Object.assign(JA, {
   'Fashion Illustration': 'ファッションイラスト',
   'Concept Art': 'コンセプトアート',
   'Mid-Century Print': 'ミッドセンチュリー印刷',
-  'Botanical Plate': '植物図版',
+  'Botanical Illustration': 'ボタニカルイラストレーション',
   'Scientific Plate': '博物図版',
 
   // Featured guidance
