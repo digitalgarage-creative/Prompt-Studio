@@ -1517,7 +1517,7 @@
     .style-catalog { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:16px; max-height:520px; overflow-y:auto; padding:4px; }
     .style-catalog-option { min-width:0; overflow-wrap:anywhere; }
     .style-catalog-option[hidden] { display:none; }
-    .style-suggestions { margin:0 0 20px; padding:0 0 20px; border-bottom:1px solid var(--border-mid); }
+    .style-suggestions { margin:18px 0 0; padding:18px 0 0; border-top:1px solid var(--border-mid); }
     .style-suggestions[hidden] { display:none; }
     .style-suggestions-heading { font-size:13px; font-weight:500; margin:0; }
     .style-suggestions-note { font-size:12px; line-height:1.6; color:var(--ink-dim); margin:4px 0 10px; }
@@ -1994,6 +1994,160 @@ const STYLE_RECOMMENDATION_SIGNALS = {
   'Infographic': ['infographic', 'data', 'process', 'data story', 'explainer diagram', 'icons and arrows', 'process steps', 'インフォグラフィック', 'データ', 'データ図解', '手順図', 'アイコンと矢印'],
   'Geometric Vector': ['geometric vector', 'circles rectangles triangles', 'modular grid', 'precise geometry', '幾何学ベクター', '円と四角と三角', 'モジュラーグリッド'],
 };
+
+const STYLE_DIRECT_SIGNAL_EXPANSIONS = {
+  'Watercolour': ['aquarelle', 'wet-on-wet', 'bleeding colour', 'granulating pigment', 'loose wash', 'cold-press paper', 'painted edges', '濡れた紙に描く', '水彩紙', '顔料の粒状感'],
+  'Gouache': ['flat painted colour', 'chalky paint', 'poster paint', 'acryla gouache', '平塗りの絵具', 'ポスターカラー'],
+  'Ink and Wash': ['sumi-e', 'brush pen', 'line and wash', 'dip pen', 'calligraphic line', 'splattered ink', 'pen and wash', '水墨画', '筆ペン', 'ペンと淡彩'],
+  'Pencil Sketch': ['pencil drawing', 'sketchbook page', 'hatching', 'cross-hatching', 'thumbnail sketch', 'study drawing', 'loose pencil', '鉛筆素描', 'スケッチブック', 'ハッチング'],
+  'Flat Vector': ['flat design', 'flat illustration', 'corporate illustration', 'saas illustration', 'no gradients', 'solid fills', 'spot illustration', 'フラットデザイン', '企業向けイラスト', '単色面'],
+  'Minimal Line Art': ['line art', 'line drawing', 'one line', 'fine line', 'monoline', 'thin strokes', 'contour drawing', '輪郭線', 'モノライン', '細い線'],
+  'Comic Book': ['comics', 'american comics', 'comic panels', 'halftone dots', 'ben-day dots', 'inked outlines', 'pop art comic', 'onomatopoeia', 'pow lettering', 'コミックパネル', '網点', '効果音文字'],
+  'Manga': ['focus lines', 'shonen manga', 'shojo manga', 'seinen manga', 'manga panel', 'manga sparkles', 'manga sweat drop', 'manga chibi reaction', '少年漫画', '少女漫画', '青年漫画', '漫画のコマ'],
+  'Painterly Digital': ['visible brush strokes', 'impasto effect', 'oil-paint look', 'rendered painting', 'matte painting', 'textured brushes', '見える筆跡', '油彩風', 'マットペインティング'],
+  '3D Clay': ['claymation', 'stop-motion look', 'modelling clay', 'fingerprint texture', 'handmade 3d', 'soft rounded 3d', 'クレイアニメ', 'ストップモーション風', '指紋の質感'],
+  'Cut Paper Collage': ['paper cut-out', 'construction paper', 'decoupage', 'scissor-cut shapes', 'mixed-media collage', '色画用紙', 'はさみで切った形', 'ミクストメディアコラージュ'],
+  'Pixel Art': ['pixel', 'dot art', 'sprite', 'retro game', 'low-res', 'tileset', 'nes', 'snes', 'game boy', '低解像度', 'タイルセット', 'レトロゲーム'],
+  'Wabi-sabi': ['kintsugi', 'raw ceramics', 'patina', 'earthy minimalism', '金継ぎ', '素焼き', '経年変化'],
+  'Cloud Cut': ['puffy clouds', 'cloudscape', 'layered sky', '積雲', '雲景', '重なる空'],
+  'Xspiritualism': ['sacred geometry', 'alchemy', 'tarot', 'sigil', 'astrology chart', 'zodiac wheel', 'third eye', 'mandala', '神聖幾何学', '錬金術', 'タロット', '占星術図', '曼荼羅'],
+  'Asian Store': ['konbini', 'neon shop signs', 'packed shelves', 'snack aisle', 'corner shop', 'vending machines', 'コンビニ', 'ネオン看板', '商品棚', '自動販売機'],
+  'Cutaway World': ['cross-section', 'cutaway building', 'sectional view', 'see-inside', 'ant farm view', 'exploded view', '建物断面', '断面透視', '分解図'],
+  'New Liquid': ['fluid shapes', 'amorphous', 'gooey', 'melting shapes', 'lava lamp', 'fluid gradient', 'アモルファス', '溶ける形', 'ラバランプ'],
+  'Envelope Reveal': ['opening letter', 'unfolding card', 'sealed envelope', 'wax seal', '手紙を開く', '折りたたみカード', '封蝋'],
+  'Stitch & Wire': ['embroidery', 'embroidered', 'cross-stitch', 'wire sculpture', 'sewing', 'needlework', 'visible stitches', '刺繍', 'クロスステッチ', '針仕事'],
+  'Liquid Chrome': ['mercury metal', 'metallic liquid', 'chrome type', 'polished metal', 'iridescent chrome', 'y2k chrome', '水銀状金属', '磨かれた金属', '玉虫色クローム'],
+  'Gzhel': ['blue and white gzhel', 'gzhel floral scroll', 'gzhel porcelain painting', '白地に青のグジェリ', 'グジェリの花唐草'],
+  'Camera Interface': ['viewfinder', 'rec overlay', 'camcorder overlay', 'cctv overlay', 'security camera overlay', 'phone camera overlay', 'camera crosshairs', '録画表示', '監視カメラ画面', 'カメラ照準'],
+  'Frosted Glass': ['glassmorphism', 'acrylic panels', 'frosted ui', 'glass layers', 'グラスモーフィズム', 'アクリルパネル', 'ガラスレイヤー'],
+  'Shape Design': ['basic shapes', 'abstract composition', 'bauhaus shapes', 'memphis shapes', 'bold graphic forms', '基本図形', 'バウハウス図形', 'メンフィス柄'],
+  '2000 Web': ['y2k', 'early internet', 'web 1.0', 'geocities', 'pixel cursor', 'pop-up windows', 'windows xp', 'msn aesthetic', 'frutiger aero', '初期インターネット', 'ポップアップ画面', 'ピクセルカーソル'],
+  'Fairy Tale': ['fairytale', 'once upon a time', 'classic fairy tale illustration', 'golden-age storybook illustration', 'むかしむかし', '古典童話の挿絵'],
+  'Cosy Blanket': ['patchwork', 'knitted', 'crochet', 'felt', 'wool texture', 'amigurumi', 'パッチワーク', 'かぎ針編み', 'フェルト', '羊毛の質感', 'あみぐるみ'],
+  'Electro Biomorph': ['biomechanical', 'cyber-organic', 'circuit veins', 'living machine', 'synthetic creature', '生体機械的', 'サイバー有機体', '回路の葉脈', '人工生命体'],
+  'Scientism': ['lab chart', 'measurement marks', 'specimen label', 'technical readout', 'spec sheet', 'annotated diagram', '実験室チャート', '計測目盛り', '標本ラベル', '注釈図'],
+  'Kawaii': ['super cute', 'big eyes', 'blush cheeks', 'rounded characters', 'sticker style', '大きな目', '赤いほっぺ', '丸いキャラクター', 'ステッカー風'],
+  'Maximalism': ['maximalism', 'more is more', 'pattern on pattern', 'eclectic ornament', 'baroque ornament', 'overflowing detail', '盛り盛り', '柄と柄', '折衷的装飾', 'バロック装飾'],
+  'Minimalism': ['minimalism', 'negative space', 'less is more', 'pared back', 'swiss minimal', 'ネガティブスペース', '削ぎ落とした', 'スイスミニマル'],
+  'Brutalist': ['brutalism', 'anti-design', 'raw html', 'oversized type', 'stark monochrome', 'industrial graphic', 'アンチデザイン', '生のHTML', '巨大な文字', '工業的グラフィック'],
+  'Travel Journal Watercolour': ['sketchbook travel', 'souvenir sketch', 'plein air watercolour', 'travel notes with paintings', '旅先スケッチ', '屋外水彩', '絵入り旅行記'],
+  'Loose Urban Sketch': ['urban sketching', 'pen and wash street scene', 'reportage drawing', 'location drawing', 'ペン淡彩の街並み', 'ルポルタージュ画', '現場で描く'],
+  'Fashion Illustration': ['fashion sketch', 'croquis', 'fashion plate', 'couture sketch', 'lookbook illustration', 'ファッションスケッチ', 'クロッキー', 'クチュール画', 'ルックブック挿絵'],
+  'Charcoal': ['charcoal', 'compressed charcoal', 'willow charcoal', 'smudge shading', 'tonal drawing', '圧縮木炭', '柳炭', '擦筆の陰影', '明暗素描'],
+  'Coloured Pencil': ['pencil crayon', 'prismacolor pencil', 'crayon texture', 'hand-shaded colour', '鉛筆クレヨン', '手塗りの色'],
+  'Pastel': ['pastel illustration', 'chalk pastel drawing', 'soft pastel drawing', 'oil pastel drawing', 'blended chalk drawing', 'パステルイラスト', 'ソフトパステル画', 'オイルパステル画'],
+  'Storybook': ['storybook', "children's book illustration", 'read-aloud book', "classic kids' book", '児童書の挿絵', '読み聞かせ絵本'],
+  'Anime Key Visual': ['cel-shaded anime', 'studio ghibli', 'ghibli-like', 'studio ghibli-inspired', 'anime character art', 'light-novel cover', 'セル画調アニメ', 'スタジオジブリ', 'ジブリ風', 'ライトノベル表紙'],
+  'Concept Art': ['keyframe', 'production design', 'establishing shot', 'prop design', 'キーフレーム', 'プロダクションデザイン', 'エスタブリッシングショット', '小道具デザイン'],
+  'Noir': ['neo-noir', 'black and white cinema', 'chiaroscuro', '1940s crime film', 'ネオノワール', '白黒映画', 'キアロスクーロ', '1940年代犯罪映画'],
+  'Isometric': ['isometric illustration', '2.5d', 'isometric city', 'tiny world', 'diorama view', '2.5D', 'アイソメ都市', '小さな世界', 'ジオラマ視点'],
+  'Low Poly': ['low-poly', 'triangulated', 'flat-shaded 3d', 'polygonal', '三角形メッシュ', 'フラットシェーディング3D'],
+  '3D Toy-like': ['designer toy', 'blind box', 'pop mart-like', 'glossy plastic toy', 'action figure', 'デザイナーズトイ', 'ブラインドボックス', '光沢プラスチック', 'アクションフィギュア'],
+  'Paper Craft 3D': ['papercraft', 'origami', 'pop-up book', 'layered paper 3d', 'kirigami', 'paper shadow box', '折り紙', '飛び出す絵本', '切り紙', 'ペーパーシャドーボックス'],
+  'Screen Print': ['screenprint', 'serigraph', 'riso', 'risograph', 'gig poster', 'limited-colour print', 'grainy ink', 'セリグラフ', 'リソグラフ', 'ライブポスター', '限定色印刷'],
+  'Woodcut / Linocut': ['woodblock', 'lino print', 'block print', 'wood engraving', 'hand-carved print', '木版', 'リノ版画', 'ブロックプリント', '木口木版'],
+  'Vintage Travel Poster': ['railway poster', 'art deco travel poster', 'national park poster', 'airline poster', '鉄道ポスター', 'アールデコ旅行ポスター', '国立公園ポスター', '航空会社ポスター'],
+  'Mid-Century Print': ['mid-century modern', 'atomic age', 'retro textbook illustration', 'ミッドセンチュリーモダン', 'アトミックエイジ', 'レトロ教科書挿絵'],
+  'Naive Folk Art': ['naive art', 'folk art', 'outsider art', 'primitive painting', 'scandinavian folk pattern', 'mexican folk art', 'ナイーブアート', 'アウトサイダーアート', '北欧民芸柄', 'メキシコ民芸'],
+  'Botanical Illustration': ['botanical drawing', 'botanical print', 'herbarium', 'vintage botanical plate', 'labelled plant', '植物素描', 'ハーバリウム', 'ヴィンテージ植物図版', '植物の注釈図'],
+  'Scientific Plate': ['natural history plate', 'insect specimen', 'shell specimen', 'encyclopedia plate', 'cabinet of curiosities', '博物画', '昆虫標本', '貝類標本', '百科事典図版', '珍品陳列室'],
+  'Infographic': ['data visualisation', 'flowchart', 'chart', 'statistics', 'step-by-step visual', 'データ可視化', 'フローチャート', '統計', 'ステップ図'],
+  'Geometric Vector': ['geometric illustration', 'geometric pattern', 'swiss geometric', 'bauhaus geometric', 'tessellation', '幾何学イラスト', '幾何学模様', 'スイス幾何学', 'テセレーション'],
+};
+
+const STYLE_DIRECT_SIGNAL_REMOVALS = {
+  'Kawaii': ['cute'],
+  'Fashion Illustration': ['fashion'],
+  'Storybook': ['bedtime'],
+  'Botanical Illustration': ['plant', 'flower'],
+  'Infographic': ['data', 'process'],
+};
+
+Object.entries(STYLE_DIRECT_SIGNAL_EXPANSIONS).forEach(([style, additions]) => {
+  const removals = new Set(STYLE_DIRECT_SIGNAL_REMOVALS[style] || []);
+  STYLE_RECOMMENDATION_SIGNALS[style] = [...new Set([
+    ...STYLE_RECOMMENDATION_SIGNALS[style].filter(signal => !removals.has(signal)),
+    ...additions,
+  ])];
+});
+
+// Subject and intent rules let ordinary descriptions recommend a visual
+// treatment even when the user does not know the name of a style.
+const STYLE_CONCEPT_RULES = [
+  { signals: ['city', 'cityscape', 'architecture', 'building', 'bridge', 'palace', 'tower', 'urban', 'metropolis', '都市', '街', '建築', '建物', '橋', '宮殿', '塔'], styles: { 'Concept Art': 6, 'Travel Journal Watercolour': 3, 'Loose Urban Sketch': 3, 'Isometric': 2 } },
+  { signals: ['tokyo', 'thailand', 'japan', 'japanese', 'thai', 'travel', 'destination', 'cultural', 'culture', '東京', 'タイ', '日本', '旅行', '文化'], styles: { 'Travel Journal Watercolour': 6, 'Vintage Travel Poster': 4, 'Loose Urban Sketch': 2, 'Ink and Wash': 1 } },
+  { signals: ['grand', 'epic', 'monumental', 'vast', 'hybrid world', 'worldbuilding', '壮大', '巨大', '世界観', '融合した世界'], styles: { 'Concept Art': 7, 'Painterly Digital': 3, 'Maximalism': 1 } },
+  { signals: ['not busy', 'not very busy', 'do not want busy', 'do not want a busy', 'do not want a very busy', 'dont want busy', 'don t want busy', 'dont want a very busy', 'don t want a very busy', 'avoid clutter', 'uncluttered', 'simple composition', 'clean composition', 'quiet composition', 'restrained', 'lots of space', '余白', 'すっきり', 'ごちゃごちゃさせない', 'シンプルな構図', '静かな構図'], styles: { 'Minimalism': 12, 'Minimal Line Art': 4, 'Flat Vector': 2 } },
+  { signals: ['plant', 'flower', 'leaf', 'leaves', 'garden', 'forest', 'tree', 'nature', '植物', '花', '葉', '庭', '森', '木', '自然'], styles: { 'Botanical Illustration': 6, 'Watercolour': 3, 'Gouache': 2, 'Coloured Pencil': 1 } },
+  { signals: ['animal', 'pet', 'cat', 'dog', 'bird', 'wildlife', 'creature', '動物', 'ペット', '猫', '犬', '鳥', '生き物'], styles: { 'Storybook': 5, 'Coloured Pencil': 3, 'Kawaii': 2, 'Paper Craft 3D': 1 } },
+  { signals: ['child', 'children', 'family', 'bedtime', 'gentle story', 'playful character', '子ども', '家族', '読み聞かせ', 'やさしい物語', '遊び心'], styles: { 'Storybook': 6, 'Kawaii': 4, '3D Clay': 2 } },
+  { signals: ['magic', 'magical', 'fairy', 'enchanted', 'dragon', 'myth', 'folklore', '魔法', '妖精', 'ドラゴン', '神話', '伝承'], styles: { 'Fairy Tale': 7, 'Concept Art': 4, 'Painterly Digital': 2 } },
+  { signals: ['robot', 'spaceship', 'future', 'futuristic', 'cyber', 'technology', 'alien', 'science fiction', 'ロボット', '宇宙船', '未来', 'サイバー', 'テクノロジー', '異星'], styles: { 'Concept Art': 6, 'Electro Biomorph': 4, 'Anime Key Visual': 2, 'Liquid Chrome': 1 } },
+  { signals: ['data', 'process', 'steps', 'explain', 'comparison', 'timeline', 'system', 'diagram', 'データ', '手順', '説明', '比較', '流れ', '仕組み', '図解'], styles: { 'Infographic': 7, 'Flat Vector': 3, 'Isometric': 2, 'Scientism': 1 } },
+  { signals: ['fashion', 'clothing', 'dress', 'outfit', 'garment', 'runway', '服', 'ドレス', '衣装', 'ファッション', 'ランウェイ'], styles: { 'Fashion Illustration': 8, 'Coloured Pencil': 2, 'Ink and Wash': 1 } },
+  { signals: ['food', 'meal', 'cafe', 'restaurant', 'fruit', 'dessert', 'drink', '料理', '食事', 'カフェ', 'レストラン', '果物', 'デザート', '飲み物'], styles: { 'Gouache': 5, 'Coloured Pencil': 3, 'Cut Paper Collage': 2 } },
+  { signals: ['dark mood', 'mysterious', 'mystery', 'detective', 'crime', 'shadowy', 'night rain', '暗い雰囲気', '謎', '探偵', '犯罪', '深い影', '夜の雨'], styles: { 'Noir': 7, 'Charcoal': 4, 'Ink and Wash': 2 } },
+  { signals: ['calm mood', 'peaceful', 'quiet atmosphere', 'soft light', 'delicate', 'dreamy', 'morning light', '穏やかな雰囲気', '静かな空気', '柔らかな光', '繊細', '夢のよう', '朝の光'], styles: { 'Watercolour': 5, 'Pastel': 3, 'Wabi-sabi': 2 } },
+  { signals: ['bold', 'energetic', 'dynamic', 'action', 'dramatic', 'powerful', 'vibrant', '大胆', '活気', '躍動', 'アクション', '劇的', '力強い', '鮮やか'], styles: { 'Comic Book': 5, 'Screen Print': 3, 'Maximalism': 2 } },
+  { signals: ['geometric', 'grid', 'modular', 'precise shapes', 'circles', 'triangles', '幾何学', 'グリッド', 'モジュール', '円', '三角形'], styles: { 'Geometric Vector': 7, 'Shape Design': 4, 'Flat Vector': 2 } },
+  { signals: ['handmade', 'craft', 'fabric', 'thread', 'stitched', 'woven', 'quilt', '手作り', '工芸', '布', '糸', '縫い', '織物', 'キルト'], styles: { 'Stitch & Wire': 6, 'Cosy Blanket': 4, 'Cut Paper Collage': 2, 'Naive Folk Art': 1 } },
+  { signals: ['transparent panel', 'translucent surface', 'glass panel', 'glass surface', 'glowing edge', 'blurred panel', '透明パネル', '半透明の表面', 'ガラスパネル', '光る縁', 'ぼけたパネル'], styles: { 'Frosted Glass': 7, 'New Liquid': 3, 'Liquid Chrome': 1 } },
+  { signals: ['metal surface', 'silver metal', 'chrome finish', 'reflective metal', 'molten metal', '金属表面', '銀色の金属', 'クローム仕上げ', '金属反射', '溶けた金属'], styles: { 'Liquid Chrome': 7, 'New Liquid': 3, '3D Toy-like': 1 } },
+  { signals: ['retro', 'nostalgic', 'vintage', '1950s', '1960s', 'old poster', 'レトロ', '懐かしい', 'ヴィンテージ', '1950年代', '1960年代', '古いポスター'], styles: { 'Mid-Century Print': 6, 'Vintage Travel Poster': 5, 'Screen Print': 2 } },
+  { signals: ['website', 'web browser', 'internet culture', 'user interface', 'screen interface', 'app interface', 'dashboard ui', 'ウェブサイト', 'ウェブブラウザ', 'インターネット文化', 'ユーザーインターフェース', 'アプリ画面', 'ダッシュボード'], styles: { '2000 Web': 5, 'Camera Interface': 3, 'Frosted Glass': 2 } },
+  { signals: ['room', 'interior', 'inside', 'floor plan', 'many rooms', '断面', '部屋', '室内', '内部', '間取り'], styles: { 'Cutaway World': 6, 'Isometric': 4, 'Paper Craft 3D': 2 } },
+  { signals: ['product', 'object', 'package', 'collectible', 'mascot', '商品', '物', 'パッケージ', 'コレクション', 'マスコット'], styles: { '3D Toy-like': 5, '3D Clay': 4, 'Flat Vector': 2 } },
+];
+
+STYLE_CONCEPT_RULES.push(
+  { signals: ['landscape', 'lake', 'river', 'sea', 'coast', 'sky', 'sunrise', 'sunset', 'mist', 'rain', 'spring', 'season', '風景', '湖', '川', '海', '海岸', '空', '日の出', '夕焼け', '霧', '雨', '春', '季節'], styles: { 'Watercolour': 6, 'Pastel': 3, 'Low Poly': 2 } },
+  { signals: ['wedding invitation', 'greeting card', 'romantic memory', 'tender mood', 'airy atmosphere', '結婚式の招待状', 'グリーティングカード', 'ロマンチックな思い出', '優しい雰囲気', '軽やかな空気'], styles: { 'Watercolour': 6, 'Minimal Line Art': 3, 'Envelope Reveal': 2 } },
+  { signals: ['bakery', 'market stall', 'picnic', 'still life', 'cosy interior', 'houseplant', 'everyday life', 'neighbourhood', 'shopfront', 'warm afternoon', 'パン屋', '市場の屋台', 'ピクニック', '静物', '居心地のよい室内', '観葉植物', '日常生活', '近所', '店先', '暖かな午後'], styles: { 'Gouache': 6, 'Mid-Century Print': 2, 'Cut Paper Collage': 2 } },
+  { signals: ['mountain temple', 'bamboo', 'crane bird', 'koi fish', 'shrine', 'zen', 'tea ceremony', 'samurai', 'martial arts', 'haiku', 'meditation', 'heritage tradition', '山寺', '竹', '鶴', '鯉', '神社', '禅', '茶道', '侍', '武道', '俳句', '瞑想', '伝統文化'], styles: { 'Ink and Wash': 6, 'Woodcut / Linocut': 2, 'Wabi-sabi': 2 } },
+  { signals: ['portrait study', 'figure study', 'life drawing', 'anatomy study', 'hand study', 'work in progress', 'early concept', 'brainstorm', 'planning notebook', 'invention sketch', 'unfinished drawing', '肖像習作', '人物習作', '人体デッサン', '手の習作', '制作途中', '初期案', 'アイデア出し', '計画ノート', '発明スケッチ', '未完成の絵'], styles: { 'Pencil Sketch': 8, 'Charcoal': 2, 'Fashion Illustration': 1 } },
+  { signals: ['landing page', 'onboarding', 'business startup', 'teamwork', 'office work', 'remote work', 'finance service', 'health service', 'education platform', 'marketing presentation', 'social media graphic', 'ランディングページ', 'オンボーディング', 'スタートアップ', 'チームワーク', 'オフィス', 'リモートワーク', '金融サービス', '教育サービス', 'マーケティング資料'], styles: { 'Flat Vector': 7, 'Infographic': 3, 'Isometric': 2 } },
+  { signals: ['logo mark', 'tattoo design', 'wall art', 'stationery', 'skincare', 'wellness', 'yoga', 'couple portrait', 'elegance', 'sophistication', 'luxury restraint', 'ロゴマーク', 'タトゥーデザイン', 'ウォールアート', '文房具', 'スキンケア', 'ウェルネス', 'ヨガ', 'カップル', '上品', '洗練', '控えめな高級感'], styles: { 'Minimal Line Art': 7, 'Minimalism': 4 } },
+  { signals: ['hero', 'villain', 'battle', 'fight', 'explosion', 'rescue', 'super power', 'city rooftop', 'sequence of events', 'ヒーロー', '悪役', '戦い', '爆発', '救出', '超能力', 'ビルの屋上', '連続する出来事'], styles: { 'Comic Book': 7, 'Manga': 4, 'Anime Key Visual': 2 } },
+  { signals: ['school life', 'high school uniform', 'romance', 'friendship', 'rival', 'sports club', 'inner monologue', 'confession scene', 'dramatic reaction', '学校生活', '高校の制服', '恋愛', '友情', 'ライバル', '部活動', '心の声', '告白場面', '大きなリアクション'], styles: { 'Manga': 7, 'Anime Key Visual': 4, 'Storybook': 1 } },
+  { signals: ['video game', 'gaming', 'arcade', 'rpg', 'quest', 'dungeon', 'high score', 'retro technology', 'coding', 'developer', 'hackathon', 'discord community', 'streaming', 'esports', 'cosy game', 'ビデオゲーム', 'ゲーム', 'アーケード', 'RPG', 'クエスト', 'ダンジョン', 'ハイスコア', 'コーディング', '開発者', 'ハッカソン', '配信', 'eスポーツ'], styles: { 'Pixel Art': 8, 'Low Poly': 3, 'Anime Key Visual': 2, '2000 Web': 1 } },
+  { signals: ['pottery', 'ceramics', 'stone', 'wood grain', 'linen', 'moss', 'autumn', 'ageing', 'impermanence', 'mindfulness', 'slowness', 'natural material', 'earthy tone', 'ryokan', 'onsen', '陶器', '石', '木目', '麻布', '苔', '秋', '経年', '無常', 'マインドフルネス', 'ゆっくり', '自然素材', '土色', '旅館', '温泉'], styles: { 'Wabi-sabi': 7, 'Naive Folk Art': 1 } },
+  { signals: ['flight', 'flying', 'daydream', 'imagination', 'hope', 'freedom', 'airplane', 'balloon', 'kite', 'floating', 'pastel sky', '飛行', '空を飛ぶ', '白昼夢', '想像', '希望', '自由', '飛行機', '風船', '凧', '浮遊', 'パステルの空'], styles: { 'Cloud Cut': 7, 'Pastel': 2, 'Paper Craft 3D': 1 } },
+  { signals: ['spirituality', 'witchcraft', 'magic ritual', 'crystal', 'moon phase', 'astrology', 'horoscope', 'cosmos', 'chakra', 'vision', 'destiny', 'fortune telling', 'soul', '超越', '魔術', '儀式', '水晶', '月の満ち欠け', '占星術', '星占い', '宇宙', 'チャクラ', '幻視', '運命', '魂'], styles: { 'Xspiritualism': 8, 'Fairy Tale': 2 } },
+  { signals: ['tokyo street', 'osaka street', 'hong kong street', 'taipei street', 'seoul street', 'bangkok street', 'night alley', 'late night snacks', 'ramen shop', 'street food', 'bubble tea', 'city nightlife', 'lantern sign', '東京の通り', '大阪の通り', '香港の通り', '台北の通り', 'ソウルの通り', 'バンコクの通り', '夜の路地', 'ラーメン店', '屋台料理', 'タピオカ', '繁華街', '提灯看板'], styles: { 'Asian Store': 8, 'Loose Urban Sketch': 2, 'Noir': 1 } },
+  { signals: ['house cutaway', 'apartment cutaway', 'ship interior', 'submarine interior', 'train interior', 'factory interior', 'school interior', 'hospital interior', 'space station interior', 'underground world', 'behind the scenes', 'world within a world', '家の断面', '集合住宅の断面', '船内', '潜水艦内部', '列車内部', '工場内部', '学校内部', '病院内部', '宇宙ステーション内部', '地下世界', '舞台裏'], styles: { 'Cutaway World': 8, 'Isometric': 3 } },
+  { signals: ['transformation', 'music visual', 'sound wave', 'motion energy', 'beauty product', 'fragrance', 'organic technology', 'ai branding', 'abstract brand visual', 'wallpaper background', '変化', '音楽ビジュアル', '音波', '動きのエネルギー', '美容製品', '香水', '有機的テクノロジー', 'AIブランド', '抽象ブランドビジュアル'], styles: { 'New Liquid': 7, 'Electro Biomorph': 2, 'Shape Design': 1 } },
+  { signals: ['save the date', 'announcement', 'birthday party', 'product launch', 'surprise reveal', 'newsletter', 'gift message', 'thank you note', 'love letter', 'secret message', '招待', '結婚報告', '誕生日会', '製品発表', 'サプライズ', 'ニュースレター', '贈り物', 'お礼状', 'ラブレター', '秘密のメッセージ'], styles: { 'Envelope Reveal': 8, 'Watercolour': 2 } },
+  { signals: ['knitting', 'tailoring', 'repair', 'mending', 'connection', 'family ties', 'patience', 'slow living', 'sustainable fashion', 'fabric patch', '編み物', '仕立て', '修繕', 'つながり', '家族の絆', '忍耐', 'スローライフ', '持続可能なファッション', '布パッチ'], styles: { 'Stitch & Wire': 7, 'Cosy Blanket': 4, 'Naive Folk Art': 1 } },
+  { signals: ['electronic music', 'techno club', 'fashion campaign', 'album cover', 'tech launch', 'sports car', 'sleek luxury', 'avant-garde', '電子音楽', 'テクノクラブ', 'ファッション広告', 'アルバムカバー', 'テック製品発表', 'スポーツカー', '先鋭的'], styles: { 'Liquid Chrome': 7, 'Brutalist': 2, 'New Liquid': 1 } },
+  { signals: ['porcelain', 'ceramic tableware', 'teacup', 'decorative plate', 'ceramic tile', 'blue and white floral', 'eastern europe', 'russian winter', '磁器', '陶磁器の食器', 'ティーカップ', '飾り皿', '陶器タイル', '青と白の花模様', '東欧', 'ロシアの冬'], styles: { 'Gzhel': 8 } },
+  { signals: ['filming', 'vlogging', 'photography overlay', 'livestream', 'recording', 'surveillance', 'found footage', 'documentary footage', 'reality tv', 'tourist snapshot', 'spying', 'video evidence', '撮影', 'Vlog', '写真表示', 'ライブ配信', '録画', '監視', 'ファウンドフッテージ', 'ドキュメンタリー映像', '観光写真', '証拠映像'], styles: { 'Camera Interface': 8, '2000 Web': 1 } },
+  { signals: ['fintech dashboard', 'health tech ui', 'operating system panel', 'notification panel', 'premium technology', 'winter window', 'window fog', 'フィンテック画面', 'ヘルステックUI', 'OSパネル', '通知パネル', '高級テクノロジー', '冬の窓', '窓の曇り'], styles: { 'Frosted Glass': 8 } },
+  { signals: ['brand identity', 'cover design', 'abstract idea', 'innovation concept', 'creative studio', 'modern art', 'visual rhythm', 'visual balance', 'ブランドアイデンティティ', '表紙デザイン', '抽象的なアイデア', '革新', 'クリエイティブスタジオ', '現代美術', '視覚的リズム', '視覚的バランス'], styles: { 'Shape Design': 6, 'Geometric Vector': 4, 'Flat Vector': 2 } },
+  { signals: ['chat room', 'personal blog', 'web forum', 'email inbox', 'download page', 'virtual pet', 'fan page', 'online meme', 'desktop computer', '2000s nostalgia', 'チャットルーム', '個人ブログ', '掲示板', 'メール受信箱', 'ダウンロード画面', 'バーチャルペット', 'ファンサイト', 'ネットミーム', 'デスクトップPC', '2000年代の懐かしさ'], styles: { '2000 Web': 8, 'Pixel Art': 2 } },
+  { signals: ['winter home', 'christmas', 'hygge', 'warm home', 'comfort', 'hot drink', 'reading by fireplace', 'grandparent', 'baby blanket', 'soft and safe', '冬の家', 'クリスマス', 'ヒュッゲ', '暖かな家', '安心感', '温かい飲み物', '暖炉で読書', '祖父母', '赤ちゃんの毛布'], styles: { 'Cosy Blanket': 8, 'Storybook': 2 } },
+  { signals: ['cyborg', 'biotech', 'genetics', 'neural network', 'brain evolution', 'mutation', 'cyberpunk experiment', 'transhumanism', 'uncanny technology', 'サイボーグ', 'バイオテクノロジー', '遺伝子', 'ニューラルネットワーク', '脳の進化', '突然変異', 'サイバーパンク実験', 'トランスヒューマニズム', '不気味な技術'], styles: { 'Electro Biomorph': 8, 'Concept Art': 2, 'Scientism': 2 } },
+  { signals: ['science research', 'laboratory experiment', 'medical analysis', 'biology lesson', 'chemistry lesson', 'physics model', 'engineering system', 'product specification', 'precision evidence', '科学研究', '実験室', '医学分析', '生物学', '化学', '物理学', '工学システム', '製品仕様', '精密な証拠'], styles: { 'Scientism': 7, 'Scientific Plate': 5, 'Infographic': 3 } },
+  { signals: ['food character', 'sweet character', 'sticker pack', 'happy mascot', 'japanese pop culture', '食べ物キャラ', 'お菓子キャラ', 'ステッカーセット', '明るいマスコット', '日本のポップカルチャー'], styles: { 'Kawaii': 8, '3D Clay': 3, '3D Toy-like': 2 } },
+  { signals: ['carnival', 'festival celebration', 'luxury interior', 'ornate palace', 'garden party', 'music festival', 'joyful chaos', 'extravagant abundance', 'カーニバル', '祝祭', '豪華な室内', '装飾的な宮殿', 'ガーデンパーティー', '音楽祭', '楽しい混沌', '豪華絢爛'], styles: { 'Maximalism': 8, 'Screen Print': 3, 'Cut Paper Collage': 2 } },
+  { signals: ['focus and clarity', 'premium product', 'scandinavian interior', 'japanese interior', 'meditation space', 'silence', 'solitude', '焦点と明快さ', '高級製品', '北欧インテリア', '和の室内', '瞑想空間', '静寂', '孤独'], styles: { 'Minimalism': 8, 'Wabi-sabi': 3, 'Minimal Line Art': 2 } },
+  { signals: ['concrete building', 'protest poster', 'activist manifesto', 'underground punk', 'art school poster', 'experimental music', 'raw serious', 'uncompromising design', 'コンクリート建築', '抗議ポスター', '活動家の宣言', 'アンダーグラウンドパンク', '美術学校ポスター', '実験音楽', '妥協しないデザイン'], styles: { 'Brutalist': 8, 'Screen Print': 3 } },
+  { signals: ['grief', 'loss', 'struggle', 'war memory', 'emotional portrait', 'storm scene', 'raw emotion', 'gritty history', '悲嘆', '喪失', '苦闘', '戦争の記憶', '感情的な肖像', '嵐', '生々しい感情', '荒々しい歴史'], styles: { 'Charcoal': 8, 'Noir': 3 } },
+  { signals: ['ballet dancer', 'romantic dusk', 'gentle memory', 'powdery portrait', 'soft field', 'バレエダンサー', 'ロマンチックな夕暮れ', '優しい記憶', '粉っぽい肖像', '柔らかな草原'], styles: { 'Pastel': 8, 'Coloured Pencil': 2 } },
+  { signals: ['youth festival', 'summer fireworks', 'train platform', 'school rooftop', 'hero team', 'mecha', 'emotional climax', 'idol group', 'youth nostalgia', '青春祭', '夏の花火', '駅のホーム', '学校の屋上', 'ヒーローチーム', 'メカ', '感情のクライマックス', 'アイドルグループ', '青春の懐かしさ'], styles: { 'Anime Key Visual': 8, 'Manga': 3 } },
+  { signals: ['gangster', 'jazz club', 'cigarette smoke', 'trench coat', 'rainy alley', 'betrayal', 'suspense', 'secret investigation', 'ギャング', 'ジャズクラブ', '煙草の煙', 'トレンチコート', '雨の路地', '裏切り', 'サスペンス', '秘密捜査'], styles: { 'Noir': 8, 'Charcoal': 2 } },
+  { signals: ['supply chain', 'data centre', 'technology platform', 'simulation map', 'workflow overview', 'logistics system', 'サプライチェーン', 'データセンター', '技術プラットフォーム', 'シミュレーション地図', '工程の俯瞰', '物流システム'], styles: { 'Isometric': 8, 'Infographic': 3 } },
+  { signals: ['polygon mountain', 'polygon forest', 'polygon island', 'vr world', 'early 3d game', 'crystal landscape', '90s 3d graphics', 'abstract nature', 'ポリゴン山', 'ポリゴンの森', 'ポリゴン島', 'VR世界', '初期3Dゲーム', '結晶の風景', '90年代3D', '抽象的な自然'], styles: { 'Low Poly': 8, 'Concept Art': 2 } },
+  { signals: ['brand avatar', 'merchandise figure', 'toy promotion', 'blind box character', 'playful glossy character', 'ブランドアバター', '商品フィギュア', '玩具プロモーション', 'ブラインドボックスキャラ', '光沢のある楽しいキャラ'], styles: { '3D Toy-like': 8, 'Kawaii': 2 } },
+  { signals: ['seasonal display', 'holiday decoration', 'eco education', 'sustainability lesson', 'miniature paper world', 'delicate craft', '季節の飾り', '祝日の装飾', '環境教育', 'サステナビリティ教材', '紙の小さな世界', '繊細な工作'], styles: { 'Paper Craft 3D': 8, 'Cut Paper Collage': 3 } },
+  { signals: ['gig poster', 'concert band', 'film poster', 'activism print', 'streetwear merch', 't-shirt graphic', 'indie zine', 'ライブポスター', 'コンサートバンド', '映画ポスター', '活動家の印刷物', 'ストリートウェア', 'Tシャツグラフィック', 'インディーズジン'], styles: { 'Screen Print': 8, 'Brutalist': 2 } },
+  { signals: ['medieval fable', 'religious history', 'rural farming', 'craft beer label', 'labour movement', 'traditional heritage', 'hand-carved history', '中世の寓話', '宗教史', '農村生活', 'クラフトビールラベル', '労働運動', '伝統遺産', '手彫りの歴史'], styles: { 'Woodcut / Linocut': 8, 'Naive Folk Art': 2 } },
+  { signals: ['village harvest', 'countryside festival', 'community wedding', 'tree of life', 'rural animal', 'folk tradition', 'honest cheerful', '村の収穫', '田舎の祭り', '地域の結婚式', '生命の木', '農村の動物', '民俗伝統', '素直で明るい'], styles: { 'Naive Folk Art': 8, 'Woodcut / Linocut': 2 } },
+  { signals: ['herb', 'seed', 'mushroom', 'gardening', 'herbal remedy', 'apothecary', 'natural skincare', 'ecology', 'natural product package', 'ハーブ', '種', 'きのこ', '園芸', '薬草療法', '薬局', '自然派スキンケア', '生態学', '自然商品の包装'], styles: { 'Botanical Illustration': 8, 'Scientific Plate': 3, 'Watercolour': 2 } },
+  { signals: ['natural history museum', 'zoology', 'beetle', 'butterfly specimen', 'fish specimen', 'fossil', 'dinosaur bone', 'skeleton', 'anatomy lesson', 'mineral crystal', 'gemstone', 'evolution classification', 'victorian science', '自然史博物館', '動物学', '甲虫', '蝶の標本', '魚類標本', '化石', '恐竜の骨', '骨格', '解剖学', '鉱物結晶', '宝石', '進化分類', 'ヴィクトリア朝科学'], styles: { 'Scientific Plate': 8, 'Scientism': 2 } },
+  { signals: ['how-to guide', 'tutorial', 'roadmap', 'annual report', 'research finding', 'health tip', 'safety instruction', 'facts and numbers', 'ハウツーガイド', 'チュートリアル', 'ロードマップ', '年次報告', '研究結果', '健康のヒント', '安全指示', '事実と数字'], styles: { 'Infographic': 8, 'Flat Vector': 3 } },
+  { signals: ['mathematical structure', 'symmetry', 'ordered pattern', 'corporate geometry', 'architectural grid', '数学的構造', '対称性', '規則的な模様', '企業向け幾何学', '建築グリッド'], styles: { 'Geometric Vector': 8, 'Shape Design': 4 }
+  }
+);
 
 Object.entries(STYLE_GUIDANCE).forEach(([name, [is, not]]) => {
   ILLUSTRATION_STYLES[name] = { ...(ILLUSTRATION_STYLES[name] || {}),
@@ -5973,42 +6127,128 @@ function normaliseStyleText(value) {
   return String(value || '').normalize('NFKC').toLocaleLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 }
 
-function styleSignalMatches(text, signal) {
+function normaliseStyleToken(token) {
+  const irregular = { children:'child', people:'person', leaves:'leaf', cities:'city', knives:'knife', lives:'life', mice:'mouse', geese:'goose', feet:'foot', teeth:'tooth' };
+  if (irregular[token]) return irregular[token];
+  if (token.length > 4 && token.endsWith('ies')) return token.slice(0, -3) + 'y';
+  if (token.length > 5 && /(ches|shes|xes|zes|sses)$/.test(token)) return token.slice(0, -2);
+  if (token.length > 3 && token.endsWith('s') && !/(ss|us|is)$/.test(token)) return token.slice(0, -1);
+  return token;
+}
+
+function normaliseStyleMatchText(value) {
+  return normaliseStyleText(value).split(' ').map(normaliseStyleToken).join(' ');
+}
+
+function styleSignalIsNegated(text, needle, start, end) {
+  if (/^(?:no|not|without|avoid|exclude)\b/.test(needle) || /(?:ない|なし|避け|不要)/.test(needle)) return false;
+  const before = text.slice(Math.max(0, start - 80), start).trim();
+  const after = text.slice(end, end + 60).trim();
+  const precedingNegation = /(?:^|\s)(?:no|not|without|avoid|avoiding|exclude|excluding|never|dont|don t|do not)(?:\s+[a-z0-9]+){0,3}$/.test(before);
+  const followingNegation = /^(?:[a-z0-9]+\s+){0,3}(?:is not wanted|is not desired|should be avoided|must be avoided|not wanted|not desired)(?:\s|$)/.test(after);
+  const japaneseBefore = text.slice(Math.max(0, start - 12), start);
+  const japaneseAfter = text.slice(end, end + 12);
+  const japaneseNegation = /(?:避ける|避けたい|使わない|使用しない|除外する|不要).{0,4}$/.test(japaneseBefore)
+    || /^(?:に|は|を)?(?:しない|使わない|使用しない|避ける|避けたい|なし|不要|除外)/.test(japaneseAfter);
+  return precedingNegation || followingNegation || japaneseNegation;
+}
+
+function styleSignalMatchState(text, signal) {
+  const source = normaliseStyleText(text);
   const needle = normaliseStyleText(signal);
-  if (!needle) return false;
-  if (/^[a-z0-9 ]+$/.test(needle) && !needle.includes(' ')) {
-    return new RegExp(`(?:^|\\s)${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:$|\\s)`).test(text);
+  if (!needle) return 'none';
+  let sawNegated = false;
+  if (/^[a-z0-9 ]+$/.test(needle)) {
+    const haystack = normaliseStyleMatchText(source);
+    const stemmedNeedle = normaliseStyleMatchText(needle);
+    const escaped = stemmedNeedle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const matcher = new RegExp(`(?:^|\\s)${escaped}(?=$|\\s)`, 'g');
+    for (const match of haystack.matchAll(matcher)) {
+      const start = match.index + (match[0].startsWith(' ') ? 1 : 0);
+      if (!styleSignalIsNegated(haystack, stemmedNeedle, start, start + stemmedNeedle.length)) return 'positive';
+      sawNegated = true;
+    }
+    return sawNegated ? 'negative' : 'none';
   }
-  return text.includes(needle);
+  let start = source.indexOf(needle);
+  while (start >= 0) {
+    if (!styleSignalIsNegated(source, needle, start, start + needle.length)) return 'positive';
+    sawNegated = true;
+    start = source.indexOf(needle, start + needle.length);
+  }
+  return sawNegated ? 'negative' : 'none';
+}
+
+function styleSignalMatches(text, signal) {
+  return styleSignalMatchState(text, signal) === 'positive';
 }
 
 function recommendIllustrationStyles(description, limit = 3) {
   const text = normaliseStyleText(description);
   const latinWords = text.match(/[a-z0-9]+/g) || [];
   const cjkChars = text.match(/[\u3040-\u30ff\u3400-\u9fff]/g) || [];
-  if (text.length < 6 || (latinWords.length < 2 && cjkChars.length < 4)) return [];
-
   const order = [...STYLE_GROUPS.featured, ...STYLE_GROUPS.more, ...STYLE_GROUPS.other];
-  return order.map((style, index) => {
-    const matches = STYLE_RECOMMENDATION_SIGNALS[style].filter(signal => styleSignalMatches(text, signal));
-    const named = styleSignalMatches(text, style);
-    const score = matches.reduce((total, signal) => {
+  const stateCache = new Map();
+  const signalState = signal => {
+    const key = normaliseStyleText(signal);
+    if (!stateCache.has(key)) stateCache.set(key, styleSignalMatchState(text, signal));
+    return stateCache.get(key);
+  };
+  const directMatches = new Map(order.map(style => [
+    style,
+    STYLE_RECOMMENDATION_SIGNALS[style].filter(signal => signalState(signal) === 'positive')
+  ]));
+  const rejectedStyles = new Set(order.filter(style =>
+    signalState(style) === 'negative'
+      || STYLE_RECOMMENDATION_SIGNALS[style].some(signal => signalState(signal) === 'negative')
+  ));
+  const matchedConceptRules = STYLE_CONCEPT_RULES.map(rule => ({
+    rule,
+    hits: rule.signals.filter(signal => signalState(signal) === 'positive')
+  })).filter(({ hits }) => hits.length);
+  const hasDirectSignal = [...directMatches.values()].some(matches => matches.length);
+  if (text.length < 4 || (latinWords.length < 2 && cjkChars.length < 4 && !hasDirectSignal)) return [];
+
+  const ranked = order.map((style, index) => {
+    const rejected = rejectedStyles.has(style);
+    const matches = directMatches.get(style);
+    const matchWeights = new Map(matches.map(signal => [signal, 10 + normaliseStyleText(signal).split(' ').length]));
+    const named = style !== 'Pastel' && signalState(style) === 'positive';
+    let score = matches.reduce((total, signal) => {
       const words = normaliseStyleText(signal).split(' ').length;
-      return total + (words > 1 ? 5 + Math.min(words, 3) : 3);
+      const containsJapanese = /[\u3040-\u30ff\u3400-\u9fff]/.test(signal);
+      return total + (containsJapanese ? 8 : words > 1 ? 5 + Math.min(words, 3) : 3);
     }, named ? 12 : 0);
-    return { style, score, matches: matches.slice(0, 3), index };
-  }).filter(result => result.score >= 3)
+    const conceptMatches = [];
+    matchedConceptRules.forEach(({ rule, hits }) => {
+      if (!hits.length || !rule.styles[style]) return;
+      score += rule.styles[style] + Math.min(hits.length - 1, 3);
+      conceptMatches.push(...hits);
+      hits.forEach(signal => matchWeights.set(signal, Math.max(matchWeights.get(signal) || 0, rule.styles[style])));
+    });
+    const reasons = [...new Set([...matches, ...conceptMatches])]
+      .sort((a, b) => (matchWeights.get(b) || 0) - (matchWeights.get(a) || 0));
+    return { style, score, matches: reasons.slice(0, 3), index, fallback: false, rejected };
+  }).filter(result => result.score >= 3 && !result.rejected)
     .sort((a, b) => b.score - a.score || b.matches.length - a.matches.length || a.index - b.index)
     .slice(0, limit);
+
+  if (ranked.length) return ranked;
+  return ['Painterly Digital', 'Flat Vector', 'Watercolour', 'Gouache', 'Minimal Line Art']
+    .filter(style => !rejectedStyles.has(style)).slice(0, limit).map(style => ({
+    style, score: 1, matches: [], index: order.indexOf(style), fallback: true
+  }));
 }
 
 function styleSuggestionMarkup(description) {
   const suggestions = recommendIllustrationStyles(description);
-  return suggestions.map(({ style, matches }) => {
+  return suggestions.map(({ style, matches, fallback }) => {
     const selected = (S.chips.style || []).includes(style);
     const reason = matches.length
       ? (S.lang === 'ja' ? `説明との一致：${matches.join('、')}` : `Matches your description: ${matches.join(', ')}`)
-      : (S.lang === 'ja' ? '説明にスタイル名が含まれています' : 'Style named in your description');
+      : fallback
+        ? (S.lang === 'ja' ? '画材の指定がない説明にも使いやすい表現です' : 'A versatile direction when the medium is left open')
+        : (S.lang === 'ja' ? '説明にスタイル名が含まれています' : 'Style named in your description');
     return `<button type="button" class="direction-option style-suggestion ${selected ? 'is-selected' : ''}" aria-pressed="${selected}" data-field="style" data-val="${esc(style)}" onclick="selectQuick('style',this.dataset.val)"><strong>${esc(t(style))}</strong><span>${esc(t(ILLUSTRATION_STYLES[style].description))}</span><span class="style-match">${esc(reason)}</span></button>`;
   }).join('');
 }
@@ -6032,7 +6272,7 @@ function quickStyles(fields) {
     const d = VISUAL_DIRECTIONS[k];
     return `<button type="button" class="direction-option ${selected === d.name ? 'is-selected' : ''}" data-field="visualDirection" data-val="${esc(d.name)}" aria-pressed="${selected === d.name}" onclick="selectQuick('visualDirection',this.dataset.val)"><strong>${esc(ja ? d.nameJa : d.name)}</strong><span>${esc(ja ? d.descriptionJa : d.description)}</span></button>`;
   }).join('');
-  return `${f ? renderStyleSuggestions(S.form.mainVisual || '') : ''}<details class="visual-options"><summary>${ja ? 'スタイルを選ぶ' : 'Choose a style'} <small>${ja ? '任意・指定なしならおまかせ' : 'Optional · leave blank to let ChatGPT choose'}</small></summary><div class="brief-section-fields">
+  return `<details class="visual-options"><summary>${ja ? 'スタイルを選ぶ' : 'Choose a style'} <small>${ja ? '任意・指定なしならおまかせ' : 'Optional · leave blank to let ChatGPT choose'}</small></summary><div class="brief-section-fields">
     ${f ? renderField(f) : ''}
     ${f && !(f.options || []).some(v => /let ai decide/i.test(v)) ? `<button type="button" class="chip" data-field="${f.id}" data-val="" aria-pressed="${!(S.chips[f.id] || []).length}" onclick="selectQuick('${f.id}','')">${t('Let AI decide')}</button>` : ''}
     ${custom ? renderField(custom) : ''}
@@ -6148,6 +6388,7 @@ function renderField(f) {
         ${f.hint ? `<div class="field-hint">${t(f.hint)}</div>` : ''}
         <textarea class="fi" id="fi-${f.id}" placeholder="${esc(t(f.placeholder) || '')}" oninput="S.form['${f.id}']=this.value;${f.id === 'mainVisual' && S.content === 'illustration' ? 'updateStyleSuggestions(this.value)' : ''}">${val}</textarea>
         ${f.sample ? `<p class="description-example"><strong>${S.lang === 'ja' ? '記入例：' : 'Example description:'}</strong> ${esc(f.sample)}</p>` : ''}
+        ${f.id === 'mainVisual' && S.content === 'illustration' ? renderStyleSuggestions(S.form.mainVisual || '') : ''}
       </div>`;
   }
 

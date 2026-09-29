@@ -67,12 +67,33 @@ assert.deepEqual([...signalStyles].sort(), [...visibleStyles].sort(), 'recommend
 for (const style of visibleStyles) {
   assert(vm.runInContext(`STYLE_RECOMMENDATION_SIGNALS[${JSON.stringify(style)}].length >= 3`, ctx), `too few recommendation signals for ${style}`);
 }
+const matcherVocabulary = vm.runInContext('JSON.stringify({direct:STYLE_RECOMMENDATION_SIGNALS,concept:STYLE_CONCEPT_RULES})', ctx).toLowerCase();
+assert(matcherVocabulary.includes('studio ghibli'), 'studio references requested by the user must be retained');
+for (const artist of ['makoto shinkai', 'h. r. giger', 'charley harper', 'mary blair']) {
+  assert(!matcherVocabulary.includes(artist), `individual artist reference should not enter matcher vocabulary: ${artist}`);
+}
+assert(!vm.runInContext(`STYLE_RECOMMENDATION_SIGNALS['Botanical Illustration'].includes('plant')`, ctx));
+assert(!vm.runInContext(`STYLE_RECOMMENDATION_SIGNALS['Infographic'].includes('data')`, ctx));
 const recommendedNames = description => Array.from(vm.runInContext(`recommendIllustrationStyles(${JSON.stringify(description)}).map(result => result.style)`, ctx));
 assert.equal(recommendedNames('A botanically accurate plant specimen showing roots, leaves and petals')[0], 'Botanical Illustration');
 assert.equal(recommendedNames('A tiny 16-bit game sprite with deliberately visible pixels')[0], 'Pixel Art');
 assert.equal(recommendedNames('An elongated runway figure presenting a detailed garment study')[0], 'Fashion Illustration');
 assert(recommendedNames('根と葉と花弁を正確に描いた植物標本').includes('Botanical Illustration'));
-assert.deepEqual(recommendedNames('A cat sitting beside a window'), [], 'generic subject language should not force a style');
+const cityBrief = 'A city that is a mixture of Tokyo and Thailand. The architecture combines modern and ancient buildings, Japanese pagodas, Thai palace colours, towers and bridges. It is a grand city, but I do not want a busy illustration.';
+assert.deepEqual(recommendedNames(cityBrief), ['Concept Art', 'Travel Journal Watercolour', 'Minimalism']);
+assert.equal(recommendedNames('A cat sitting beside a window')[0], 'Storybook');
+assert.equal(recommendedNames('A red ball on a table').length, 3, 'a detailed unmatched subject should receive versatile fallback styles');
+assert.equal(recommendedNames('No anime. Use a rough pencil drawing with visible construction lines.')[0], 'Pencil Sketch');
+assert(!recommendedNames('No anime. Use a rough pencil drawing with visible construction lines.').includes('Anime Key Visual'), 'negated styles must not be recommended');
+assert.deepEqual(recommendedNames('Avoid watercolour; make a bold screen print concert poster.'), ['Screen Print']);
+assert(!recommendedNames('No watercolour. A red ball on a table.').includes('Watercolour'), 'fallbacks must respect rejected styles');
+assert(!recommendedNames('Pastel colours for a clean modern app interface.').includes('Pastel'), 'a colour palette must not imply the pastel medium');
+assert.equal(recommendedNames('A soft pastel drawing of dancers at dusk.')[0], 'Pastel');
+assert.equal(recommendedNames('Flowers and gardens beside old buildings.')[0], 'Botanical Illustration');
+assert(!recommendedNames('A happy party inside a Chrome browser window.').includes('Liquid Chrome'), 'browser names must not imply chrome material');
+assert(!recommendedNames('Tokyo architecture and bridges with no anime styling.').includes('Anime Key Visual'), 'a location must not override an explicit style rejection');
+assert.equal(recommendedNames('スタジオジブリ風の森と空')[0], 'Anime Key Visual');
+assert.equal(recommendedNames('アニメにしないで、鉛筆画にしてください')[0], 'Pencil Sketch');
 vm.runInContext(`S.chips={style:['Gouache']}; recommendIllustrationStyles('A 16-bit game sprite');`, ctx);
 assert.deepEqual(Array.from(vm.runInContext('S.chips.style', ctx)), ['Gouache'], 'recommendations must not auto-select a style');
 console.log('Style recommendations cover the full catalog, rank representative prompts, and never auto-select.');
