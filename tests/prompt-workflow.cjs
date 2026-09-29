@@ -61,6 +61,22 @@ for (const lang of ['en', 'ja']) {
 }
 console.log(`All ${visibleStyles.length} visible illustration styles have distinct guidance in English and Japanese.`);
 
+// Every visible style participates in the local recommendation matcher.
+const signalStyles = vm.runInContext('Object.keys(STYLE_RECOMMENDATION_SIGNALS)', ctx);
+assert.deepEqual([...signalStyles].sort(), [...visibleStyles].sort(), 'recommendation signals must cover the exact visible style catalog');
+for (const style of visibleStyles) {
+  assert(vm.runInContext(`STYLE_RECOMMENDATION_SIGNALS[${JSON.stringify(style)}].length >= 3`, ctx), `too few recommendation signals for ${style}`);
+}
+const recommendedNames = description => Array.from(vm.runInContext(`recommendIllustrationStyles(${JSON.stringify(description)}).map(result => result.style)`, ctx));
+assert.equal(recommendedNames('A botanically accurate plant specimen showing roots, leaves and petals')[0], 'Botanical Illustration');
+assert.equal(recommendedNames('A tiny 16-bit game sprite with deliberately visible pixels')[0], 'Pixel Art');
+assert.equal(recommendedNames('An elongated runway figure presenting a detailed garment study')[0], 'Fashion Illustration');
+assert(recommendedNames('根と葉と花弁を正確に描いた植物標本').includes('Botanical Illustration'));
+assert.deepEqual(recommendedNames('A cat sitting beside a window'), [], 'generic subject language should not force a style');
+vm.runInContext(`S.chips={style:['Gouache']}; recommendIllustrationStyles('A 16-bit game sprite');`, ctx);
+assert.deepEqual(Array.from(vm.runInContext('S.chips.style', ctx)), ['Gouache'], 'recommendations must not auto-select a style');
+console.log('Style recommendations cover the full catalog, rank representative prompts, and never auto-select.');
+
 // Selecting a new illustration style replaces the previous selection directly.
 vm.runInContext(`document.querySelectorAll=()=>[]; document.getElementById=()=>null; S.content='illustration'; S.chips={style:['Wabi-sabi']}; selectQuick('style','Liquid Chrome');`, ctx);
 assert.deepEqual(Array.from(vm.runInContext('S.chips.style', ctx)), ['Liquid Chrome']);
